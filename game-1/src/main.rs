@@ -1,35 +1,36 @@
 use std::fmt::{self, Display, Formatter};
+use engine::*;
 
-struct Room {
-    name: String, // E.g. "Antechamber"
-    desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
-    doors: Vec<Door>,
-}
-struct Door {
-    target: RoomID,          // More about this in a minute
-    triggers: Vec<String>,   // e.g. "go north", "north"
-    message: Option<String>, // What message, if any, to print when the doorway is traversed
-    // Any other info about the door would go here
-    condition: Option<Item>,
-}
+// struct Room {
+//     name: String, // E.g. "Antechamber"
+//     desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
+//     doors: Vec<Door>,
+// }
+// struct Door {
+//     target: RoomID,          // More about this in a minute
+//     triggers: Vec<String>,   // e.g. "go north", "north"
+//     message: Option<String>, // What message, if any, to print when the doorway is traversed
+//     // Any other info about the door would go here
+//     condition: Option<Item>,
+// }
 
-#[derive(Debug, PartialEq)]
-enum Item {
-    Key,
-    PaintingAdjuster,
-}
+// #[derive(Debug, PartialEq)]
+// enum Item {
+//     Key,
+//     PaintingAdjuster,
+// }
 
-impl Display for Item {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Key => write!(f, "Mysterious Key"),
-            Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
-        }
-    }
-}
+// impl Display for Item {
+//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+//         match self {
+//             Self::Key => write!(f, "Mysterious Key"),
+//             Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
+//         }
+//     }
+// }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
-struct RoomID(usize);
+// #[derive(PartialEq, Eq, Clone, Copy)]
+// struct RoomID(usize);
 
 fn main() {
     use std::io;
