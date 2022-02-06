@@ -86,6 +86,7 @@ fn main() {
         }
         loop {
             print!("Inventory: ");
+            print!("Your valid commands are north, east, south, west");
             let mut in_string = String::new();
             for item in inventory.iter() {
                 in_string.push_str(&item.to_string());
