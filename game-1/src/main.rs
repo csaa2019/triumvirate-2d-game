@@ -2,6 +2,8 @@ use engine::*;
 use std::fmt::{self, Display, Formatter};
 
 //we would have RPSTypes and Outcomes in the main of the rock paper scissors main.rs
+//need to derive clone, copy, partialeq, eq, debug
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum RPSType {
     Rock,
     Paper,
@@ -14,8 +16,7 @@ pub enum Outcomes {
     Draw,
 }
 
-
-//need to create a list of what beats what 
+//need to create a list of what beats what
 //needs to create something that ends in an outcome
 
 // struct Room {
@@ -54,25 +55,26 @@ fn main() {
     // We need the Write trait so we can flush stdout
     use std::io::Write;
 
+    // consider moving this vec? maybe use a rps_moves() fx
     let moves = [
         Move {
-            move_type: Rock,
-            wins: Scissors,
-            loses: Paper,
+            move_type: RPSType::Rock,
+            wins: RPSType::Scissors,
+            loses: RPSType::Paper,
         },
         Move {
-            move_type: Scissors,
-            wins: Paper,
-            loses: Rock,
+            move_type: RPSType::Scissors,
+            wins: RPSType::Paper,
+            loses: RPSType::Rock,
         },
         Move {
-            move_type: Paper,
-            wins: Rock,
-            loses: Scissors,
+            move_type: RPSType::Paper,
+            wins: RPSType::Rock,
+            loses: RPSType::Scissors,
         },
     ];
 
-    let p1 = Play
+    // TODO: try to create players and have them play turns
 
     // let rooms = [
     //     Room {
