@@ -11,6 +11,18 @@ pub struct Rect {
     pub h: u32, // (x1, y1) is the bottom right corner
 }
 
+pub trait DrawSpriteExt {
+    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
+}
+
+use crate::image::Image;
+impl DrawSpriteExt for Image {
+    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i) {
+        // This works because we're only using a public method of Screen here,
+        // and the private fields of Sprite are visible inside this module
+        self.bitblt(&s.image, s.animation_state.current_frame(), pos);
+    }
+}
 impl Rect {
     pub fn new(x0: i32, y0: i32, w: u32, h: u32) -> Rect {
         Rect { x0, y0, w, h }
