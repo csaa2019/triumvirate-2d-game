@@ -4,6 +4,11 @@ pub struct Animation {
     pub frame_duration: u64, 
     pub first_sprite_index: usize, 
 
+<<<<<<< HEAD
+=======
+    impl Component for Animation{
+        type Storage = DenseVecStorage<Self>; 
+>>>>>>> 9bb5ed4 (working on animation code)
     }
     // Do this for the exercise today!
 // You'll want to know the frames involved and the timing for each frame
@@ -19,9 +24,13 @@ pub struct AnimationState {
 }
 
 impl Animation {
+<<<<<<< HEAD
     fn new(frames: i32, frame_duration: u64, first_sprite_index: usize){
         Animation { frames, frame_duration, first_sprite_index};
     }
+=======
+    fn new()
+>>>>>>> 9bb5ed4 (working on animation code)
 
   
     // Should hold some data...
