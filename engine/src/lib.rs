@@ -118,33 +118,35 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
     }
 }
 
-pub struct Room {
-    pub name: String, // E.g. "Antechamber"
-    pub desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
-    pub doors: Vec<Door>,
-}
-pub struct Door {
-    pub target: RoomID,          // More about this in a minute
-    pub triggers: Vec<String>,   // e.g. "go north", "north"
-    pub message: Option<String>, // What message, if any, to print when the doorway is traversed
-    // Any other info about the door would go here
-    pub condition: Option<Item>,
-}
+// OLD ROOM CODE
 
-#[derive(Debug, PartialEq)]
-pub enum Item {
-    Key,
-    PaintingAdjuster,
-}
+// pub struct Room {
+//     pub name: String, // E.g. "Antechamber"
+//     pub desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
+//     pub doors: Vec<Door>,
+// }
+// pub struct Door {
+//     pub target: RoomID,          // More about this in a minute
+//     pub triggers: Vec<String>,   // e.g. "go north", "north"
+//     pub message: Option<String>, // What message, if any, to print when the doorway is traversed
+//     // Any other info about the door would go here
+//     pub condition: Option<Item>,
+// }
 
-impl std::fmt::Display for Item {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Key => write!(f, "Mysterious Key"),
-            Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
-        }
-    }
-}
+// #[derive(Debug, PartialEq)]
+// pub enum Item {
+//     Key,
+//     PaintingAdjuster,
+// }
 
-#[derive(PartialEq, Eq, Clone, Copy)]
-pub struct RoomID(pub usize);
+// impl std::fmt::Display for Item {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         match self {
+//             Self::Key => write!(f, "Mysterious Key"),
+//             Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
+//         }
+//     }
+// }
+
+// #[derive(PartialEq, Eq, Clone, Copy)]
+// pub struct RoomID(pub usize);
