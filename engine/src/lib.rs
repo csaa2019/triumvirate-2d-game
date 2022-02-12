@@ -1,5 +1,5 @@
 // // Export all engine types at the top level
-mod animation;
+pub mod animation;
 pub mod image;
 
 use crate::image::Image;
@@ -28,33 +28,6 @@ impl Vec2i {
     // Maybe add functions for e.g. the midpoint of two vecs, or...
 }
 
-pub struct Sprite {
-    image: Rc<Image>,
-    // For example, but this is just one way to do it:
-    animations: Vec<animation::Animation>,
-    animation_state: animation::AnimationState,
-}
-
-impl Sprite {
-    // maybe some play_animation() function to start a new animation!
-    // maybe some draw() function to draw the sprite!
-    // and a tick_animation() function to advance the animation state
-}
-
-pub trait DrawSpriteExt {
-    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
-}
-
-impl DrawSpriteExt for Image {
-    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i) {
-        // This works because we're only using a public method of Screen here,
-        // and the private fields of Sprite are visible inside this module
-
-        // TODO: uncomment this after bitblt implemented
-        // self.bitblt(&s.image, s.animation_state.current_frame(), pos);
-    }
-}
-
 pub struct Player<T: Copy + Eq + PartialEq> {
     pub name: String,
     pub is_cpu: bool,
@@ -64,6 +37,7 @@ pub struct Player<T: Copy + Eq + PartialEq> {
     pub current_move: Option<Move<T>>,
 }
 
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub enum Outcomes {
     Win,
     Lose,
@@ -71,6 +45,7 @@ pub enum Outcomes {
 }
 
 //how can we make this lib.rs file take any type
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub struct Move<T: Copy + Eq + PartialEq> {
     pub move_type: T,
     pub wins: T,
@@ -92,13 +67,17 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
             current_move: None,
         }
     }
-    fn finished_turn(&mut self) {
+    pub fn set_current_move(&mut self, chosen_move: Move<T>) {
+        self.current_move = Some(chosen_move);
+    }
+
+    pub fn finished_turn(&mut self) {
         self.is_turn = !self.is_turn;
     }
-    fn execute_move(&mut self, enemy: Player<T>) -> Outcomes {
+    pub fn execute_move(&mut self, enemy: &Player<T>) -> Outcomes {
         //double check current move
         if enemy.current_move.is_some() && self.current_move.is_some() {
-            let enemy_move = enemy.current_move.unwrap();
+            let enemy_move = enemy.current_move.as_ref().unwrap();
             let our_move = &self.current_move.as_ref().unwrap();
 
             //need to make a to string method for Move

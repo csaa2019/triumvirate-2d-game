@@ -7,3 +7,8 @@ edition = "2021"
 
 [dependencies]
 engine = { path = "../engine" }
+vulkano = "0.27.1"
+vulkano-shaders = "0.27.1"
+winit = "0.25"
+vulkano-win = "0.27.1"
+png = "0.17"

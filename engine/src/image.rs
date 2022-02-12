@@ -1,3 +1,4 @@
+use crate::animation::*;
 use image::Triangle;
 use itertools::Itertools;
 
@@ -5,6 +6,13 @@ type Color = (u8, u8, u8, u8);
 
 // const WIDTH: usize = 320;
 // const HEIGHT: usize = 240;
+
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
+pub struct Vec2i {
+    // Or Vec2f for floats?
+    pub x: i32,
+    pub y: i32,
+}
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub struct Rect {
@@ -18,14 +26,14 @@ pub trait DrawSpriteExt {
     fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
 }
 
-use crate::image::Image;
-impl DrawSpriteExt for Image {
-    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i) {
-        // This works because we're only using a public method of Screen here,
-        // and the private fields of Sprite are visible inside this module
-        self.bitblt(&s.image, s.animation_state.current_frame(), pos);
-    }
-}
+// impl DrawSpriteExt for Image {
+//     fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i) {
+//         // This works because we're only using a public method of Screen here,
+//         // and the private fields of Sprite are visible inside this module
+//         self.bitblt(&s.image, s.animation_state.current_frame(), pos);
+//     }
+// }
+
 impl Rect {
     pub fn new(x0: i32, y0: i32, w: u32, h: u32) -> Rect {
         Rect { x0, y0, w, h }
@@ -52,6 +60,7 @@ impl Rect {
  * This is basically a struct that contains a framebuffer.
  * It also contains a width and a height.
  */
+#[derive(PartialEq, Eq, Clone, Hash, Debug)]
 pub struct Image {
     pub buffer: Box<[Color]>, // or Vec<Color>, or...
     pub w: usize,
@@ -92,11 +101,11 @@ impl Image {
         }
     }
 
-    fn clear(&mut self, c: Color) {
+    pub fn clear(&mut self, c: Color) {
         self.buffer.fill(c);
     }
 
-    fn as_slice(&self) -> &[Color] {
+    pub fn as_slice(&self) -> &[Color] {
         &self.buffer
     }
 
@@ -120,7 +129,7 @@ impl Image {
      *
      * (Nate or Grace, maybe you could figure out a way to just make it resize?)
      */
-    fn bitblt(&mut self, src_img: &Image, from: &Rect, to: (i32, i32)) {
+    pub fn bitblt(&mut self, src_img: &Image, from: &Rect, to: (i32, i32)) {
         let dst = &mut self.buffer;
         let dst_size = (self.w, self.h);
         let src = src_img.as_slice();
