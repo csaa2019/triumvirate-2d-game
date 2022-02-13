@@ -307,7 +307,7 @@ fn main() {
 
     let texture = engine::image::Image::from_png("content/explosion.png", img_width, img_height);
 
-    let anim_state = engine::animation::AnimationState { sprite_number: 0 };
+    let anim_state = engine::animation::AnimationState { sprite_index: 0 };
     let sprite = engine::animation::Sprite {
         image: texture.clone(),
         animations: vec![],
