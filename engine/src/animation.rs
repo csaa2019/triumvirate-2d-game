@@ -21,21 +21,6 @@ impl Animation {
             loops,
         };
     }
-
-    //to ask: this would have to return a value right? the current frame
-    pub fn current_frame(&self, start_time: usize, now: usize, speedup_factor: usize) {
-        //check what animation state we are currently at (this is the index that would choose which animation in the vector)
-
-        //create something that would track time, call this "elapsed_time"
-
-        //figure out which frame number we would be on based on elapsed time and animation.frame_duration
-        //frame_number = (elapsed_time / animation.frame_duration) as i32 % animation.frames
-
-        //using frame_number we get sprite_number
-        //sprite_numnber = frame_number + animation.first_sprite_index
-
-        //play_animation would use
-    }
 }
 
 pub struct AnimationState {
@@ -62,6 +47,21 @@ impl AnimationState {
 
     pub fn advance(&mut self) {
         self.sprite_index += 1;
+    }
+
+    //takes animation state information and produces a rect that we can use in the bitblt function
+    pub fn current_frame(&self, start_time: usize, now: usize, speedup_factor: usize) -> Rect {
+        //check what animation state we are currently at (this is the index that would choose which animation in the vector)
+
+        //create something that would track time, call this "elapsed_time"
+
+        //figure out which frame number we would be on based on elapsed time and animation.frame_duration
+        //frame_number = (elapsed_time / animation.frame_duration) as i32 % animation.frames
+
+        //using frame_number we get sprite_number
+        //sprite_numnber = frame_number + animation.first_sprite_index
+
+        //play_animation would use
     }
 }
 
