@@ -48,9 +48,19 @@ pub enum Outcomes {
 const WIDTH: usize = 320;
 const HEIGHT: usize = 240;
 
-//need to create a list of what beats what
-//needs to create something that ends in an outcome
+// something from zulip -Grace 2/14/2021
+// A way to use structs to organize the stuff that we have in that big fn main
+// would this go in our main.rs of the game-1?
 
+//this could live in the engine instead
+//vulkan.rs or lib.rs add that in
+//input.rs --> just movce it all into lib.rs and start separating it out
+
+// struct Input { now_keys:[bool;255], prev_keys:[bool;255], ... }
+// impl Input { pub fn is_key_down(&self, key:VirtualKeyCode) -> bool { ... }  ... }
+// struct VulkanConfig { instance, physical_device, device, queues, swapchain, images,... }
+// struct VulkanState { render_pass, framebuffers, last_frame_future, next_image, ... }
+// struct FBState { pipeline,  vertex_buffer, fb2d_buffer, fb2d_image, fb2d_texture, fb2d_sampler, set, fb2d }
 fn main() {
     let required_extensions = vulkano_win::required_extensions();
     let instance = Instance::new(None, Version::V1_1, &required_extensions, None).unwrap();

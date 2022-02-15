@@ -47,6 +47,7 @@ pub struct AnimationState {
     //could compute the index of which animation we are right now
 
     //which animation state we are currently in
+    //i. e. "running, walking, etc."
     pub animation_index: usize,
 }
 
@@ -69,9 +70,8 @@ use std::rc::Rc;
 //spritesheet struct here --> that has the size of the rectangles here
 
 pub struct Sprite {
-    //source image for the sprite (chloe loaded it in as png)
     //To ask: why was this an Rc, and how/why we would use it
-    //answer: if we have 5 psprites that have the same image, we don't want to load the same image
+    //answer: if we have 5 Sprites that have the same image, we don't want to load the same image
     //every single time that we use it, this is why we use Rc
     // alternatively could use somethign that utilizes lifetimes: Sprite<'img> { image: &'img Image }
     pub image: Rc<Image>,
@@ -80,7 +80,6 @@ pub struct Sprite {
 
     pub animation_state: AnimationState,
 
-    //size of the sprite boxes on the sprite sheet --> should this be under the animation struct?
     pub sprite_size: Rect,
     //pub first_sprite_index: usize,
 }
