@@ -1,5 +1,10 @@
 use engine::*;
+use rand;
+use rand::Rng;
+use std::env;
 use std::fmt::{self, Display, Formatter};
+use std::io;
+
 use std::io::Cursor;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -61,6 +66,7 @@ const HEIGHT: usize = 240;
 // struct VulkanConfig { instance, physical_device, device, queues, swapchain, images,... }
 // struct VulkanState { render_pass, framebuffers, last_frame_future, next_image, ... }
 // struct FBState { pipeline,  vertex_buffer, fb2d_buffer, fb2d_image, fb2d_texture, fb2d_sampler, set, fb2d }
+
 fn main() {
     let required_extensions = vulkano_win::required_extensions();
     let instance = Instance::new(None, Version::V1_1, &required_extensions, None).unwrap();
@@ -306,24 +312,41 @@ fn main() {
         },
     ];
 
-    let img_width = 250;
-    let img_height = 250;
+    let img_width = 1470;
+    let img_height = 840;
 
-    let sprite_h = 50;
-    let sprite_w = 50;
-    let mut sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
+    let sprite_h = 210;
+    let sprite_w = 210;
+    print!("CURRENT DIR {:?} ", env::current_dir());
+    let mut scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
 
-    let mut new_rect = engine::image::Rect::new(0, 0, img_width, img_height);
+    let mut scissor_sheet_rect = engine::image::Rect::new(0, 0, img_width, img_height);
+    let scissor_sheet =
+        engine::image::Image::from_png("game-1/content/scissor.png", img_width, img_height);
 
-    let texture = engine::image::Image::from_png("content/explosion.png", img_width, img_height);
-
-    let anim_state = engine::animation::AnimationState { current_frame: 0 };
-    let sprite = engine::animation::Sprite {
-        image: texture.clone(),
-        animations: vec![],
-        animation_state: anim_state,
-        sprite_size: sprite_rect.clone(),
+    let scissor_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
     };
+
+    let scissor_animation = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3, 4, 5, 6],
+        frame_duration: 1,
+        loops: true,
+        sprite_size: scissor_sprite_rect,
+    };
+
+    let mut sprite = engine::animation::Sprite {
+        image: Rc::new(scissor_sheet),
+        animations: vec![scissor_animation],
+        animation_state: scissor_anim_state,
+    };
+
+    let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
+    let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
+
+    let mut playing_anim = false;
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -351,7 +374,14 @@ fn main() {
                 }
 
                 fb2d.clear((255_u8, 0_u8, 0_u8, 0_u8));
-                sprite.draw(&mut fb2d, 0);
+
+                if !playing_anim {
+                    sprite.play_animation(&mut fb2d, 0);
+                    playing_anim = true;
+                } else {
+                    sprite.tick_animation();
+                    sprite.draw(&mut fb2d);
+                }
 
                 //notes for the game loop
                 //initialize the frame buffer and all that chunk of code
@@ -362,20 +392,41 @@ fn main() {
 
                 // PUT GAME STUFF HERE!
                 // testing player creations
-                let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
-                let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
-                p1.set_current_move(moves[0].clone());
-                p2.set_current_move(moves[1].clone());
-                println!("{:?}", p1.execute_move(&p2));
+                // let mut user_input = String::new();
+
+                // io::stdin()
+                //     .read_line(&mut user_input)
+                //     .ok()
+                //     .expect("Input Error");
+                // println!("hello {}", user_input);
+
+                // let mut player_move = moves[0].clone();
+                // if user_input == "rock" {
+                //     player_move = moves[0].clone()
+                // } else if user_input == "scissors" {
+                //     player_move = moves[1].clone()
+                // } else if user_input == "paper" {
+                //     player_move = moves[1].clone()
+                // } else {
+                //     println!("Invalid input")
+                // }
+
+                // p1.set_current_move(player_move);
+
+                // // Random AI move
+                // let mut rng = rand::thread_rng();
+                // p2.set_current_move(moves[rng.gen_range(0, 2)]);
+
+                // println!("{:?}", p1.execute_move(&p2));
 
                 // CPU turn: generate randint and select from moves
 
                 // next turn
-                p1.finished_turn();
-                p2.finished_turn();
-                p1.set_current_move(moves[1].clone());
-                p2.set_current_move(moves[2].clone());
-                println!("{:?}", p2.execute_move(&p1));
+                // p1.finished_turn();
+                // p2.finished_turn();
+                // p1.set_current_move(moves[1].clone());
+                // p2.set_current_move(moves[2].clone());
+                // println!("{:?}", p2.execute_move(&p1));
 
                 {
                     let writable_fb = &mut *fb2d_buffer.write().unwrap();
