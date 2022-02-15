@@ -16,11 +16,12 @@ pub struct Animation {
 }
 
 impl Animation {
-    pub fn new(frames: Vec<usize>, frame_duration: u64, loops: bool) {
+    pub fn new(frames: Vec<usize>, frame_duration: u64, loops: bool, sprite_size: Rect) {
         Animation {
             frames,
             frame_duration,
             loops,
+            sprite_size,
         };
     }
 }
@@ -29,11 +30,11 @@ pub struct AnimationState {
     //elapsed time
     pub elapsed_time: usize,
 
-    //the currently active frame, also the sprite index
+    //the INDEX of the currently active frame in animation.frames
     pub current_frame: usize,
 
     //which animation state we are currently in
-    //i. e. "running, walking, etc."
+    //i. e. "running, walking, etc.", this we pass into the vec<animations> of sprite
     pub animation_index: usize,
 }
 
@@ -46,24 +47,39 @@ impl AnimationState {
         };
     }
 
-    pub fn advance(&mut self) {
+    pub fn advance(&mut self, animations: &Vec<Animation>) {
         self.current_frame += 1;
+        if self.current_frame >= animations[self.animation_index].frames.len() {
+            self.current_frame = 0;
+        }
+        self.elapsed_time += 1;
     }
 
-    //takes animation state information and produces a rect that we can use in the bitblt function
-    pub fn current_frame(&self, start_time: usize, now: usize, speedup_factor: usize) -> Rect {
-        //check what animation state we are currently at (this is the index that would choose which animation in the vector)
+    pub fn change_animation_state(&mut self, new_state: usize) {
+        self.animation_index = new_state;
+    }
 
+    // takes animation state information and produces a rect that we can use in the bitblt function
+    //    pub fn current_frame(&self, start_time: usize, now: usize, speedup_factor: usize) -> Rect {
+
+    pub fn current_frame(&self, animations: &Vec<Animation>) -> Rect {
+        //check what animation state we are currently at (this is the index that would choose which animation in the vector)
+        let animation = &animations[self.animation_index];
         //create something that would track time, call this "elapsed_time"
 
-        //figure out which frame number we would be on based on elapsed time and animation.frame_duration
-        //frame_number = (elapsed_time / animation.frame_duration) as i32 % animation.frames
+        let mut sprite_rect = animation.sprite_size;
+        let sprite_index = animations[self.animation_index].frames[self.current_frame];
+        sprite_rect.x0 = sprite_rect.x0 + (sprite_index as i32 * sprite_rect.w as i32);
 
-        //using frame_number we get sprite_number
-        //sprite_numnber = frame_number + animation.first_sprite_index
-
-        //play_animation would use
+        return sprite_rect;
     }
+
+    //old code:
+    //figure out which frame number we would be on based on elapsed time and animation.frame_duration
+    //frame_number = (elapsed_time / animation.frame_duration) as i32 % animation.frames
+    //using frame_number we get sprite_number
+    //sprite_numnber = frame_number + animation.first_sprite_index
+    //play_animation would use
 }
 
 use std::rc::Rc;
@@ -89,24 +105,40 @@ pub struct Sprite {
 
 impl Sprite {
     //would we need a time thing here?
-    pub fn play_animation(&self, animation_index: usize) {
-        self.animation_state = 0;
-        //draw will pick the right rectangle based ont eh current animation and animation state
+    pub fn play_animation(&mut self, fb: &mut Image, animation_index: usize) {
+        self.animation_state.current_frame = 0;
+        self.animation_state.animation_index = animation_index;
 
+        // find current frame
+
+        // draw the current frame (this takes the rectangle)
+
+        //draw will pick the right rectangle based ont eh current animation and animation state
+        self.draw(fb);
         //play an animation from the vec of animations
         //animation_state.sprite_index = animation.first_sprite_index + animation.current_frame()
         //draw(&self, ...., animation_state.sprite_index);
         //if loops,
     }
-    pub fn draw(&self, fb: &mut Image, sprite_index: u32) {
-        let from_rect = self.animations[animation_state.animation_index].sprite_size;
-        fb.bitblt(&self.image, &from_rect, (10, 10));
+
+    pub fn draw(&self, fb: &mut Image) {
+        let sprite_rect = self.animation_state.current_frame(&self.animations);
+
+        fb.bitblt(&self.image.as_ref(), &sprite_rect, (10, 10));
     }
 
-    //Grace: I don't think we need this tick_animatino thing here, confirm on tuesday
+    // pub fn draw(&self, fb: &mut Image) {
+    //     print!("Getting Sprite Rect");
+    //     let sprite_rect = self.animation_state.current_frame(&self.animations);
+
+    //     print!("bitbltting");
+
+    //     fb.bitblt(&self.image.as_ref(), &sprite_rect, (10, 10));
+    // }
+
     //advance the animation state (active frame)
     pub fn tick_animation(&mut self) {
-        self.animation_state.advance();
+        self.animation_state.advance(&self.animations);
     }
 }
 

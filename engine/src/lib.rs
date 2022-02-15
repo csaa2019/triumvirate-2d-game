@@ -53,6 +53,13 @@ pub struct Move<T: Copy + Eq + PartialEq> {
     // pub cost: u32,
 }
 
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
+pub enum GameState {
+    player_picking,
+    countdown,
+    show_pick,
+    explosion,
+}
 // player1: Move{Rock, Scissor, Paper}
 // enemy.current_move : Move{Paper, Rock, Scissor}
 
