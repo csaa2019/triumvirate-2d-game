@@ -1,18 +1,23 @@
 use crate::image::*;
 
 pub struct Animation {
-    pub frames: i32,
+    //vec of frames from the sprite sheet that are a part of this animation
+    //for example, frame 0, 5, 6 for a "running" animation
+    pub frames: Vec<usize>,
+
+    //duration of each frame
     pub frame_duration: u64,
-    pub first_sprite_index: usize,
+
+    //whether or not this animation loops or not
     pub loops: bool,
 }
 
 impl Animation {
-    pub fn new(frames: i32, frame_duration: u64, first_sprite_index: usize, loops: bool) {
+    pub fn new(frames: Vec<usize>, frame_duration: u64, first_sprite_index: usize, loops: bool) {
         Animation {
             frames,
             frame_duration,
-            first_sprite_index,
+            //first_sprite_index,
             loops,
         };
     }
@@ -33,15 +38,24 @@ impl Animation {
     }
 }
 
-//To ask: could we use animation state as the thing that says which animation to use
 pub struct AnimationState {
-    pub sprite_index: i32, //not sure if its an i32
+    //elapsed time
+    pub elapsed_time: usize,
+    //instead of having sprite_index we would have something here called elapsed_time
+    pub sprite_index: usize, //not sure if its an i32
+    //storing elapsed time here
+    //could compute the index of which animation we are right now
+
+    //which animation state we are currently in
+    pub animation_index: usize,
 }
 
 impl AnimationState {
-    pub fn new(sprite_number: i32) {
+    pub fn new(sprite_index: usize, elapsed_time: usize, animation_index: usize) {
         AnimationState {
-            sprite_index: sprite_number,
+            sprite_index,
+            elapsed_time,
+            animation_index,
         };
     }
 
@@ -52,33 +66,40 @@ impl AnimationState {
 
 use std::rc::Rc;
 
+//spritesheet struct here --> that has the size of the rectangles here
+
 pub struct Sprite {
     //source image for the sprite (chloe loaded it in as png)
     //To ask: why was this an Rc, and how/why we would use it
-    pub image: Image,
+    //answer: if we have 5 psprites that have the same image, we don't want to load the same image
+    //every single time that we use it, this is why we use Rc
+    // alternatively could use somethign that utilizes lifetimes: Sprite<'img> { image: &'img Image }
+    pub image: Rc<Image>,
 
-    //why is this a vec of animations?
     pub animations: Vec<Animation>,
 
-    //which animation state we are in: example, are we in running, rock, etc, etc.
     pub animation_state: AnimationState,
 
     //size of the sprite boxes on the sprite sheet --> should this be under the animation struct?
     pub sprite_size: Rect,
+    //pub first_sprite_index: usize,
 }
+
+//engine will update the animatino state of the sprite, tick it forward, have an if statement that checks if it loops
+//and if it has ended
 
 impl Sprite {
     //would we need a time thing here?
-    pub fn play_animation() {
+    pub fn play_animation(&self, animation_index: usize) {
+        self.animation_state = 0;
+        //producing a new animation state self.animation state == something
+        //draw will pick the right rectangle based ont eh current animation and animation state
+
         //play an animation from the vec of animations
         //animation_state.sprite_index = animation.first_sprite_index + animation.current_frame()
         //draw(&self, ...., animation_state.sprite_index);
         //if loops,
     }
-
-    // maybe some play_animation() function to start a new animation!
-    // maybe some draw() function to draw the sprite!
-    // we would use this draw function with the bitblt, right?
     pub fn draw(&self, fb: &mut Image, sprite_index: u32) {
         let from_rect = self.sprite_size; //this might change depending which sprite we draw from
         fb.bitblt(&self.image, &from_rect, (10, 10));
