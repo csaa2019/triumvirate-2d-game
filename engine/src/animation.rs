@@ -10,14 +10,16 @@ pub struct Animation {
 
     //whether or not this animation loops or not
     pub loops: bool,
+
+    //size of each frame on the sprite sheet for this animation
+    pub sprite_size: Rect,
 }
 
 impl Animation {
-    pub fn new(frames: Vec<usize>, frame_duration: u64, first_sprite_index: usize, loops: bool) {
+    pub fn new(frames: Vec<usize>, frame_duration: u64, loops: bool) {
         Animation {
             frames,
             frame_duration,
-            //first_sprite_index,
             loops,
         };
     }
@@ -26,10 +28,9 @@ impl Animation {
 pub struct AnimationState {
     //elapsed time
     pub elapsed_time: usize,
-    //instead of having sprite_index we would have something here called elapsed_time
-    pub sprite_index: usize, //not sure if its an i32
-    //storing elapsed time here
-    //could compute the index of which animation we are right now
+
+    //the currently active frame, also the sprite index
+    pub current_frame: usize,
 
     //which animation state we are currently in
     //i. e. "running, walking, etc."
@@ -37,16 +38,16 @@ pub struct AnimationState {
 }
 
 impl AnimationState {
-    pub fn new(sprite_index: usize, elapsed_time: usize, animation_index: usize) {
+    pub fn new(current_frame: usize, elapsed_time: usize, animation_index: usize) {
         AnimationState {
-            sprite_index,
+            current_frame: current_frame,
             elapsed_time,
             animation_index,
         };
     }
 
     pub fn advance(&mut self) {
-        self.sprite_index += 1;
+        self.current_frame += 1;
     }
 
     //takes animation state information and produces a rect that we can use in the bitblt function
@@ -76,12 +77,11 @@ pub struct Sprite {
     // alternatively could use somethign that utilizes lifetimes: Sprite<'img> { image: &'img Image }
     pub image: Rc<Image>,
 
+    //animations contained on this sprite sheet
     pub animations: Vec<Animation>,
 
+    //what is the currently active frame, what animation are we using
     pub animation_state: AnimationState,
-
-    pub sprite_size: Rect,
-    //pub first_sprite_index: usize,
 }
 
 //engine will update the animatino state of the sprite, tick it forward, have an if statement that checks if it loops
@@ -91,7 +91,6 @@ impl Sprite {
     //would we need a time thing here?
     pub fn play_animation(&self, animation_index: usize) {
         self.animation_state = 0;
-        //producing a new animation state self.animation state == something
         //draw will pick the right rectangle based ont eh current animation and animation state
 
         //play an animation from the vec of animations
@@ -100,10 +99,11 @@ impl Sprite {
         //if loops,
     }
     pub fn draw(&self, fb: &mut Image, sprite_index: u32) {
-        let from_rect = self.sprite_size; //this might change depending which sprite we draw from
+        let from_rect = self.animations[animation_state.animation_index].sprite_size;
         fb.bitblt(&self.image, &from_rect, (10, 10));
     }
 
+    //Grace: I don't think we need this tick_animatino thing here, confirm on tuesday
     //advance the animation state (active frame)
     pub fn tick_animation(&mut self) {
         self.animation_state.advance();
