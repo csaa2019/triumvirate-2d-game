@@ -13,15 +13,30 @@ pub struct Animation {
 
     //size of each frame on the sprite sheet for this animation
     pub sprite_size: Rect,
+
+    // number of sprites wide
+    pub sprite_width: u32,
+
+    // number of sprites high
+    pub sprite_height: u32,
 }
 
 impl Animation {
-    pub fn new(frames: Vec<usize>, frame_duration: u64, loops: bool, sprite_size: Rect) {
+    pub fn new(
+        frames: Vec<usize>,
+        frame_duration: u64,
+        loops: bool,
+        sprite_size: Rect,
+        sprite_width: u32,
+        sprite_height: u32,
+    ) {
         Animation {
             frames,
             frame_duration,
             loops,
             sprite_size,
+            sprite_width,
+            sprite_height,
         };
     }
 }
@@ -77,7 +92,25 @@ impl AnimationState {
 
         let mut sprite_rect = animation.sprite_size;
         let sprite_index = animations[self.animation_index].frames[self.current_frame];
-        sprite_rect.x0 = sprite_rect.x0 + (sprite_index as i32 * sprite_rect.w as i32);
+
+        let w = animation.sprite_width;
+        let h = animation.sprite_height;
+        assert!((sprite_index as u32) < (w * h));
+
+        if sprite_index == 0 {
+            return sprite_rect;
+        }
+
+        let column = sprite_index as u32 % w;
+        let row = sprite_index as u32 / w;
+
+        // FOR DEBUGGING
+        // print!(
+        //     "{} {} {} {} {} {}\n",
+        //     w, sprite_index, column, row, sprite_rect.x0, sprite_rect.y0
+        // );
+        sprite_rect.x0 = sprite_rect.x0 + (column * sprite_rect.w) as i32;
+        sprite_rect.y0 = sprite_rect.y0 + (row * sprite_rect.h) as i32;
 
         return sprite_rect;
     }

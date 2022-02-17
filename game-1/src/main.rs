@@ -314,9 +314,46 @@ fn main() {
     ];
 
     //Game initialization testing - GRACE
-    let game = Game::new(GameStates::Instructions);
+    let mut game = Game {
+        state: GameStates::ShowPick,
+    };
 
-    // SPRITE STUFF
+    //SPRITE STUFF
+    //initialize the instruction sheet image
+    //we don't technically need it to be an animation sprite at all, just need a bitblt image LOL
+    let instruction_img_width = 700;
+    let instruction_img_height = 490;
+    let instruction_sprite_h = 700;
+    let instruction_sprite_w = 490;
+    let instruction_sprite_rect =
+        engine::image::Rect::new(0, 0, instruction_sprite_w, instruction_sprite_h);
+    let instruction_sheet_rect =
+        engine::image::Rect::new(0, 0, instruction_img_width, instruction_img_height);
+    let instruction_sheet = engine::image::Image::from_png(
+        "game-1/content/Instruction-Screen.png",
+        instruction_img_width,
+        instruction_img_height,
+    );
+    let instruction_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+    let instruction_animation = engine::animation::Animation {
+        frames: vec![0],
+        frame_duration: 5,
+        loops: true,
+        sprite_size: instruction_sprite_rect,
+        sprite_width: 1,
+        sprite_height: 1,
+    };
+    let mut instruction_sprite = engine::animation::Sprite {
+        image: Rc::new(instruction_sheet),
+        animations: vec![instruction_animation],
+        animation_state: instruction_anim_state,
+    };
+
+    //initialize the scissor animation
     let img_width = 1470;
     let img_height = 840;
     let sprite_h = 210;
@@ -324,25 +361,50 @@ fn main() {
     let mut scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
 
     let mut scissor_sheet_rect = engine::image::Rect::new(0, 0, img_width, img_height);
+
     let scissor_sheet =
         engine::image::Image::from_png("game-1/content/scissor.png", img_width, img_height);
 
     let scissor_anim_state = engine::animation::AnimationState {
         current_frame: 0,
         elapsed_time: 0,
-        animation_index: 0,
+        animation_index: 1,
     };
 
-    let scissor_animation = engine::animation::Animation {
+    let scissor_animation_snip_left = engine::animation::Animation {
         frames: vec![0, 1, 2, 3, 4, 5, 6],
         frame_duration: 5,
         loops: true,
         sprite_size: scissor_sprite_rect,
+        sprite_width: 7,
+        sprite_height: 4,
     };
 
-    let mut sprite = engine::animation::Sprite {
+    let scissor_animation_snip_right = engine::animation::Animation {
+        frames: vec![14, 15, 16, 17, 18, 19, 20],
+        frame_duration: 5,
+        loops: true,
+        sprite_size: scissor_sprite_rect,
+        sprite_width: 7,
+        sprite_height: 4,
+    };
+
+    let scissor_animation_spin = engine::animation::Animation {
+        frames: vec![7, 8, 9, 10, 11, 12, 13, 21, 22, 23, 24, 25, 26, 27],
+        frame_duration: 5,
+        loops: true,
+        sprite_size: scissor_sprite_rect,
+        sprite_width: 7,
+        sprite_height: 4,
+    };
+
+    let mut scissor_sprite = engine::animation::Sprite {
         image: Rc::new(scissor_sheet),
-        animations: vec![scissor_animation],
+        animations: vec![
+            scissor_animation_snip_left,
+            scissor_animation_snip_right,
+            scissor_animation_spin,
+        ],
         animation_state: scissor_anim_state,
     };
 
@@ -462,27 +524,32 @@ fn main() {
                 //choose background color, I made it white
                 fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
-                // while (game.state == Instrutions) {
-                //     bitblt an image that is the instructions
-                // bitblt an image that says play
-                // if play is clicked, change the game state
-                // }
-                //if we are in the intro state, then do this
+                //create the game state that creates the screen for the instruction screen
+                while game.state == GameStates::Instructions {
+                    if !playing_anim {
+                        instruction_sprite.play_animation(&mut fb2d, 0);
+                        playing_anim = true;
+                    } else {
+                        instruction_sprite.tick_animation();
+                        instruction_sprite.draw(&mut fb2d);
+                    }
 
-                if !playing_anim {
-                    sprite.play_animation(&mut fb2d, 0);
-                    playing_anim = true;
-                } else {
-                    sprite.tick_animation();
-                    sprite.draw(&mut fb2d);
+                    // bitblt an image that is the instructions
+                    // bitblt an image that says play
+                    // if play is clicked, change the game state
+                    // }
+                    //if we are in the intro state, then do this
                 }
 
-                //notes for the game loop
-                //initialize the frame buffer and all that chunk of code
-                //ask for them to input just name
-                //ask for them to choose a number of moves (we will do best of 3)
-                //create a CPU player, randomized move based on that number
-                //initialize player score to 0
+                while game.state == GameStates::ShowPick {
+                    if !playing_anim {
+                        scissor_sprite.play_animation(&mut fb2d, 0);
+                        playing_anim = true;
+                    } else {
+                        scissor_sprite.tick_animation();
+                        scissor_sprite.draw(&mut fb2d);
+                    }
+                }
 
                 // PUT GAME STUFF HERE!
                 // testing player creations
@@ -494,11 +561,18 @@ fn main() {
                 //     .expect("Input Error");
                 // println!("hello {}", user_input);
 
+                //this will need to exist in the "PlayerPicking game state"
                 let mut player_move = None;
                 if mouse_click == 1 {
-                    if mouse_x > 0.0 && mouse_x < 250.0 { player_move = Some(moves[0]); }
-                    if mouse_x > 250.0 && mouse_x < 500.0 { player_move = Some(moves[1]); }
-                    if mouse_x > 500.0 && mouse_x < 797.0 { player_move = Some(moves[2]); }
+                    if mouse_x > 0.0 && mouse_x < 250.0 {
+                        player_move = Some(moves[0]);
+                    }
+                    if mouse_x > 250.0 && mouse_x < 500.0 {
+                        player_move = Some(moves[1]);
+                    }
+                    if mouse_x > 500.0 && mouse_x < 797.0 {
+                        player_move = Some(moves[2]);
+                    }
                 }
                 if player_move.is_some() {
                     p1.set_current_move(player_move.unwrap());
