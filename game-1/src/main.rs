@@ -312,12 +312,11 @@ fn main() {
         },
     ];
 
+    // SPRITE STUFF
     let img_width = 1470;
     let img_height = 840;
-
     let sprite_h = 210;
     let sprite_w = 210;
-    print!("CURRENT DIR {:?} ", env::current_dir());
     let mut scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
 
     let mut scissor_sheet_rect = engine::image::Rect::new(0, 0, img_width, img_height);
@@ -343,10 +342,22 @@ fn main() {
         animation_state: scissor_anim_state,
     };
 
+    let mut playing_anim = false;
+
+    // KEYBOARD INPUT STUFF
+
+    let mut now_keys = [false; 255];
+    let mut prev_keys = now_keys.clone();
+
+    // MOUSE INPUT STUFF
+    let mut mouse_x = 0.0;
+    let mut mouse_y = 0.0;
+
+    let mut mouse_click = 0;
+
+    // GAME STUFF
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
-
-    let mut playing_anim = false;
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -363,6 +374,69 @@ fn main() {
                 recreate_swapchain = true;
             }
 
+            // putting this here in case we want keyboard input in the future
+            Event::WindowEvent {
+                // Note this deeply nested pattern match
+                event:
+                    WindowEvent::KeyboardInput {
+                        input:
+                            winit::event::KeyboardInput {
+                                // Which serves to filter out only events we actually want
+                                virtual_keycode: Some(keycode),
+                                state,
+                                ..
+                            },
+                        ..
+                    },
+                ..
+            } => {
+                // It also binds these handy variable names!
+                match state {
+                    winit::event::ElementState::Pressed => {
+                        // VirtualKeycode is an enum with a defined representation
+                        now_keys[keycode as usize] = true;
+                    }
+                    winit::event::ElementState::Released => {
+                        now_keys[keycode as usize] = false;
+                    }
+                }
+            }
+
+            // MOUSE INPUT
+            Event::WindowEvent {
+                // Note this deeply nested pattern match
+                event:
+                    WindowEvent::CursorMoved {
+                        position: winit::dpi::PhysicalPosition { x: x, y: y, .. },
+                        ..
+                    },
+                ..
+            } => {
+                mouse_x = x;
+                mouse_y = y;
+            }
+
+            // button is not being used here but later if we want to specify
+            // left click vs right click, we'll want to use it
+            Event::WindowEvent {
+                // Note this deeply nested pattern match
+                event: WindowEvent::MouseInput { state, button, .. },
+                ..
+            } => match state {
+                winit::event::ElementState::Pressed => {
+                    mouse_click = 1;
+                }
+                winit::event::ElementState::Released => {
+                    mouse_click = 0;
+                }
+            },
+
+            // NewEvents: Let's start processing events.
+            Event::NewEvents(_) => {
+                // Leave now_keys alone, but copy over all changed keys
+                prev_keys.copy_from_slice(&now_keys);
+            }
+
             Event::MainEventsCleared => {
                 {
                     // We need to synchronize here to send new data to the GPU.
@@ -371,6 +445,14 @@ fn main() {
                     if let Some(mut fut) = previous_frame_end.take() {
                         fut.cleanup_finished();
                     }
+                }
+
+                if now_keys[VirtualKeyCode::Escape as usize] {
+                    *control_flow = ControlFlow::Exit;
+                }
+
+                if mouse_click == 1 {
+                    print!("Mouse clicked at {} {}", mouse_x, mouse_y);
                 }
 
                 fb2d.clear((255_u8, 0_u8, 0_u8, 0_u8));
