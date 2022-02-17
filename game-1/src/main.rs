@@ -455,9 +455,9 @@ fn main() {
                     *control_flow = ControlFlow::Exit;
                 }
 
-                if mouse_click == 1 {
-                    print!("Mouse clicked at {} {}", mouse_x, mouse_y);
-                }
+                // if mouse_click == 1 {
+                //     println!("Mouse clicked at {} {}", mouse_x, mouse_y);
+                // }
 
                 //choose background color, I made it white
                 fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
@@ -494,33 +494,23 @@ fn main() {
                 //     .expect("Input Error");
                 // println!("hello {}", user_input);
 
-                // let mut player_move = moves[0].clone();
-                // if user_input == "rock" {
-                //     player_move = moves[0].clone()
-                // } else if user_input == "scissors" {
-                //     player_move = moves[1].clone()
-                // } else if user_input == "paper" {
-                //     player_move = moves[1].clone()
-                // } else {
-                //     println!("Invalid input")
-                // }
+                let mut player_move = None;
+                if mouse_click == 1 {
+                    if mouse_x > 0.0 && mouse_x < 250.0 { player_move = Some(moves[0]); }
+                    if mouse_x > 250.0 && mouse_x < 500.0 { player_move = Some(moves[1]); }
+                    if mouse_x > 500.0 && mouse_x < 797.0 { player_move = Some(moves[2]); }
+                }
+                if player_move.is_some() {
+                    p1.set_current_move(player_move.unwrap());
 
-                // p1.set_current_move(player_move);
-
-                // // Random AI move
-                // let mut rng = rand::thread_rng();
-                // p2.set_current_move(moves[rng.gen_range(0, 2)]);
-
-                // println!("{:?}", p1.execute_move(&p2));
-
-                // CPU turn: generate randint and select from moves
-
-                // next turn
-                // p1.finished_turn();
-                // p2.finished_turn();
-                // p1.set_current_move(moves[1].clone());
-                // p2.set_current_move(moves[2].clone());
-                // println!("{:?}", p2.execute_move(&p1));
+                    // Random AI move
+                    let mut rng = rand::thread_rng();
+                    p2.set_current_move(moves[rng.gen_range(0, 3)]);
+                    println!("Player move: {:?}", p1.current_move);
+                    println!("AI move: {:?}", p2.current_move);
+                    println!("Result {:?}", p1.execute_move(&p2));
+                    println!();
+                }
 
                 {
                     let writable_fb = &mut *fb2d_buffer.write().unwrap();
