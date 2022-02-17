@@ -455,7 +455,8 @@ fn main() {
                     print!("Mouse clicked at {} {}", mouse_x, mouse_y);
                 }
 
-                fb2d.clear((255_u8, 0_u8, 0_u8, 0_u8));
+                //choose background color, I made it white
+                fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
                 if !playing_anim {
                     sprite.play_animation(&mut fb2d, 0);
