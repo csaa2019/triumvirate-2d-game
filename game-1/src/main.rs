@@ -1,4 +1,5 @@
 use engine::*;
+
 use rand;
 use rand::Rng;
 use std::env;
@@ -312,6 +313,9 @@ fn main() {
         },
     ];
 
+    //Game initialization testing - GRACE
+    let game = Game::new(GameStates::Instructions);
+
     // SPRITE STUFF
     let img_width = 1470;
     let img_height = 840;
@@ -457,6 +461,13 @@ fn main() {
 
                 //choose background color, I made it white
                 fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
+
+                // while (game.state == Instrutions) {
+                //     bitblt an image that is the instructions
+                // bitblt an image that says play
+                // if play is clicked, change the game state
+                // }
+                //if we are in the intro state, then do this
 
                 if !playing_anim {
                     sprite.play_animation(&mut fb2d, 0);
