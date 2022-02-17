@@ -331,7 +331,7 @@ fn main() {
 
     let scissor_animation = engine::animation::Animation {
         frames: vec![0, 1, 2, 3, 4, 5, 6],
-        frame_duration: 1,
+        frame_duration: 5,
         loops: true,
         sprite_size: scissor_sprite_rect,
     };

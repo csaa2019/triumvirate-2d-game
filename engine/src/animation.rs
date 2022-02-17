@@ -48,9 +48,17 @@ impl AnimationState {
     }
 
     pub fn advance(&mut self, animations: &Vec<Animation>) {
-        self.current_frame += 1;
-        if self.current_frame >= animations[self.animation_index].frames.len() {
-            self.current_frame = 0;
+        let frame_rate = animations[self.animation_index].frame_duration;
+        let loops = animations[self.animation_index].loops;
+
+        if (self.elapsed_time == frame_rate as usize) {
+            self.current_frame += 1;
+            if self.current_frame >= animations[self.animation_index].frames.len() {
+                self.current_frame = 0;
+            }
+            if (loops) {
+                self.elapsed_time = 0;
+            }
         }
         self.elapsed_time += 1;
     }
@@ -137,6 +145,8 @@ impl Sprite {
     // }
 
     //advance the animation state (active frame)
+
+    //tick animation at the right pace, should have a parameter here
     pub fn tick_animation(&mut self) {
         self.animation_state.advance(&self.animations);
     }

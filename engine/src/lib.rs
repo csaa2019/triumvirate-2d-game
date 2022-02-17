@@ -55,10 +55,23 @@ pub struct Move<T: Copy + Eq + PartialEq> {
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub enum GameState {
-    player_picking,
-    countdown,
-    show_pick,
-    explosion,
+    //before the game begins: Rock Paper Scissor Game, by Chloe, Nate, and Grace with a play button
+    MainScreen,
+
+    //instructions for the game + start button
+    Instructions,
+
+    //Pick your cards, go button
+    PlayerPicking,
+
+    //Screen with which round number (of 3) and countdown
+    Countdown,
+
+    //Screen that shows the CPU and your pick for that round
+    ShowPick,
+
+    //Screen that shows who wins
+    Explosion,
 }
 // player1: Move{Rock, Scissor, Paper}
 // enemy.current_move : Move{Paper, Rock, Scissor}

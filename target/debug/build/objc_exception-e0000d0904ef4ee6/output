@@ -11,7 +11,7 @@ HOST_CFLAGS = None
 CFLAGS = None
 CRATE_CC_NO_DEFAULTS = None
 DEBUG = Some("true")
-CARGO_CFG_TARGET_FEATURE = Some("fxsr,sse,sse2,sse3,ssse3")
+CARGO_CFG_TARGET_FEATURE = Some("cmpxchg16b,fxsr,sse,sse2,sse3,ssse3")
 running: "cc" "-O0" "-ffunction-sections" "-fdata-sections" "-fPIC" "-g" "-fno-omit-frame-pointer" "-m64" "-arch" "x86_64" "-Wall" "-Wextra" "-o" "/Users/loan/triumvirate-2d-game/target/debug/build/objc_exception-e0000d0904ef4ee6/out/extern/exception.o" "-c" "extern/exception.m"
 exit status: 0
 AR_x86_64-apple-darwin = None
