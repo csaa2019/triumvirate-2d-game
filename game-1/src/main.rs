@@ -315,16 +315,16 @@ fn main() {
 
     //Game initialization testing - GRACE
     let mut game = Game {
-        state: GameStates::ShowPick,
+        state: GameStates::Instructions,
     };
 
     //SPRITE STUFF
     //initialize the instruction sheet image
     //we don't technically need it to be an animation sprite at all, just need a bitblt image LOL
-    let instruction_img_width = 700;
-    let instruction_img_height = 490;
-    let instruction_sprite_h = 700;
-    let instruction_sprite_w = 490;
+    let instruction_img_width = 350;
+    let instruction_img_height = 245;
+    let instruction_sprite_w = 350;
+    let instruction_sprite_h = 245;
     let instruction_sprite_rect =
         engine::image::Rect::new(0, 0, instruction_sprite_w, instruction_sprite_h);
     let instruction_sheet_rect =
@@ -525,7 +525,7 @@ fn main() {
                 fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
                 //create the game state that creates the screen for the instruction screen
-                while game.state == GameStates::Instructions {
+                if game.state == GameStates::Instructions {
                     if !playing_anim {
                         instruction_sprite.play_animation(&mut fb2d, 0);
                         playing_anim = true;
@@ -541,7 +541,7 @@ fn main() {
                     //if we are in the intro state, then do this
                 }
 
-                while game.state == GameStates::ShowPick {
+                if game.state == GameStates::ShowPick {
                     if !playing_anim {
                         scissor_sprite.play_animation(&mut fb2d, 0);
                         playing_anim = true;
