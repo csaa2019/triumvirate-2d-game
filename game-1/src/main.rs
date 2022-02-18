@@ -426,6 +426,7 @@ fn main() {
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
     let mut round = 0; // the round the player is on, out of 3.
     let mut score = (0, 0); // (player score, AI score)
+    let mut player_move = None;
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -536,18 +537,22 @@ fn main() {
                         instruction_sprite.draw(&mut fb2d);
                     }
 
-                    // bitblt an image that is the instructions
-                    // bitblt an image that says play
-                    // if play is clicked, change the game state
-                    // }
-                    //if we are in the intro state, then do this
-                }
-
-                if mouse_click == 1 {
-                    game.state = GameStates::ShowPick;
+                    //if they click anywhere in the screen then move onto showPick
+                    if mouse_click == 1 {
+                        game.state = GameStates::ShowPick;
+                    }
                 }
 
                 if game.state == GameStates::ShowPick {
+                    //bit blit an image that is like "take a pick of any of the following"
+
+                    //have a black line between the three of the animations
+
+                    //paper animation
+
+                    //rock animation
+
+                    //scissor animation
                     if !playing_anim {
                         scissor_sprite.play_animation(&mut fb2d, 0);
                         playing_anim = true;
@@ -555,20 +560,22 @@ fn main() {
                         scissor_sprite.tick_animation();
                         scissor_sprite.draw(&mut fb2d);
                     }
+
+                    if mouse_click == 1 {
+                        if mouse_x > 0.0 && mouse_x < 250.0 {
+                            player_move = Some(moves[0]);
+                        }
+                        if mouse_x > 250.0 && mouse_x < 500.0 {
+                            player_move = Some(moves[1]);
+                        }
+                        if mouse_x > 500.0 && mouse_x < 797.0 {
+                            player_move = Some(moves[2]);
+                        }
+                    }
                 }
 
-                let mut player_move = None;
-                if mouse_click == 1 {
-                    if mouse_x > 0.0 && mouse_x < 250.0 {
-                        player_move = Some(moves[0]);
-                    }
-                    if mouse_x > 250.0 && mouse_x < 500.0 {
-                        player_move = Some(moves[1]);
-                    }
-                    if mouse_x > 500.0 && mouse_x < 797.0 {
-                        player_move = Some(moves[2]);
-                    }
-                }
+                //eventually we would want this in ShowPick
+
                 if player_move.is_some() {
                     println!("Player move: {:?}", player_move.unwrap().move_type);
                     p1.set_current_move(player_move.unwrap());
@@ -583,8 +590,7 @@ fn main() {
                     if result == engine::Outcomes::Win {
                         score.0 += 1;
                         println!("Player Wins");
-                    }
-                    else if result == engine::Outcomes::Lose {
+                    } else if result == engine::Outcomes::Lose {
                         score.1 += 1;
                         println!("AI Wins");
                     }
