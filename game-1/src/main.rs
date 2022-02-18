@@ -424,6 +424,8 @@ fn main() {
     // GAME STUFF
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
+    let mut round = 0; // the round the player is on, out of 3.
+    let mut score = (0, 0); // (player score, AI score)
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -541,6 +543,10 @@ fn main() {
                     //if we are in the intro state, then do this
                 }
 
+                if mouse_click == 1 {
+                    game.state = GameStates::ShowPick;
+                }
+
                 if game.state == GameStates::ShowPick {
                     if !playing_anim {
                         scissor_sprite.play_animation(&mut fb2d, 0);
@@ -551,17 +557,6 @@ fn main() {
                     }
                 }
 
-                // PUT GAME STUFF HERE!
-                // testing player creations
-                // let mut user_input = String::new();
-
-                // io::stdin()
-                //     .read_line(&mut user_input)
-                //     .ok()
-                //     .expect("Input Error");
-                // println!("hello {}", user_input);
-
-                //this will need to exist in the "PlayerPicking game state"
                 let mut player_move = None;
                 if mouse_click == 1 {
                     if mouse_x > 0.0 && mouse_x < 250.0 {
@@ -575,14 +570,32 @@ fn main() {
                     }
                 }
                 if player_move.is_some() {
+                    println!("Player move: {:?}", player_move.unwrap().move_type);
                     p1.set_current_move(player_move.unwrap());
 
                     // Random AI move
                     let mut rng = rand::thread_rng();
-                    p2.set_current_move(moves[rng.gen_range(0, 3)]);
-                    println!("Player move: {:?}", p1.current_move);
-                    println!("AI move: {:?}", p2.current_move);
-                    println!("Result {:?}", p1.execute_move(&p2));
+                    let ai_move = moves[rng.gen_range(0, 3)];
+                    println!("AI move: {:?}", ai_move.move_type);
+                    p2.set_current_move(ai_move);
+
+                    let result = p1.execute_move(&p2);
+                    if result == engine::Outcomes::Win {
+                        score.0 += 1;
+                        println!("Player Wins");
+                    }
+                    else if result == engine::Outcomes::Lose {
+                        score.1 += 1;
+                        println!("AI Wins");
+                    }
+                    if score.0 == 3 {
+                        println!("Player wins best of 3!");
+                        score = (0, 0);
+                    }
+                    if score.1 == 3 {
+                        println!("AI wins best of 3!");
+                        score = (0, 0);
+                    }
                     println!();
                 }
 
@@ -702,133 +715,3 @@ fn window_size_dependent_setup(
         })
         .collect::<Vec<_>>()
 }
-
-// TODO: try to create players and have them play turns
-
-// struct Room {
-//     name: String, // E.g. "Antechamber"
-//     desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
-//     doors: Vec<Door>,
-// }
-// struct Door {
-//     target: RoomID,          // More about this in a minute
-//     triggers: Vec<String>,   // e.g. "go north", "north"
-//     message: Option<String>, // What message, if any, to print when the doorway is traversed
-//     // Any other info about the door would go here
-//     condition: Option<Item>,
-// }
-
-// #[derive(Debug, PartialEq)]
-// enum Item {
-//     Key,
-//     PaintingAdjuster,
-// }
-
-// impl Display for Item {
-//     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-//         match self {
-//             Self::Key => write!(f, "Mysterious Key"),
-//             Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
-//         }
-//     }
-// }
-
-// #[derive(PartialEq, Eq, Clone, Copy)]
-// struct RoomID(usize);
-
-// let rooms = [
-//     Room {
-//         name: "Foyer".into(), // Turn a &'static string (string constant) into a String
-//         desc: "This beautifully decorated foyer beckons you further into the mansion.  There is a door to the north. \nThere is a key in the room.".into(),
-//         doors: vec![Door{target:RoomID(1), triggers:vec!["door".into(), "north".into(), "go north".into()], message:None, condition: Some(Item::Key)}]
-//     },
-//     Room {
-//         name: "Antechamber".into(),
-//         desc: "Dark wood paneling covers the walls.  An intricate painting of a field mouse hangs slightly askew on the wall (it looks like you could fix it). The gilded northern doorway lies open to a shadowy parlour.  You can return to the foyer to the southern door.\nThere is a painting adjuster in the room you can take.".into(),
-//         doors: vec![
-//             Door{target:RoomID(0), triggers:vec!["door".into(), "south".into(), "go south".into(), "foyer".into()], message:None, condition: None},
-//             Door{target:RoomID(2), triggers:vec!["north".into(), "doorway".into(), "go north".into()], message:None, condition: None},
-//             Door{target:RoomID(3), triggers:vec!["painting".into(), "mouse".into(), "fix painting".into()], message:Some("As you adjust the painting, a trap-door opens beneath your feet!".into()), condition: Some(Item::PaintingAdjuster)}
-//         ]
-//     },
-//     Room {
-//         name: "A Room Full of Snakes!".into(),
-//         desc: "The shadows wriggle and shift as you enter the parlour.  The floor is covered in snakes!  The walls are covered in snakes!  The ceiling is covered in snakes!  You are also covered in snakes!\n\nBAD END".into(),
-//         doors:vec![]
-//     },
-//     Room {
-//         name: "The Vault".into(),
-//         desc: "When you regain consciousness, you feel a stabbing sensation in your lower back.  Reaching beneath you, you discover a massive diamond!  This room is full of gold and jewels, and a convenient ladder leading back outdoors!\n\nYou win!".into(),
-//         doors:vec![]
-//     }
-// ];
-// let end_rooms = [RoomID(2), RoomID(3)];
-// let mut inventory: Vec<Item> = Vec::new();
-
-// let mut room_items: Vec<Vec<Item>> = Vec::new();
-// room_items.push(vec![Item::Key]);
-// room_items.push(vec![Item::PaintingAdjuster]);
-// room_items.push(vec![]);
-// room_items.push(vec![]);
-
-// let mut input = String::new();
-
-// let mut at = RoomID(0);
-// println!("The Spooky Mansion Adventure");
-// println!("============================");
-// println!();
-// println!("You've been walking for hours in the countryside, and have finally stumbled on the spooky mansion you read about in the tour guide.");
-// loop {
-//     // We don't want to move out of rooms, so we take a reference
-//     let here = &rooms[at.0];
-//     println!("{}\n{}", here.name, here.desc,);
-//     if end_rooms.contains(&at) {
-//         break;
-//     }
-//     loop {
-//         print!("Inventory: ");
-//         let mut in_string = String::new();
-//         for item in inventory.iter() {
-//             in_string.push_str(&item.to_string());
-//         }
-//         print!("{}\n", in_string);
-//         println!("Enter 'get item' to take an item from the room, if available");
-//         io::stdout().flush().unwrap();
-//         input.clear();
-//         io::stdin().read_line(&mut input).unwrap();
-//         let input = input.trim();
-//         if "get item" == input {
-//             let item = room_items[at.0].pop();
-//             if let None = item {
-//                 print!("No item available to take");
-//             } else {
-//                 inventory.push(item.unwrap());
-//             }
-//         } else if let Some(door) = here
-//             .doors
-//             .iter()
-//             .find(|d| d.triggers.iter().any(|t| *t == input))
-//         {
-//             if let Some(item) = &door.condition {
-//                 if inventory.contains(&item) {
-//                     if let Some(msg) = &door.message {
-//                         println!("{}", msg);
-//                     }
-//                     at = door.target;
-//                     break;
-//                 } else {
-//                     print!("You don't have the item required to do that.\n");
-//                 }
-//             } else {
-//                 if let Some(msg) = &door.message {
-//                     println!("{}", msg);
-//                 }
-//                 at = door.target;
-//                 break;
-//             }
-//         } else {
-//             println!("You can't do that!");
-//         }
-//     }
-// }
-// }
