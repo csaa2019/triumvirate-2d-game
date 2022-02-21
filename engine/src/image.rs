@@ -40,6 +40,20 @@ impl Rect {
     }
     // TODO: Add rect_inside function which will check if a point is inside the rect.
 
+    pub fn rect_inside(&self, p: Vec2i) -> bool {
+        let x1 = self.x0 + self.w as i32;
+        let y1 = self.y0 + self.h as i32;
+
+        if p.x > self.x0 && p.x < x1 {
+            if p.y > self.y0 && p.y < y1 {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
     // This is some changing height and width code in case we want it.
 
     // pub fn change_h(&mut self, inc: i32) {

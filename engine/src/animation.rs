@@ -146,7 +146,7 @@ pub struct Sprite {
 
 impl Sprite {
     //would we need a time thing here?
-    pub fn play_animation(&mut self, fb: &mut Image, animation_index: usize) {
+    pub fn play_animation(&mut self, fb: &mut Image, animation_index: usize, to: Vec2i) {
         self.animation_state.current_frame = 0;
         self.animation_state.animation_index = animation_index;
 
@@ -155,17 +155,17 @@ impl Sprite {
         // draw the current frame (this takes the rectangle)
 
         //draw will pick the right rectangle based ont eh current animation and animation state
-        self.draw(fb);
+        self.draw(fb, to);
         //play an animation from the vec of animations
         //animation_state.sprite_index = animation.first_sprite_index + animation.current_frame()
         //draw(&self, ...., animation_state.sprite_index);
         //if loops,
     }
 
-    pub fn draw(&self, fb: &mut Image) {
+    pub fn draw(&self, fb: &mut Image, to: Vec2i) {
         let sprite_rect = self.animation_state.current_frame(&self.animations);
 
-        fb.bitblt(&self.image.as_ref(), &sprite_rect, (10, 10));
+        fb.bitblt(&self.image.as_ref(), &sprite_rect, (to.x, to.y));
     }
 
     // pub fn draw(&self, fb: &mut Image) {

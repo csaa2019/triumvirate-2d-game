@@ -353,6 +353,7 @@ fn main() {
         animation_state: instruction_anim_state,
     };
 
+    let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
     //initialize the scissor animation
     let img_width = 1470;
     let img_height = 840;
@@ -407,6 +408,14 @@ fn main() {
         ],
         animation_state: scissor_anim_state,
     };
+    let scissor_draw_to = engine::image::Vec2i { x: 10, y: 10 };
+
+    let scissor_clickable_rect = engine::image::Rect::new(
+        scissor_draw_to.x,
+        scissor_draw_to.y,
+        scissor_sprite_rect.w,
+        scissor_sprite_rect.h,
+    );
 
     let mut playing_anim = false;
 
@@ -481,8 +490,12 @@ fn main() {
                     },
                 ..
             } => {
-                mouse_x = x;
-                mouse_y = y;
+                // this is just resizing the mouse_x and mouse_y based on the dimensions
+                let dimensions = viewport.dimensions;
+                if ((y as f32) < dimensions[1]) && (y > 0.0) {
+                    mouse_y = ((y as f32 / dimensions[1] as f32) * HEIGHT as f32) as f32;
+                    mouse_x = ((x as f32 / dimensions[0] as f32) * WIDTH as f32) as f32;
+                }
             }
 
             // button is not being used here but later if we want to specify
@@ -493,7 +506,9 @@ fn main() {
                 ..
             } => match state {
                 winit::event::ElementState::Pressed => {
-                    mouse_click = 1;
+                    if mouse_click == 0 {
+                        mouse_click = 1;
+                    }
                 }
                 winit::event::ElementState::Released => {
                     mouse_click = 0;
@@ -530,11 +545,11 @@ fn main() {
                 //create the game state that creates the screen for the instruction screen
                 if game.state == GameStates::Instructions {
                     if !playing_anim {
-                        instruction_sprite.play_animation(&mut fb2d, 0);
+                        instruction_sprite.play_animation(&mut fb2d, 0, instruction_draw_to);
                         playing_anim = true;
                     } else {
                         instruction_sprite.tick_animation();
-                        instruction_sprite.draw(&mut fb2d);
+                        instruction_sprite.draw(&mut fb2d, instruction_draw_to);
                     }
 
                     //if they click anywhere in the screen then move onto showPick
@@ -544,6 +559,10 @@ fn main() {
                 }
 
                 if game.state == GameStates::ShowPick {
+                    // resetting player move so it doesn't just keep
+                    // thinking the player has a move
+                    player_move = None;
+
                     //bit blit an image that is like "take a pick of any of the following"
 
                     //have a black line between the three of the animations
@@ -553,56 +572,70 @@ fn main() {
                     //rock animation
 
                     //scissor animation
+
                     if !playing_anim {
-                        scissor_sprite.play_animation(&mut fb2d, 0);
+                        scissor_sprite.play_animation(&mut fb2d, 0, scissor_draw_to);
                         playing_anim = true;
                     } else {
                         scissor_sprite.tick_animation();
-                        scissor_sprite.draw(&mut fb2d);
+                        scissor_sprite.draw(&mut fb2d, scissor_draw_to);
                     }
 
                     if mouse_click == 1 {
-                        if mouse_x > 0.0 && mouse_x < 250.0 {
-                            player_move = Some(moves[0]);
-                        }
-                        if mouse_x > 250.0 && mouse_x < 500.0 {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if scissor_clickable_rect.rect_inside(mouse_pos) {
+                            print!("Clicked the scissor rect");
                             player_move = Some(moves[1]);
                         }
-                        if mouse_x > 500.0 && mouse_x < 797.0 {
-                            player_move = Some(moves[2]);
+
+                        // change code below for other clickable elements
+
+                        // if mouse_x > 0.0 && mouse_x < 250.0 {
+                        //     player_move = Some(moves[0]);
+                        // }
+                        // if mouse_x > 250.0 && mouse_x < 500.0 {
+                        //     player_move = Some(moves[1]);
+                        // }
+                        // if mouse_x > 500.0 && mouse_x < 797.0 {
+                        //     player_move = Some(moves[2]);
+                        // }
+                    }
+
+                    // right now this is detecting when a mouse click is held
+                    // so if you keep holding on scissors, then it will keep choosing scissors as a move
+                    // we might need some other game - state
+                    // like instead of choose pick we move to processing move, or something like that
+
+                    if player_move.is_some() {
+                        println!("Player move: {:?}", player_move.unwrap().move_type);
+                        p1.set_current_move(player_move.unwrap());
+                        // Random AI move
+                        let mut rng = rand::thread_rng();
+                        let ai_move = moves[rng.gen_range(0, 3)];
+                        println!("AI move: {:?}", ai_move.move_type);
+                        p2.set_current_move(ai_move);
+                        let result = p1.execute_move(&p2);
+                        if result == engine::Outcomes::Win {
+                            score.0 += 1;
+                            println!("Player Wins");
+                        } else if result == engine::Outcomes::Lose {
+                            score.1 += 1;
+                            println!("AI Wins");
                         }
+                        if score.0 == 3 {
+                            println!("Player wins best of 3!");
+                            score = (0, 0);
+                        }
+                        if score.1 == 3 {
+                            println!("AI wins best of 3!");
+                            score = (0, 0);
+                        }
+                        println!();
                     }
-                }
-
-                //eventually we would want this in ShowPick
-
-                if player_move.is_some() {
-                    println!("Player move: {:?}", player_move.unwrap().move_type);
-                    p1.set_current_move(player_move.unwrap());
-
-                    // Random AI move
-                    let mut rng = rand::thread_rng();
-                    let ai_move = moves[rng.gen_range(0, 3)];
-                    println!("AI move: {:?}", ai_move.move_type);
-                    p2.set_current_move(ai_move);
-
-                    let result = p1.execute_move(&p2);
-                    if result == engine::Outcomes::Win {
-                        score.0 += 1;
-                        println!("Player Wins");
-                    } else if result == engine::Outcomes::Lose {
-                        score.1 += 1;
-                        println!("AI Wins");
-                    }
-                    if score.0 == 3 {
-                        println!("Player wins best of 3!");
-                        score = (0, 0);
-                    }
-                    if score.1 == 3 {
-                        println!("AI wins best of 3!");
-                        score = (0, 0);
-                    }
-                    println!();
                 }
 
                 {
