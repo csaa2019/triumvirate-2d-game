@@ -338,6 +338,9 @@ fn vulkan_init(event_loop: &EventLoop<()>) -> (VulkanConfig, VulkanState) {
     )
 }
 
+// consider Assets struct: contains image, colors, etc.
+// consider update function and "go" function??
+
 fn main() {
     /*
     Stuff during initialization (once)
@@ -412,10 +415,19 @@ fn main() {
 
     let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
     //initialize the scissor animation
-    let img_width = 1470;
-    let img_height = 840;
-    let sprite_h = 210;
-    let sprite_w = 210;
+    // sheet width and height
+    let img_width = 735;
+    let img_height = 420;
+    // let img_width = 1470;
+    // let img_height = 840;
+
+    // height and width of a single frame
+    // let sprite_h = 210;
+    // let sprite_w = 210;
+    let sprite_h = 105;
+    let sprite_w = 105;
+
+    // the rectangle of one sprite
     let scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
 
     let scissor_sheet =
@@ -463,6 +475,8 @@ fn main() {
         ],
         animation_state: scissor_anim_state,
     };
+
+    // coordinates to draw to
     let scissor_draw_to = engine::image::Vec2i { x: 10, y: 10 };
 
     let scissor_clickable_rect = engine::image::Rect::new(
