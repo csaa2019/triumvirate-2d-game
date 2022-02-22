@@ -2,7 +2,7 @@ use crate::animation::*;
 use image::Triangle;
 use itertools::Itertools;
 
-type Color = (u8, u8, u8, u8);
+pub type Color = (u8, u8, u8, u8);
 
 // const WIDTH: usize = 320;
 // const HEIGHT: usize = 240;

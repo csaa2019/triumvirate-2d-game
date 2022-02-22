@@ -2,14 +2,13 @@ use engine::*;
 
 use rand;
 use rand::Rng;
-use std::env;
-use std::fmt::{self, Display, Formatter};
-use std::io;
-
-use std::io::Cursor;
+// use std::env;
+// use std::fmt::{self, Display, Formatter};
+// use std::io;
+// use std::io::Cursor;
 use std::rc::Rc;
 use std::sync::Arc;
-use std::time::Instant;
+// use std::time::Instant;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer, TypedBufferAccess};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, SubpassContents};
 use vulkano::descriptor_set::PersistentDescriptorSet;
@@ -68,10 +67,43 @@ const HEIGHT: usize = 240;
 // struct VulkanState { render_pass, framebuffers, last_frame_future, next_image, ... }
 // struct FBState { pipeline,  vertex_buffer, fb2d_buffer, fb2d_image, fb2d_texture, fb2d_sampler, set, fb2d }
 
-fn main() {
+// from class on 2/22: organizing vulkan stuff as its own stuff
+
+#[derive(Default, Debug, Clone)]
+struct Vertex {
+    position: [f32; 2],
+    uv: [f32; 2],
+}
+vulkano::impl_vertex!(Vertex, position, uv);
+
+// stuff which doesn't change from frame to frame
+// Arc: enables a type to go across threads, read only
+struct VulkanConfig {
+    surface: Arc<vulkano::swapchain::Surface<winit::window::Window>>,
+    device: Arc<vulkano::device::Device>,
+    set: Arc<vulkano::descriptor_set::PersistentDescriptorSet>,
+    pipeline: Arc<vulkano::pipeline::GraphicsPipeline>,
+    vertex_buffer: Arc<CpuAccessibleBuffer<[Vertex]>>,
+    fb2d_image: Arc<StorageImage>,
+    fb2d_buffer: Arc<CpuAccessibleBuffer<[engine::image::Color]>>,
+    queue: Arc<vulkano::device::Queue>,
+    render_pass: Arc<vulkano::render_pass::RenderPass>,
+}
+
+// stuff which does change
+struct VulkanState {
+    fb2d: engine::image::Image,
+    swapchain: Arc<Swapchain<winit::window::Window>>,
+    viewport: Viewport,
+    framebuffers: Vec<Arc<vulkano::render_pass::Framebuffer>>,
+    recreate_swapchain: bool,
+    previous_frame_end: Option<Box<dyn vulkano::sync::GpuFuture>>,
+}
+
+fn vulkan_init(event_loop: &EventLoop<()>) -> (VulkanConfig, VulkanState) {
     let required_extensions = vulkano_win::required_extensions();
     let instance = Instance::new(None, Version::V1_1, &required_extensions, None).unwrap();
-    let event_loop = EventLoop::new();
+
     let surface = WindowBuilder::new()
         .build_vk_surface(&event_loop, instance.clone())
         .unwrap();
@@ -104,7 +136,7 @@ fn main() {
     )
     .unwrap();
     let queue = queues.next().unwrap();
-    let (mut swapchain, images) = {
+    let (swapchain, images) = {
         let caps = surface.capabilities(physical_device).unwrap();
         // let present_mode = best_present_mode(&caps);
         let composite_alpha = caps.supported_composite_alpha.iter().next().unwrap();
@@ -123,13 +155,6 @@ fn main() {
     };
 
     // We now create a buffer that will store the shape of our triangle.
-    #[derive(Default, Debug, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-        uv: [f32; 2],
-    }
-    vulkano::impl_vertex!(Vertex, position, uv);
-
     let vertex_buffer = CpuAccessibleBuffer::from_iter(
         device.clone(),
         BufferUsage::all(),
@@ -152,6 +177,7 @@ fn main() {
         .cloned(),
     )
     .unwrap();
+
     mod vs {
         vulkano_shaders::shader! {
             ty: "vertex",
@@ -190,7 +216,7 @@ fn main() {
     let fs = fs::load(device.clone()).unwrap();
 
     // Here's our (2D drawing) framebuffer.
-    let mut fb2d = engine::image::Image::new((0, 0, 0, 0), WIDTH, HEIGHT);
+    let fb2d = engine::image::Image::new((0, 0, 0, 0), WIDTH, HEIGHT);
     // We'll work on it locally, and copy it to a GPU buffer every frame.
     // Then on the GPU, we'll copy it into an Image.
     let fb2d_buffer = CpuAccessibleBuffer::from_iter(
@@ -270,7 +296,6 @@ fn main() {
         .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
         .build(device.clone())
         .unwrap();
-
     let layout = pipeline.layout().descriptor_set_layouts().get(0).unwrap();
     let mut set_builder = PersistentDescriptorSet::start(layout.clone());
 
@@ -286,13 +311,44 @@ fn main() {
         depth_range: 0.0..1.0,
     };
 
-    let mut framebuffers = window_size_dependent_setup(&images, render_pass.clone(), &mut viewport);
-    let mut recreate_swapchain = false;
-    let mut previous_frame_end = Some(sync::now(device.clone()).boxed());
+    let framebuffers = window_size_dependent_setup(&images, render_pass.clone(), &mut viewport);
+    let recreate_swapchain = false;
+    let previous_frame_end = Some(sync::now(device.clone()).boxed());
 
-    use std::io;
-    // We need the Write trait so we can flush stdout
-    use std::io::Write;
+    (
+        VulkanConfig {
+            surface,
+            device,
+            set,
+            pipeline,
+            vertex_buffer,
+            fb2d_image,
+            fb2d_buffer,
+            queue,
+            render_pass,
+        },
+        VulkanState {
+            fb2d,
+            swapchain,
+            viewport,
+            framebuffers,
+            recreate_swapchain,
+            previous_frame_end,
+        },
+    )
+}
+
+fn main() {
+    /*
+    Stuff during initialization (once)
+    Stuff after window resize
+    Stuff during each event loop
+
+    Stuff each call/draw operation
+    */
+
+    let event_loop = EventLoop::new();
+    let (vulkan_config, mut vulkan_state) = vulkan_init(&event_loop);
 
     // consider moving this vec? maybe use a rps_moves() fx
     let moves = [
@@ -318,7 +374,9 @@ fn main() {
         state: GameStates::Instructions,
     };
 
-    //SPRITE STUFF
+    // SPRITE STUFF
+    // consider putting all the sprite stuff in its own function?
+
     //initialize the instruction sheet image
     //we don't technically need it to be an animation sprite at all, just need a bitblt image LOL
     let instruction_img_width = 350;
@@ -327,8 +385,7 @@ fn main() {
     let instruction_sprite_h = 245;
     let instruction_sprite_rect =
         engine::image::Rect::new(0, 0, instruction_sprite_w, instruction_sprite_h);
-    let instruction_sheet_rect =
-        engine::image::Rect::new(0, 0, instruction_img_width, instruction_img_height);
+
     let instruction_sheet = engine::image::Image::from_png(
         "game-1/content/Instruction-Screen.png",
         instruction_img_width,
@@ -359,9 +416,7 @@ fn main() {
     let img_height = 840;
     let sprite_h = 210;
     let sprite_w = 210;
-    let mut scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
-
-    let mut scissor_sheet_rect = engine::image::Rect::new(0, 0, img_width, img_height);
+    let scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
 
     let scissor_sheet =
         engine::image::Image::from_png("game-1/content/scissor.png", img_width, img_height);
@@ -449,7 +504,7 @@ fn main() {
                 event: WindowEvent::Resized(_),
                 ..
             } => {
-                recreate_swapchain = true;
+                vulkan_state.recreate_swapchain = true;
             }
 
             // putting this here in case we want keyboard input in the future
@@ -491,7 +546,7 @@ fn main() {
                 ..
             } => {
                 // this is just resizing the mouse_x and mouse_y based on the dimensions
-                let dimensions = viewport.dimensions;
+                let dimensions = vulkan_state.viewport.dimensions;
                 if ((y as f32) < dimensions[1]) && (y > 0.0) {
                     mouse_y = ((y as f32 / dimensions[1] as f32) * HEIGHT as f32) as f32;
                     mouse_x = ((x as f32 / dimensions[0] as f32) * WIDTH as f32) as f32;
@@ -523,10 +578,13 @@ fn main() {
 
             Event::MainEventsCleared => {
                 {
+                    // update fx: input handling, vulkan stuff
+                    // then copy over prev keys from now ekys or something
+
                     // We need to synchronize here to send new data to the GPU.
                     // We can't send the new framebuffer until the previous frame is done being drawn.
                     // Dropping the future will block until it's done.
-                    if let Some(mut fut) = previous_frame_end.take() {
+                    if let Some(mut fut) = vulkan_state.previous_frame_end.take() {
                         fut.cleanup_finished();
                     }
                 }
@@ -540,16 +598,20 @@ fn main() {
                 // }
 
                 //choose background color, I made it white
-                fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
+                vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
                 //create the game state that creates the screen for the instruction screen
                 if game.state == GameStates::Instructions {
                     if !playing_anim {
-                        instruction_sprite.play_animation(&mut fb2d, 0, instruction_draw_to);
+                        instruction_sprite.play_animation(
+                            &mut vulkan_state.fb2d,
+                            0,
+                            instruction_draw_to,
+                        );
                         playing_anim = true;
                     } else {
                         instruction_sprite.tick_animation();
-                        instruction_sprite.draw(&mut fb2d, instruction_draw_to);
+                        instruction_sprite.draw(&mut vulkan_state.fb2d, instruction_draw_to);
                     }
 
                     //if they click anywhere in the screen then move onto showPick
@@ -574,11 +636,11 @@ fn main() {
                     //scissor animation
 
                     if !playing_anim {
-                        scissor_sprite.play_animation(&mut fb2d, 0, scissor_draw_to);
+                        scissor_sprite.play_animation(&mut vulkan_state.fb2d, 0, scissor_draw_to);
                         playing_anim = true;
                     } else {
                         scissor_sprite.tick_animation();
-                        scissor_sprite.draw(&mut fb2d, scissor_draw_to);
+                        scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
                     }
 
                     if mouse_click == 1 {
@@ -639,69 +701,76 @@ fn main() {
                 }
 
                 {
-                    let writable_fb = &mut *fb2d_buffer.write().unwrap();
-                    writable_fb.copy_from_slice(fb2d.as_slice());
+                    let writable_fb = &mut *vulkan_config.fb2d_buffer.write().unwrap();
+                    writable_fb.copy_from_slice(vulkan_state.fb2d.as_slice());
                 }
-                if recreate_swapchain {
-                    let dimensions: [u32; 2] = surface.window().inner_size().into();
-                    let (new_swapchain, new_images) =
-                        match swapchain.recreate().dimensions(dimensions).build() {
-                            Ok(r) => r,
-                            Err(SwapchainCreationError::UnsupportedDimensions) => return,
-                            Err(e) => panic!("Failed to recreate swapchain: {:?}", e),
-                        };
+                if vulkan_state.recreate_swapchain {
+                    let dimensions: [u32; 2] = vulkan_config.surface.window().inner_size().into();
+                    let (new_swapchain, new_images) = match vulkan_state
+                        .swapchain
+                        .recreate()
+                        .dimensions(dimensions)
+                        .build()
+                    {
+                        Ok(r) => r,
+                        Err(SwapchainCreationError::UnsupportedDimensions) => return,
+                        Err(e) => panic!("Failed to recreate swapchain: {:?}", e),
+                    };
 
-                    swapchain = new_swapchain;
-                    framebuffers = window_size_dependent_setup(
+                    vulkan_state.swapchain = new_swapchain;
+                    vulkan_state.framebuffers = window_size_dependent_setup(
                         &new_images,
-                        render_pass.clone(),
-                        &mut viewport,
+                        vulkan_config.render_pass.clone(),
+                        &mut vulkan_state.viewport,
                     );
-                    recreate_swapchain = false;
+                    vulkan_state.recreate_swapchain = false;
                 }
                 let (image_num, suboptimal, acquire_future) =
-                    match swapchain::acquire_next_image(swapchain.clone(), None) {
+                    match swapchain::acquire_next_image(vulkan_state.swapchain.clone(), None) {
                         Ok(r) => r,
                         Err(AcquireError::OutOfDate) => {
-                            recreate_swapchain = true;
+                            vulkan_state.recreate_swapchain = true;
                             return;
                         }
                         Err(e) => panic!("Failed to acquire next image: {:?}", e),
                     };
                 if suboptimal {
-                    recreate_swapchain = true;
+                    vulkan_state.recreate_swapchain = true;
                 }
 
                 // let start = Instant::now();
 
                 let mut builder = AutoCommandBufferBuilder::primary(
-                    device.clone(),
-                    queue.family(),
+                    vulkan_config.device.clone(),
+                    vulkan_config.queue.family(),
                     CommandBufferUsage::OneTimeSubmit,
                 )
                 .unwrap();
 
                 builder
                     // Now copy that framebuffer buffer into the framebuffer image
-                    .copy_buffer_to_image(fb2d_buffer.clone(), fb2d_image.clone())
+                    .copy_buffer_to_image(
+                        vulkan_config.fb2d_buffer.clone(),
+                        vulkan_config.fb2d_image.clone(),
+                    )
                     .unwrap()
                     // And resume our regularly scheduled programming
                     .begin_render_pass(
-                        framebuffers[image_num].clone(),
+                        vulkan_state.framebuffers[image_num].clone(),
                         SubpassContents::Inline,
                         std::iter::once(vulkano::format::ClearValue::None),
                     )
                     .unwrap()
-                    .set_viewport(0, [viewport.clone()])
-                    .bind_pipeline_graphics(pipeline.clone())
+                    .set_viewport(0, [vulkan_state.viewport.clone()])
+                    .bind_pipeline_graphics(vulkan_config.pipeline.clone())
                     .bind_descriptor_sets(
                         PipelineBindPoint::Graphics,
-                        pipeline.layout().clone(),
+                        vulkan_config.pipeline.layout().clone(),
                         0,
-                        set.clone(),
+                        vulkan_config.set.clone(),
                     )
-                    .bind_vertex_buffers(0, vertex_buffer.clone())
-                    .draw(vertex_buffer.len() as u32, 1, 0, 0)
+                    .bind_vertex_buffers(0, vulkan_config.vertex_buffer.clone())
+                    .draw(vulkan_config.vertex_buffer.len() as u32, 1, 0, 0)
                     .unwrap()
                     .end_render_pass()
                     .unwrap();
@@ -709,23 +778,29 @@ fn main() {
                 let command_buffer = builder.build().unwrap();
 
                 let future = acquire_future
-                    .then_execute(queue.clone(), command_buffer)
+                    .then_execute(vulkan_config.queue.clone(), command_buffer)
                     .unwrap()
-                    .then_swapchain_present(queue.clone(), swapchain.clone(), image_num)
+                    .then_swapchain_present(
+                        vulkan_config.queue.clone(),
+                        vulkan_state.swapchain.clone(),
+                        image_num,
+                    )
                     .then_signal_fence_and_flush();
                 // dbg!(start.elapsed());
 
                 match future {
                     Ok(future) => {
-                        previous_frame_end = Some(future.boxed());
+                        vulkan_state.previous_frame_end = Some(future.boxed());
                     }
                     Err(FlushError::OutOfDate) => {
-                        recreate_swapchain = true;
-                        previous_frame_end = Some(sync::now(device.clone()).boxed());
+                        vulkan_state.recreate_swapchain = true;
+                        vulkan_state.previous_frame_end =
+                            Some(sync::now(vulkan_config.device.clone()).boxed());
                     }
                     Err(e) => {
                         println!("Failed to flush future: {:?}", e);
-                        previous_frame_end = Some(sync::now(device.clone()).boxed());
+                        vulkan_state.previous_frame_end =
+                            Some(sync::now(vulkan_config.device.clone()).boxed());
                     }
                 }
             }
