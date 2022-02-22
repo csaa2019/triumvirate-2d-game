@@ -497,7 +497,8 @@ fn main() {
     let mut mouse_x = 0.0;
     let mut mouse_y = 0.0;
 
-    let mut mouse_click = 0;
+    let mut mouse_click = false;
+    let mut prev_mouse_click = false;
 
     // GAME STUFF
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
@@ -575,19 +576,19 @@ fn main() {
                 ..
             } => match state {
                 winit::event::ElementState::Pressed => {
-                    if mouse_click == 0 {
-                        mouse_click = 1;
+                    if mouse_click == false {
+                        mouse_click = true;
                     }
                 }
                 winit::event::ElementState::Released => {
-                    mouse_click = 0;
+                    mouse_click = false;
                 }
             },
 
             // NewEvents: Let's start processing events.
             Event::NewEvents(_) => {
-                // Leave now_keys alone, but copy over all changed keys
-                prev_keys.copy_from_slice(&now_keys);
+                // This used to contain now_keys and prev_keys update. Osborn told me to move
+                // it to right before rendering, below
             }
 
             Event::MainEventsCleared => {
@@ -629,7 +630,7 @@ fn main() {
                     }
 
                     //if they click anywhere in the screen then move onto showPick
-                    if mouse_click == 1 {
+                    if mouse_click == false && prev_mouse_click == false {
                         game.state = GameStates::ShowPick;
                     }
                 }
@@ -657,7 +658,7 @@ fn main() {
                         scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
                     }
 
-                    if mouse_click == 1 {
+                    if mouse_click == true && prev_mouse_click == false {
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
                             y: mouse_y as i32,
@@ -713,7 +714,9 @@ fn main() {
                         println!();
                     }
                 }
-
+                // Update prev_keys and prev_mouse_click to store previous inputs
+                prev_keys.copy_from_slice(&now_keys);
+                prev_mouse_click = mouse_click;
                 {
                     let writable_fb = &mut *vulkan_config.fb2d_buffer.write().unwrap();
                     writable_fb.copy_from_slice(vulkan_state.fb2d.as_slice());
