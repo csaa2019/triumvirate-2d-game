@@ -143,7 +143,7 @@ impl Image {
      *
      * (Nate or Grace, maybe you could figure out a way to just make it resize?)
      */
-    pub fn bitblt(&mut self, src_img: &Image, from: &Rect, to: (i32, i32)) {
+    pub fn bitblt(&mut self, src_img: &Image, from: &Rect, to: Vec2i) {
         let dst = &mut self.buffer;
         let dst_size = (self.w, self.h);
         let src = src_img.as_slice();
@@ -151,7 +151,7 @@ impl Image {
 
         // implement after writing a rect_inside
         // assert!(rect_inside(from, (0, 0, src_size.0, src_size.1)));
-        let (to_x, to_y) = to;
+        let Vec2i { x: to_x, y: to_y } = to;
         if (to_x + from.w as i32) < 0
             || (dst_size.0 as i32) <= to_x
             || (to_y + from.h as i32) < 0

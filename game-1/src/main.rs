@@ -1,3 +1,5 @@
+use engine::image::{Image, Rect, Vec2i};
+
 use engine::*;
 
 use rand;
@@ -377,61 +379,35 @@ fn main() {
         state: GameStates::Instructions,
     };
 
-    // SPRITE STUFF
-    // consider putting all the sprite stuff in its own function?
+    // IMAGES + SPRITES
+    // consider putting all initializing sprite stuff in its own function?
 
-    //initialize the instruction sheet image
-    //we don't technically need it to be an animation sprite at all, just need a bitblt image LOL
-    let instruction_img_width = 350;
-    let instruction_img_height = 245;
-    let instruction_sprite_w = 350;
-    let instruction_sprite_h = 245;
-    let instruction_sprite_rect =
-        engine::image::Rect::new(0, 0, instruction_sprite_w, instruction_sprite_h);
+    // Instruction sheet image
+    let instruction_w = 350;
+    let instruction_h = 245;
+    let instruction_rect = engine::image::Rect::new(0, 0, instruction_w, instruction_h);
 
-    let instruction_sheet = engine::image::Image::from_png(
+    let instruction_img = engine::image::Image::from_png(
         "game-1/content/Instruction-Screen.png",
-        instruction_img_width,
-        instruction_img_height,
+        instruction_w,
+        instruction_h,
     );
-    let instruction_anim_state = engine::animation::AnimationState {
-        current_frame: 0,
-        elapsed_time: 0,
-        animation_index: 0,
-    };
-    let instruction_animation = engine::animation::Animation {
-        frames: vec![0],
-        frame_duration: 5,
-        loops: true,
-        sprite_size: instruction_sprite_rect,
-        sprite_width: 1,
-        sprite_height: 1,
-    };
-    let mut instruction_sprite = engine::animation::Sprite {
-        image: Rc::new(instruction_sheet),
-        animations: vec![instruction_animation],
-        animation_state: instruction_anim_state,
-    };
 
     let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
+
     //initialize the scissor animation
     // sheet width and height
-    let scissor_img_width = 735;
-    let scissor_img_height = 420;
-    // let img_width = 1470;
-    // let img_height = 840;
-
-    // height and width of a single frame
-    // let sprite_h = 210;
-    // let sprite_w = 210;
-    let scissor_sprite_h = 105;
-    let scissor_sprite_w = 105;
+    // 922 by 1346
+    let scissor_img_width = 136;
+    let scissor_img_height = 200;
+    let scissor_sprite_w = 68;
+    let scissor_sprite_h = 100;
 
     // the rectangle of one sprite
     let scissor_sprite_rect = engine::image::Rect::new(0, 0, scissor_sprite_w, scissor_sprite_h);
 
     let scissor_sheet = engine::image::Image::from_png(
-        "game-1/content/scissor.png",
+        "game-1/content/scissors-ss.png",
         scissor_img_width,
         scissor_img_height,
     );
@@ -439,50 +415,28 @@ fn main() {
     let scissor_anim_state = engine::animation::AnimationState {
         current_frame: 0,
         elapsed_time: 0,
-        animation_index: 2,
+        animation_index: 0,
     };
 
-    let scissor_animation_snip_left = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3, 4, 5, 6],
+    let scissor_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3],
         frame_duration: 5,
         loops: true,
         sprite_size: scissor_sprite_rect,
-        sprite_width: 7,
-        sprite_height: 4,
-    };
-
-    let scissor_animation_snip_right = engine::animation::Animation {
-        frames: vec![14, 15, 16, 17, 18, 19, 20],
-        frame_duration: 5,
-        loops: true,
-        sprite_size: scissor_sprite_rect,
-        sprite_width: 7,
-        sprite_height: 4,
-    };
-
-    let scissor_animation_spin = engine::animation::Animation {
-        frames: vec![7, 8, 9, 10, 11, 12, 13, 21, 22, 23, 24, 25, 26, 27],
-        frame_duration: 5,
-        loops: true,
-        sprite_size: scissor_sprite_rect,
-        sprite_width: 7,
-        sprite_height: 4,
+        sprite_width: 2,
+        sprite_height: 2,
     };
 
     let mut scissor_sprite = engine::animation::Sprite {
         image: Rc::new(scissor_sheet),
-        animations: vec![
-            scissor_animation_snip_left,
-            scissor_animation_snip_right,
-            scissor_animation_spin,
-        ],
+        animations: vec![scissor_anim_1],
         animation_state: scissor_anim_state,
     };
 
     let draw_y = HEIGHT as i32 - scissor_sprite_h as i32 - 10;
     // coordinates to draw to
     let scissor_draw_to = engine::image::Vec2i {
-        x: WIDTH as i32 / 3,
+        x: WIDTH as i32 / 2 - ((scissor_sprite_w as i32) / 2),
         y: draw_y,
     };
 
@@ -493,17 +447,20 @@ fn main() {
         scissor_sprite_rect.h,
     );
 
-    let rock_img_width = 735;
-    let rock_img_height = 420;
-    let rock_sprite_h = 105;
-    let rock_sprite_w = 105;
+    // 710 by 800
+    // divide by two for sprite
+
+    let rock_img_width = 177;
+    let rock_img_height = 200;
+    let rock_sprite_w = 88;
+    let rock_sprite_h = 100;
 
     // the rectangle of one sprite
     let rock_sprite_rect = engine::image::Rect::new(0, 0, rock_sprite_w, rock_sprite_h);
 
     // NEED TO CHANGE
     let rock_sheet = engine::image::Image::from_png(
-        "game-1/content/scissor.png",
+        "game-1/content/rock-ss.png",
         rock_img_width,
         rock_img_height,
     );
@@ -515,12 +472,12 @@ fn main() {
     };
 
     let rock_anim_1 = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3, 4, 5, 6],
+        frames: vec![0, 1, 2, 3],
         frame_duration: 5,
         loops: true,
         sprite_size: rock_sprite_rect,
-        sprite_width: 7,
-        sprite_height: 4,
+        sprite_width: 2,
+        sprite_height: 2,
     };
 
     let mut rock_sprite = engine::animation::Sprite {
@@ -530,7 +487,10 @@ fn main() {
     };
 
     // coordinates to draw to
-    let rock_draw_to = engine::image::Vec2i { x: 0, y: draw_y };
+    let rock_draw_to = engine::image::Vec2i {
+        x: (WIDTH as i32 / 6) - (rock_sprite_w as i32 / 2),
+        y: draw_y,
+    };
 
     let rock_clickable_rect = engine::image::Rect::new(
         rock_draw_to.x,
@@ -541,17 +501,18 @@ fn main() {
 
     // we have to repeat so much of this code for each sprite
     // i wonder if we can write like a fx to consolidate it
-    let paper_img_width = 735;
-    let paper_img_height = 420;
-    let paper_sprite_h = 105;
-    let paper_sprite_w = 105;
+    //1088 by 1091
+    let paper_img_width = 200;
+    let paper_img_height = 204;
+    let paper_sprite_w = 100;
+    let paper_sprite_h = 102;
 
     // the rectangle of one sprite
-    let paper_sprite_rect = engine::image::Rect::new(0, 0, rock_sprite_w, rock_sprite_h);
+    let paper_sprite_rect = engine::image::Rect::new(0, 0, paper_sprite_w, paper_sprite_h);
 
     // NEED TO CHANGE
     let paper_sheet = engine::image::Image::from_png(
-        "game-1/content/scissor.png",
+        "game-1/content/paper-ss.png",
         paper_img_width,
         paper_img_height,
     );
@@ -563,12 +524,12 @@ fn main() {
     };
 
     let paper_anim_1 = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3, 4, 5, 6],
+        frames: vec![0, 1, 2, 3],
         frame_duration: 5,
         loops: true,
         sprite_size: paper_sprite_rect,
-        sprite_width: 7,
-        sprite_height: 4,
+        sprite_width: 2,
+        sprite_height: 2,
     };
 
     let mut paper_sprite = engine::animation::Sprite {
@@ -579,7 +540,7 @@ fn main() {
 
     // coordinates to draw to
     let paper_draw_to = engine::image::Vec2i {
-        x: WIDTH as i32 / 3 * 2,
+        x: (WIDTH as i32 / 3 * 2),
         y: draw_y,
     };
 
@@ -721,17 +682,11 @@ fn main() {
 
                 //create the game state that creates the screen for the instruction screen
                 if game.state == GameStates::Instructions {
-                    if !playing_anim {
-                        instruction_sprite.play_animation(
-                            &mut vulkan_state.fb2d,
-                            0,
-                            instruction_draw_to,
-                        );
-                        playing_anim = true;
-                    } else {
-                        instruction_sprite.tick_animation();
-                        instruction_sprite.draw(&mut vulkan_state.fb2d, instruction_draw_to);
-                    }
+                    vulkan_state.fb2d.bitblt(
+                        &instruction_img,
+                        &instruction_rect,
+                        instruction_draw_to,
+                    );
 
                     //if they click anywhere in the screen then move onto showPick
                     if mouse_click == true && prev_mouse_click == false {
@@ -760,9 +715,9 @@ fn main() {
                     };
 
                     if !playing_anim {
-                        scissor_sprite.play_animation(&mut vulkan_state.fb2d, 2, scissor_draw_to);
-                        rock_sprite.play_animation(&mut vulkan_state.fb2d, 0, rock_draw_to);
-                        paper_sprite.play_animation(&mut vulkan_state.fb2d, 0, paper_draw_to);
+                        scissor_sprite.play_animation(&mut vulkan_state.fb2d, scissor_draw_to);
+                        rock_sprite.play_animation(&mut vulkan_state.fb2d, rock_draw_to);
+                        paper_sprite.play_animation(&mut vulkan_state.fb2d, paper_draw_to);
 
                         playing_anim = true;
                     } else {

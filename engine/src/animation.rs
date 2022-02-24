@@ -78,8 +78,8 @@ impl AnimationState {
         self.elapsed_time += 1;
     }
 
-    pub fn change_animation_state(&mut self, new_state: usize) {
-        self.animation_index = new_state;
+    pub fn change_animation_index(&mut self, new_index: usize) {
+        self.animation_index = new_index;
     }
 
     // takes animation state information and produces a rect that we can use in the bitblt function
@@ -146,9 +146,9 @@ pub struct Sprite {
 
 impl Sprite {
     //would we need a time thing here?
-    pub fn play_animation(&mut self, fb: &mut Image, animation_index: usize, to: Vec2i) {
+    pub fn play_animation(&mut self, fb: &mut Image, to: Vec2i) {
         self.animation_state.current_frame = 0;
-        self.animation_state.animation_index = animation_index;
+        self.animation_state.animation_index = self.animation_state.animation_index;
 
         // find current frame
 
@@ -165,7 +165,7 @@ impl Sprite {
     pub fn draw(&self, fb: &mut Image, to: Vec2i) {
         let sprite_rect = self.animation_state.current_frame(&self.animations);
 
-        fb.bitblt(&self.image.as_ref(), &sprite_rect, (to.x, to.y));
+        fb.bitblt(&self.image.as_ref(), &sprite_rect, to);
     }
 
     // pub fn draw(&self, fb: &mut Image) {
@@ -185,6 +185,6 @@ impl Sprite {
     }
 }
 
-pub trait DrawSpriteExt {
-    fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
-}
+// pub trait DrawSpriteExt {
+//     fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
+// }
