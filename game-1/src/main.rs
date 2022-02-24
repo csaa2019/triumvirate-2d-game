@@ -539,6 +539,8 @@ fn main() {
         rock_sprite_rect.h,
     );
 
+    // we have to repeat so much of this code for each sprite
+    // i wonder if we can write like a fx to consolidate it
     let paper_img_width = 735;
     let paper_img_height = 420;
     let paper_sprite_h = 105;
@@ -752,6 +754,11 @@ fn main() {
 
                     //scissor animation
 
+                    let mouse_pos = engine::image::Vec2i {
+                        x: mouse_x as i32,
+                        y: mouse_y as i32,
+                    };
+
                     if !playing_anim {
                         scissor_sprite.play_animation(&mut vulkan_state.fb2d, 2, scissor_draw_to);
                         rock_sprite.play_animation(&mut vulkan_state.fb2d, 0, rock_draw_to);
@@ -759,13 +766,20 @@ fn main() {
 
                         playing_anim = true;
                     } else {
-                        scissor_sprite.tick_animation();
-                        scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
+                        if rock_clickable_rect.rect_inside(mouse_pos) {
+                            rock_sprite.tick_animation();
+                        }
 
-                        rock_sprite.tick_animation();
+                        if scissor_clickable_rect.rect_inside(mouse_pos) {
+                            scissor_sprite.tick_animation();
+                        }
+
+                        if paper_clickable_rect.rect_inside(mouse_pos) {
+                            paper_sprite.tick_animation();
+                        }
+
                         rock_sprite.draw(&mut vulkan_state.fb2d, rock_draw_to);
-
-                        paper_sprite.tick_animation();
+                        scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
                         paper_sprite.draw(&mut vulkan_state.fb2d, paper_draw_to);
                     }
 
