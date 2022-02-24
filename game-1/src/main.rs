@@ -416,27 +416,30 @@ fn main() {
     let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
     //initialize the scissor animation
     // sheet width and height
-    let img_width = 735;
-    let img_height = 420;
+    let scissor_img_width = 735;
+    let scissor_img_height = 420;
     // let img_width = 1470;
     // let img_height = 840;
 
     // height and width of a single frame
     // let sprite_h = 210;
     // let sprite_w = 210;
-    let sprite_h = 105;
-    let sprite_w = 105;
+    let scissor_sprite_h = 105;
+    let scissor_sprite_w = 105;
 
     // the rectangle of one sprite
-    let scissor_sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
+    let scissor_sprite_rect = engine::image::Rect::new(0, 0, scissor_sprite_w, scissor_sprite_h);
 
-    let scissor_sheet =
-        engine::image::Image::from_png("game-1/content/scissor.png", img_width, img_height);
+    let scissor_sheet = engine::image::Image::from_png(
+        "game-1/content/scissor.png",
+        scissor_img_width,
+        scissor_img_height,
+    );
 
     let scissor_anim_state = engine::animation::AnimationState {
         current_frame: 0,
         elapsed_time: 0,
-        animation_index: 1,
+        animation_index: 2,
     };
 
     let scissor_animation_snip_left = engine::animation::Animation {
@@ -476,14 +479,113 @@ fn main() {
         animation_state: scissor_anim_state,
     };
 
+    let draw_y = HEIGHT as i32 - scissor_sprite_h as i32 - 10;
     // coordinates to draw to
-    let scissor_draw_to = engine::image::Vec2i { x: 10, y: 10 };
+    let scissor_draw_to = engine::image::Vec2i {
+        x: WIDTH as i32 / 3,
+        y: draw_y,
+    };
 
     let scissor_clickable_rect = engine::image::Rect::new(
         scissor_draw_to.x,
         scissor_draw_to.y,
         scissor_sprite_rect.w,
         scissor_sprite_rect.h,
+    );
+
+    let rock_img_width = 735;
+    let rock_img_height = 420;
+    let rock_sprite_h = 105;
+    let rock_sprite_w = 105;
+
+    // the rectangle of one sprite
+    let rock_sprite_rect = engine::image::Rect::new(0, 0, rock_sprite_w, rock_sprite_h);
+
+    // NEED TO CHANGE
+    let rock_sheet = engine::image::Image::from_png(
+        "game-1/content/scissor.png",
+        rock_img_width,
+        rock_img_height,
+    );
+
+    let rock_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let rock_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3, 4, 5, 6],
+        frame_duration: 5,
+        loops: true,
+        sprite_size: rock_sprite_rect,
+        sprite_width: 7,
+        sprite_height: 4,
+    };
+
+    let mut rock_sprite = engine::animation::Sprite {
+        image: Rc::new(rock_sheet),
+        animations: vec![rock_anim_1],
+        animation_state: rock_anim_state,
+    };
+
+    // coordinates to draw to
+    let rock_draw_to = engine::image::Vec2i { x: 0, y: draw_y };
+
+    let rock_clickable_rect = engine::image::Rect::new(
+        rock_draw_to.x,
+        rock_draw_to.y,
+        rock_sprite_rect.w,
+        rock_sprite_rect.h,
+    );
+
+    let paper_img_width = 735;
+    let paper_img_height = 420;
+    let paper_sprite_h = 105;
+    let paper_sprite_w = 105;
+
+    // the rectangle of one sprite
+    let paper_sprite_rect = engine::image::Rect::new(0, 0, rock_sprite_w, rock_sprite_h);
+
+    // NEED TO CHANGE
+    let paper_sheet = engine::image::Image::from_png(
+        "game-1/content/scissor.png",
+        paper_img_width,
+        paper_img_height,
+    );
+
+    let paper_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let paper_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3, 4, 5, 6],
+        frame_duration: 5,
+        loops: true,
+        sprite_size: paper_sprite_rect,
+        sprite_width: 7,
+        sprite_height: 4,
+    };
+
+    let mut paper_sprite = engine::animation::Sprite {
+        image: Rc::new(paper_sheet),
+        animations: vec![paper_anim_1],
+        animation_state: paper_anim_state,
+    };
+
+    // coordinates to draw to
+    let paper_draw_to = engine::image::Vec2i {
+        x: WIDTH as i32 / 3 * 2,
+        y: draw_y,
+    };
+
+    let paper_clickable_rect = engine::image::Rect::new(
+        paper_draw_to.x,
+        paper_draw_to.y,
+        paper_sprite_rect.w,
+        paper_sprite_rect.h,
     );
 
     let mut playing_anim = false;
@@ -630,7 +732,7 @@ fn main() {
                     }
 
                     //if they click anywhere in the screen then move onto showPick
-                    if mouse_click == false && prev_mouse_click == false {
+                    if mouse_click == true && prev_mouse_click == false {
                         game.state = GameStates::ShowPick;
                     }
                 }
@@ -651,11 +753,20 @@ fn main() {
                     //scissor animation
 
                     if !playing_anim {
-                        scissor_sprite.play_animation(&mut vulkan_state.fb2d, 0, scissor_draw_to);
+                        scissor_sprite.play_animation(&mut vulkan_state.fb2d, 2, scissor_draw_to);
+                        rock_sprite.play_animation(&mut vulkan_state.fb2d, 0, rock_draw_to);
+                        paper_sprite.play_animation(&mut vulkan_state.fb2d, 0, paper_draw_to);
+
                         playing_anim = true;
                     } else {
                         scissor_sprite.tick_animation();
                         scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
+
+                        rock_sprite.tick_animation();
+                        rock_sprite.draw(&mut vulkan_state.fb2d, rock_draw_to);
+
+                        paper_sprite.tick_animation();
+                        paper_sprite.draw(&mut vulkan_state.fb2d, paper_draw_to);
                     }
 
                     if mouse_click == true && prev_mouse_click == false {
@@ -664,9 +775,19 @@ fn main() {
                             y: mouse_y as i32,
                         };
 
+                        if rock_clickable_rect.rect_inside(mouse_pos) {
+                            print!("Clicked the rock rect");
+                            player_move = Some(moves[0]);
+                        }
+
                         if scissor_clickable_rect.rect_inside(mouse_pos) {
                             print!("Clicked the scissor rect");
                             player_move = Some(moves[1]);
+                        }
+
+                        if paper_clickable_rect.rect_inside(mouse_pos) {
+                            print!("Clicked the paper rect");
+                            player_move = Some(moves[2]);
                         }
 
                         // change code below for other clickable elements
