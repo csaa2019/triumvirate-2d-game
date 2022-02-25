@@ -392,14 +392,21 @@ fn main() {
     let text_title_draw_to = engine::image::Vec2i { x: 40, y: 20 };
 
     //Press Play image
-    //365 x 89, scaled down to 0.3
-    let text_play_w = 110 as u32;
-    let text_play_h = 20 as u32;
+    //365 x 89, scaled down to like 0.3
+    let text_play_w = 100 as u32;
+    let text_play_h = 18 as u32;
     let text_play_rect = engine::image::Rect::new(0, 0, text_play_w, text_play_h);
     let text_play =
         engine::image::Image::from_png("game-1/content/PLAY.png", text_play_w, text_play_h);
 
     let text_play_draw_to = engine::image::Vec2i { x: 110, y: 150 };
+
+    let text_play_clickable_rect = engine::image::Rect::new(
+        text_play_draw_to.x,
+        text_play_draw_to.y,
+        text_play_w,
+        text_play_h,
+    );
 
     //GameState Instruction Assets
     // Instruction sheet image
@@ -711,9 +718,21 @@ fn main() {
                         .fb2d
                         .bitblt(&text_play, &text_play_rect, text_play_draw_to);
 
-                    //if they click anywhere in the screen then move onto Instructions
-                    //need to work on mouse click here
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if text_play_clickable_rect.rect_inside(mouse_pos) {
+                            game.state = GameStates::Instructions;
+                        }
+                    }
+
+                    //WEIRD ISSUE: you briefly see instructions and then it immediately goes to show pick
+                    //I think we need to reset the mouse clicked status somewhere between the two
                 }
+
                 //create the game state that creates the screen for the instruction screen
                 if game.state == GameStates::Instructions {
                     vulkan_state.fb2d.bitblt(
@@ -732,16 +751,6 @@ fn main() {
                     // resetting player move so it doesn't just keep
                     // thinking the player has a move
                     player_move = None;
-
-                    //bit blit an image that is like "take a pick of any of the following"
-
-                    //have a black line between the three of the animations
-
-                    //paper animation
-
-                    //rock animation
-
-                    //scissor animation
 
                     let mouse_pos = engine::image::Vec2i {
                         x: mouse_x as i32,
