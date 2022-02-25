@@ -374,14 +374,34 @@ fn main() {
         },
     ];
 
-    //Game initialization testing - GRACE
-    let mut game = Game {
-        state: GameStates::Instructions,
-    };
-
     // IMAGES + SPRITES
     // consider putting all initializing sprite stuff in its own function?
 
+    //GameState Main Screen Assets
+    //Title Text image
+    let text_title_w = 238;
+    let text_title_h = 60;
+    let text_title_rect = engine::image::Rect::new(0, 0, text_title_w, text_title_h);
+    let text_title = engine::image::Image::from_png(
+        "game-1/content/ROCK-PAPER-SCISSORS.png",
+        text_title_w,
+        text_title_h,
+    );
+
+    //make it in the center of the screen
+    let text_title_draw_to = engine::image::Vec2i { x: 40, y: 20 };
+
+    //Press Play image
+    //365 x 89, scaled down to 0.3
+    let text_play_w = 110 as u32;
+    let text_play_h = 20 as u32;
+    let text_play_rect = engine::image::Rect::new(0, 0, text_play_w, text_play_h);
+    let text_play =
+        engine::image::Image::from_png("game-1/content/PLAY.png", text_play_w, text_play_h);
+
+    let text_play_draw_to = engine::image::Vec2i { x: 110, y: 150 };
+
+    //GameState Instruction Assets
     // Instruction sheet image
     let instruction_w = 350;
     let instruction_h = 245;
@@ -566,6 +586,9 @@ fn main() {
     let mut prev_mouse_click = false;
 
     // GAME STUFF
+    let mut game = Game {
+        state: GameStates::MainScreen,
+    };
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
     let mut round = 0; // the round the player is on, out of 3.
@@ -680,6 +703,17 @@ fn main() {
                 //choose background color, I made it white
                 vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
+                if game.state == GameStates::MainScreen {
+                    vulkan_state
+                        .fb2d
+                        .bitblt(&text_title, &text_title_rect, text_title_draw_to);
+                    vulkan_state
+                        .fb2d
+                        .bitblt(&text_play, &text_play_rect, text_play_draw_to);
+
+                    //if they click anywhere in the screen then move onto Instructions
+                    //need to work on mouse click here
+                }
                 //create the game state that creates the screen for the instruction screen
                 if game.state == GameStates::Instructions {
                     vulkan_state.fb2d.bitblt(
