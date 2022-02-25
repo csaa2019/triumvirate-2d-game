@@ -447,7 +447,7 @@ fn main() {
 
     let scissor_anim_1 = engine::animation::Animation {
         frames: vec![0, 1, 2, 3],
-        frame_duration: 5,
+        frame_duration: 10,
         loops: true,
         sprite_size: scissor_sprite_rect,
         sprite_width: 2,
@@ -500,7 +500,7 @@ fn main() {
 
     let rock_anim_1 = engine::animation::Animation {
         frames: vec![0, 1, 2, 3],
-        frame_duration: 5,
+        frame_duration: 10,
         loops: true,
         sprite_size: rock_sprite_rect,
         sprite_width: 2,
@@ -552,7 +552,7 @@ fn main() {
 
     let paper_anim_1 = engine::animation::Animation {
         frames: vec![0, 1, 2, 3],
-        frame_duration: 5,
+        frame_duration: 10,
         loops: true,
         sprite_size: paper_sprite_rect,
         sprite_width: 2,
@@ -710,6 +710,7 @@ fn main() {
                 //choose background color, I made it white
                 vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
+                //MAINSCREEN game state
                 if game.state == GameStates::MainScreen {
                     vulkan_state
                         .fb2d
@@ -728,13 +729,9 @@ fn main() {
                             game.state = GameStates::Instructions;
                         }
                     }
-
-                    //WEIRD ISSUE: you briefly see instructions and then it immediately goes to show pick
-                    //I think we need to reset the mouse clicked status somewhere between the two
                 }
-
-                //create the game state that creates the screen for the instruction screen
-                if game.state == GameStates::Instructions {
+                //INSTRUCTIONS gamestate
+                else if game.state == GameStates::Instructions {
                     vulkan_state.fb2d.bitblt(
                         &instruction_img,
                         &instruction_rect,
@@ -746,8 +743,8 @@ fn main() {
                         game.state = GameStates::ShowPick;
                     }
                 }
-
-                if game.state == GameStates::ShowPick {
+                //SHOWPICK gamestate
+                else if game.state == GameStates::ShowPick {
                     // resetting player move so it doesn't just keep
                     // thinking the player has a move
                     player_move = None;
@@ -802,6 +799,9 @@ fn main() {
                             player_move = Some(moves[2]);
                         }
 
+                        //check if the round number is < 3
+                        //else: Increase round number here and change game state to countdown
+
                         // change code below for other clickable elements
 
                         // if mouse_x > 0.0 && mouse_x < 250.0 {
@@ -847,6 +847,15 @@ fn main() {
                         println!();
                     }
                 }
+
+                //GameState Countdown
+                //just have an animation that goes 3 2 1 and then moves on
+
+                //GameState Final Screen
+                //if they win: image
+                //if they lose: image
+                //along with a "play again"
+
                 // Update prev_keys and prev_mouse_click to store previous inputs
                 prev_keys.copy_from_slice(&now_keys);
                 prev_mouse_click = mouse_click;
