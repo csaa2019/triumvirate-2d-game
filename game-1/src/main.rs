@@ -578,10 +578,54 @@ fn main() {
         paper_sprite_rect.h,
     );
 
+    //images for gamestate: final screen
+
+    //You Lose! text
+    //828 x 89
+    let text_youlose_w = 166 as u32;
+    let text_youlose_h = 18 as u32;
+    let text_youlose_rect = engine::image::Rect::new(0, 0, text_youlose_w, text_youlose_h);
+    let text_youlose = engine::image::Image::from_png(
+        "game-1/content/YOU-LOSE.png",
+        text_youlose_w,
+        text_youlose_h,
+    );
+
+    let text_youlose_draw_to = engine::image::Vec2i { x: 80, y: 30 };
+
+    //You Win! text
+    //828 x 89 at 0.2 scale
+    let text_youwin_w = 166 as u32;
+    let text_youwin_h = 18 as u32;
+    let text_youwin_rect = engine::image::Rect::new(0, 0, text_youwin_w, text_youwin_h);
+    let text_youwin =
+        engine::image::Image::from_png("game-1/content/YOU-WIN.png", text_youwin_w, text_youwin_h);
+
+    let text_youwin_draw_to = engine::image::Vec2i { x: 80, y: 30 };
+
+    //Play Again text
+    //951x89 at 0.2 scale
+    let text_playagain_w = 190 as u32;
+    let text_playagain_h = 18 as u32;
+    let text_playagain_rect = engine::image::Rect::new(0, 0, text_playagain_w, text_playagain_h);
+    let text_playagain = engine::image::Image::from_png(
+        "game-1/content/PLAY-AGAIN.png",
+        text_playagain_w,
+        text_playagain_h,
+    );
+
+    let text_playagain_draw_to = engine::image::Vec2i { x: 60, y: 150 };
+
+    let text_playagain_clickable_rect = engine::image::Rect::new(
+        text_playagain_draw_to.x,
+        text_playagain_draw_to.y,
+        text_playagain_w,
+        text_playagain_h,
+    );
+
     let mut playing_anim = false;
 
     // KEYBOARD INPUT STUFF
-
     let mut now_keys = [false; 255];
     let mut prev_keys = now_keys.clone();
 
@@ -594,7 +638,7 @@ fn main() {
 
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::MainScreen,
+        state: GameStates::FinalScreen,
     };
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
@@ -847,10 +891,46 @@ fn main() {
                         println!();
                     }
                 }
-
                 //GameState Countdown
                 //just have an animation that goes 3 2 1 and then moves on
+                else if game.state == GameStates::FinalScreen {
+                    //blit the play again at the bottom of the screen
+                    vulkan_state.fb2d.bitblt(
+                        &text_playagain,
+                        &text_playagain_rect,
+                        text_playagain_draw_to,
+                    );
 
+                    //if player score is greater than enemy score bitblt this
+                    //waiting for the variable names for score
+
+                    vulkan_state
+                        .fb2d
+                        .bitblt(&text_youwin, &text_youwin_rect, text_youwin_draw_to);
+
+                    /*
+                    //else bitblit this
+                    vulkan_state.fb2d.bitblt(
+                        &text_youlose,
+                        &text_youlose_rect,
+                        text_youlose_draw_to,
+                    );
+                    */
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        //we actually want it to be playerpicking
+                        if text_playagain_clickable_rect.rect_inside(mouse_pos) {
+                            game.state = GameStates::ShowPick;
+                        }
+                    }
+
+                    //
+                }
                 //GameState Final Screen
                 //if they win: image
                 //if they lose: image
