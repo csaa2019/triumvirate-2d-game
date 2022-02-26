@@ -148,6 +148,7 @@ impl Sprite {
     //would we need a time thing here?
     pub fn play_animation(&mut self, fb: &mut Image, to: Vec2i) {
         self.animation_state.current_frame = 0;
+        self.animation_state.elapsed_time = 0;
         self.animation_state.animation_index = self.animation_state.animation_index;
 
         // find current frame

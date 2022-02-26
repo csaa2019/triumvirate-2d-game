@@ -578,7 +578,95 @@ fn main() {
         paper_sprite_rect.h,
     );
 
+    let paper_img_width = 200;
+    let paper_img_height = 204;
+    let paper_sprite_w = 100;
+    let paper_sprite_h = 102;
+
+    // the rectangle of one sprite
+    let paper_sprite_rect = engine::image::Rect::new(0, 0, paper_sprite_w, paper_sprite_h);
+
+    // NEED TO CHANGE
+    let paper_sheet = engine::image::Image::from_png(
+        "game-1/content/paper-ss.png",
+        paper_img_width,
+        paper_img_height,
+    );
+
+    let paper_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let paper_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3],
+        frame_duration: 10,
+        loops: true,
+        sprite_size: paper_sprite_rect,
+        sprite_width: 2,
+        sprite_height: 2,
+    };
+
+    let mut paper_sprite = engine::animation::Sprite {
+        image: Rc::new(paper_sheet),
+        animations: vec![paper_anim_1],
+        animation_state: paper_anim_state,
+    };
+
+    // coordinates to draw to
+    let paper_draw_to = engine::image::Vec2i {
+        x: (WIDTH as i32 / 3 * 2),
+        y: draw_y,
+    };
+
+    let countdown_img_width = 300;
+    let countdown_img_height = 300;
+    let countdown_sprite_w = 150;
+    let countdown_sprite_h = 150;
+
+    // the rectangle of one sprite
+    let countdown_sprite_rect =
+        engine::image::Rect::new(0, 0, countdown_sprite_w, countdown_sprite_h);
+
+    // NEED TO CHANGE
+    let countdown_sheet = engine::image::Image::from_png(
+        "game-1/content/countdown ss.png",
+        countdown_img_width,
+        countdown_img_height,
+    );
+
+    let countdown_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let countdown_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2],
+        frame_duration: 20,
+        loops: true,
+        sprite_size: countdown_sprite_rect,
+        sprite_width: 2,
+        sprite_height: 2,
+    };
+
+    let mut countdown_sprite = engine::animation::Sprite {
+        image: Rc::new(countdown_sheet),
+        animations: vec![countdown_anim_1],
+        animation_state: countdown_anim_state,
+    };
+
+    // coordinates to draw to
+    let countdown_draw_to = engine::image::Vec2i {
+        x: (WIDTH as i32 - countdown_sprite_w as i32) / 2,
+        y: 10,
+    };
+
+    let mut countdown_playing_anim = false;
     let mut playing_anim = false;
+
+    let mut countdown_timer = 0;
 
     // KEYBOARD INPUT STUFF
 
@@ -740,11 +828,11 @@ fn main() {
 
                     //if they click anywhere in the screen then move onto showPick
                     if mouse_click == true && prev_mouse_click == false {
-                        game.state = GameStates::ShowPick;
+                        game.state = GameStates::PlayerPicking;
                     }
                 }
                 //SHOWPICK gamestate
-                else if game.state == GameStates::ShowPick {
+                else if game.state == GameStates::PlayerPicking {
                     // resetting player move so it doesn't just keep
                     // thinking the player has a move
                     player_move = None;
@@ -845,6 +933,25 @@ fn main() {
                             score = (0, 0);
                         }
                         println!();
+                        game.state = GameStates::Countdown;
+                    }
+                } else if game.state == GameStates::Countdown {
+                    if countdown_timer >= 60 {
+                        countdown_timer = 0;
+                        countdown_playing_anim = false;
+                        game.state = GameStates::PlayerPicking;
+                    } else {
+                        countdown_timer += 1;
+
+                        if !countdown_playing_anim {
+                            print!("is this running? {} \n", countdown_playing_anim);
+                            countdown_sprite
+                                .play_animation(&mut vulkan_state.fb2d, countdown_draw_to);
+                            countdown_playing_anim = true;
+                        } else {
+                            countdown_sprite.tick_animation();
+                            countdown_sprite.draw(&mut vulkan_state.fb2d, countdown_draw_to);
+                        }
                     }
                 }
 
