@@ -987,7 +987,7 @@ fn main() {
 
                         //we actually want it to be playerpicking
                         if text_playagain_clickable_rect.rect_inside(mouse_pos) {
-                            game.state = GameStates::ShowPick;
+                            game.state = GameStates::PlayerPicking;
                         }
                     }
 
