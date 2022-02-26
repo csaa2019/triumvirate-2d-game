@@ -71,7 +71,7 @@ pub enum GameStates {
     ShowPick,
 
     //Screen that shows who wins
-    Explosion,
+    FinalScreen,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
