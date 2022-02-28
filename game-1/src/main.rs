@@ -10,6 +10,10 @@ use rand::Rng;
 // use std::io::Cursor;
 use std::rc::Rc;
 use std::sync::Arc;
+use kira::manager::{AudioManager, AudioManagerSettings};
+use kira::instance::InstanceSettings;
+use kira::sound::SoundSettings;
+use kira::arrangement::{Arrangement, LoopArrangementSettings};
 // use std::time::Instant;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer, TypedBufferAccess};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, SubpassContents};
@@ -352,6 +356,16 @@ fn main() {
     Stuff each call/draw operation
     */
 
+    // Load audio
+    let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
+    let mut sound_handle_music = audio_manager.load_sound(
+        "game-1/content/RPS_tunes_loop.ogg", SoundSettings::default()).unwrap();
+    let mut arrangement_handle = audio_manager.add_arrangement(Arrangement::new_loop(
+        &sound_handle_music,
+        LoopArrangementSettings::default())).unwrap();
+    let mut sound_handle_click = audio_manager.load_sound(
+        "game-1/content/click.ogg", SoundSettings::default()).unwrap();
+
     let event_loop = EventLoop::new();
     let (vulkan_config, mut vulkan_state) = vulkan_init(&event_loop);
 
@@ -406,6 +420,13 @@ fn main() {
         text_play_draw_to.y,
         text_play_w,
         text_play_h,
+    );
+
+    // to scale down, change img_width and height and change score widthth and height variables below
+    let score_image = engine::image::Image::from_png(
+        "game-1/content/score.png",
+        70,
+        24,
     );
 
     //GameState Instruction Assets
@@ -688,6 +709,7 @@ fn main() {
     let mut round = 0; // the round the player is on, out of 3.
     let mut score = (0, 0); // (player score, AI score)
     let mut player_move = None;
+    let mut audio_play = true;
 
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -790,12 +812,13 @@ fn main() {
                     *control_flow = ControlFlow::Exit;
                 }
 
-                // if mouse_click == 1 {
-                //     println!("Mouse clicked at {} {}", mouse_x, mouse_y);
-                // }
-
                 //choose background color, I made it white
                 vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
+
+                if audio_play == true {
+                    arrangement_handle.play(InstanceSettings::default());
+                    audio_play = false;
+                }
 
                 //MAINSCREEN game state
                 if game.state == GameStates::MainScreen {
@@ -807,6 +830,7 @@ fn main() {
                         .bitblt(&text_play, &text_play_rect, text_play_draw_to);
 
                     if mouse_click == true && prev_mouse_click == false {
+                        sound_handle_click.play(InstanceSettings::default());
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
                             y: mouse_y as i32,
@@ -827,6 +851,7 @@ fn main() {
 
                     //if they click anywhere in the screen then move onto showPick
                     if mouse_click == true && prev_mouse_click == false {
+                        sound_handle_click.play(InstanceSettings::default());
                         game.state = GameStates::PlayerPicking;
                     }
                 }
@@ -840,6 +865,15 @@ fn main() {
                         x: mouse_x as i32,
                         y: mouse_y as i32,
                     };
+
+                    // Draw score image in top right
+                    let score_width = 70;
+                    let score_height = 24;
+                    vulkan_state.fb2d.bitblt(
+                        &score_image,
+                        &engine::image::Rect::new(0, 0, score_width, score_height),
+                        engine::image::Vec2i { x: 235, y: 5 }
+                    );
 
                     if !playing_anim {
                         scissor_sprite.play_animation(&mut vulkan_state.fb2d, scissor_draw_to);
@@ -866,6 +900,7 @@ fn main() {
                     }
 
                     if mouse_click == true && prev_mouse_click == false {
+                        sound_handle_click.play(InstanceSettings::default());
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
                             y: mouse_y as i32,
@@ -980,6 +1015,7 @@ fn main() {
                     */
 
                     if mouse_click == true && prev_mouse_click == false {
+                        sound_handle_click.play(InstanceSettings::default());
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
                             y: mouse_y as i32,
