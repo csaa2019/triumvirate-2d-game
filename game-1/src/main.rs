@@ -8,12 +8,12 @@ use rand::Rng;
 // use std::fmt::{self, Display, Formatter};
 // use std::io;
 // use std::io::Cursor;
+use kira::arrangement::{Arrangement, LoopArrangementSettings};
+use kira::instance::InstanceSettings;
+use kira::manager::{AudioManager, AudioManagerSettings};
+use kira::sound::SoundSettings;
 use std::rc::Rc;
 use std::sync::Arc;
-use kira::manager::{AudioManager, AudioManagerSettings};
-use kira::instance::InstanceSettings;
-use kira::sound::SoundSettings;
-use kira::arrangement::{Arrangement, LoopArrangementSettings};
 // use std::time::Instant;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer, TypedBufferAccess};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, SubpassContents};
@@ -347,6 +347,43 @@ fn vulkan_init(event_loop: &EventLoop<()>) -> (VulkanConfig, VulkanState) {
 // consider Assets struct: contains image, colors, etc.
 // consider update function and "go" function??
 
+fn create_move_sprite(
+    img_width: u32,
+    img_height: u32,
+    filename: &str,
+) -> engine::animation::Sprite {
+    //initialize the scissor animation
+
+    let sprite_w = img_width / 2;
+    let sprite_h = img_height / 2;
+
+    // the rectangle of one sprite
+    let sprite_rect = engine::image::Rect::new(0, 0, sprite_w, sprite_h);
+
+    let sheet = engine::image::Image::from_png(filename, img_width, img_height);
+
+    let anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3],
+        frame_duration: 10,
+        loops: true,
+        sprite_size: sprite_rect,
+        sprite_width: 2,
+        sprite_height: 2,
+    };
+
+    engine::animation::Sprite {
+        image: Rc::new(sheet),
+        animations: vec![anim_1],
+        animation_state: anim_state,
+    }
+}
+
 fn main() {
     /*
     Stuff during initialization (once)
@@ -358,13 +395,21 @@ fn main() {
 
     // Load audio
     let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
-    let mut sound_handle_music = audio_manager.load_sound(
-        "game-1/content/RPS_tunes_loop.ogg", SoundSettings::default()).unwrap();
-    let mut arrangement_handle = audio_manager.add_arrangement(Arrangement::new_loop(
-        &sound_handle_music,
-        LoopArrangementSettings::default())).unwrap();
-    let mut sound_handle_click = audio_manager.load_sound(
-        "game-1/content/click.ogg", SoundSettings::default()).unwrap();
+    let mut sound_handle_music = audio_manager
+        .load_sound(
+            "game-1/content/RPS_tunes_loop.ogg",
+            SoundSettings::default(),
+        )
+        .unwrap();
+    let mut arrangement_handle = audio_manager
+        .add_arrangement(Arrangement::new_loop(
+            &sound_handle_music,
+            LoopArrangementSettings::default(),
+        ))
+        .unwrap();
+    let mut sound_handle_click = audio_manager
+        .load_sound("game-1/content/click.ogg", SoundSettings::default())
+        .unwrap();
 
     let event_loop = EventLoop::new();
     let (vulkan_config, mut vulkan_state) = vulkan_init(&event_loop);
@@ -423,11 +468,7 @@ fn main() {
     );
 
     // to scale down, change img_width and height and change score widthth and height variables below
-    let score_image = engine::image::Image::from_png(
-        "game-1/content/score.png",
-        70,
-        24,
-    );
+    let score_image = engine::image::Image::from_png("game-1/content/score.png", 70, 24);
 
     //GameState Instruction Assets
     // Instruction sheet image
@@ -443,43 +484,17 @@ fn main() {
 
     let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
 
-    //initialize the scissor animation
-    // sheet width and height
-    // 922 by 1346
+    // SCISSOR SPRITE
     let scissor_img_width = 136;
     let scissor_img_height = 200;
-    let scissor_sprite_w = 68;
-    let scissor_sprite_h = 100;
+    let scissor_sprite_w = scissor_img_width / 2;
+    let scissor_sprite_h = scissor_img_height / 2;
 
-    // the rectangle of one sprite
-    let scissor_sprite_rect = engine::image::Rect::new(0, 0, scissor_sprite_w, scissor_sprite_h);
-
-    let scissor_sheet = engine::image::Image::from_png(
-        "game-1/content/scissors-ss.png",
+    let mut scissor_sprite = create_move_sprite(
         scissor_img_width,
         scissor_img_height,
+        "game-1/content/scissors-ss.png",
     );
-
-    let scissor_anim_state = engine::animation::AnimationState {
-        current_frame: 0,
-        elapsed_time: 0,
-        animation_index: 0,
-    };
-
-    let scissor_anim_1 = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3],
-        frame_duration: 10,
-        loops: true,
-        sprite_size: scissor_sprite_rect,
-        sprite_width: 2,
-        sprite_height: 2,
-    };
-
-    let mut scissor_sprite = engine::animation::Sprite {
-        image: Rc::new(scissor_sheet),
-        animations: vec![scissor_anim_1],
-        animation_state: scissor_anim_state,
-    };
 
     let draw_y = HEIGHT as i32 - scissor_sprite_h as i32 - 10;
     // coordinates to draw to
@@ -491,48 +506,22 @@ fn main() {
     let scissor_clickable_rect = engine::image::Rect::new(
         scissor_draw_to.x,
         scissor_draw_to.y,
-        scissor_sprite_rect.w,
-        scissor_sprite_rect.h,
+        scissor_sprite_w,
+        scissor_sprite_h,
     );
 
-    // 710 by 800
-    // divide by two for sprite
+    // ROCK SPRITE
 
     let rock_img_width = 177;
     let rock_img_height = 200;
     let rock_sprite_w = 88;
     let rock_sprite_h = 100;
 
-    // the rectangle of one sprite
-    let rock_sprite_rect = engine::image::Rect::new(0, 0, rock_sprite_w, rock_sprite_h);
-
-    // NEED TO CHANGE
-    let rock_sheet = engine::image::Image::from_png(
-        "game-1/content/rock-ss.png",
+    let mut rock_sprite = create_move_sprite(
         rock_img_width,
         rock_img_height,
+        "game-1/content/rock-ss.png",
     );
-
-    let rock_anim_state = engine::animation::AnimationState {
-        current_frame: 0,
-        elapsed_time: 0,
-        animation_index: 0,
-    };
-
-    let rock_anim_1 = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3],
-        frame_duration: 10,
-        loops: true,
-        sprite_size: rock_sprite_rect,
-        sprite_width: 2,
-        sprite_height: 2,
-    };
-
-    let mut rock_sprite = engine::animation::Sprite {
-        image: Rc::new(rock_sheet),
-        animations: vec![rock_anim_1],
-        animation_state: rock_anim_state,
-    };
 
     // coordinates to draw to
     let rock_draw_to = engine::image::Vec2i {
@@ -540,53 +529,22 @@ fn main() {
         y: draw_y,
     };
 
-    let rock_clickable_rect = engine::image::Rect::new(
-        rock_draw_to.x,
-        rock_draw_to.y,
-        rock_sprite_rect.w,
-        rock_sprite_rect.h,
-    );
+    let rock_clickable_rect =
+        engine::image::Rect::new(rock_draw_to.x, rock_draw_to.y, rock_sprite_w, rock_sprite_h);
 
-    // we have to repeat so much of this code for each sprite
-    // i wonder if we can write like a fx to consolidate it
-    //1088 by 1091
+    // PAPER SPRITE
+
     let paper_img_width = 200;
     let paper_img_height = 204;
-    let paper_sprite_w = 100;
-    let paper_sprite_h = 102;
+    let paper_sprite_w = paper_img_width / 2;
+    let paper_sprite_h = paper_img_height / 2;
 
-    // the rectangle of one sprite
-    let paper_sprite_rect = engine::image::Rect::new(0, 0, paper_sprite_w, paper_sprite_h);
-
-    // NEED TO CHANGE
-    let paper_sheet = engine::image::Image::from_png(
-        "game-1/content/paper-ss.png",
+    let mut paper_sprite = create_move_sprite(
         paper_img_width,
         paper_img_height,
+        "game-1/content/paper-ss.png",
     );
 
-    let paper_anim_state = engine::animation::AnimationState {
-        current_frame: 0,
-        elapsed_time: 0,
-        animation_index: 0,
-    };
-
-    let paper_anim_1 = engine::animation::Animation {
-        frames: vec![0, 1, 2, 3],
-        frame_duration: 10,
-        loops: true,
-        sprite_size: paper_sprite_rect,
-        sprite_width: 2,
-        sprite_height: 2,
-    };
-
-    let mut paper_sprite = engine::animation::Sprite {
-        image: Rc::new(paper_sheet),
-        animations: vec![paper_anim_1],
-        animation_state: paper_anim_state,
-    };
-
-    // coordinates to draw to
     let paper_draw_to = engine::image::Vec2i {
         x: (WIDTH as i32 / 3 * 2),
         y: draw_y,
@@ -595,8 +553,8 @@ fn main() {
     let paper_clickable_rect = engine::image::Rect::new(
         paper_draw_to.x,
         paper_draw_to.y,
-        paper_sprite_rect.w,
-        paper_sprite_rect.h,
+        paper_sprite_w,
+        paper_sprite_h,
     );
 
     //images for gamestate: final screen
@@ -702,7 +660,7 @@ fn main() {
 
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::FinalScreen,
+        state: GameStates::MainScreen,
     };
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
@@ -872,7 +830,7 @@ fn main() {
                     vulkan_state.fb2d.bitblt(
                         &score_image,
                         &engine::image::Rect::new(0, 0, score_width, score_height),
-                        engine::image::Vec2i { x: 235, y: 5 }
+                        engine::image::Vec2i { x: 235, y: 5 },
                     );
 
                     if !playing_anim {
@@ -973,7 +931,7 @@ fn main() {
                     if countdown_timer >= 60 {
                         countdown_timer = 0;
                         countdown_playing_anim = false;
-                        game.state = GameStates::PlayerPicking;
+                        game.state = GameStates::ShowPick;
                     } else {
                         countdown_timer += 1;
 
@@ -985,6 +943,70 @@ fn main() {
                         } else {
                             countdown_sprite.tick_animation();
                             countdown_sprite.draw(&mut vulkan_state.fb2d, countdown_draw_to);
+                        }
+                    }
+                } else if game.state == GameStates::ShowPick {
+                    if countdown_timer >= 60 {
+                        countdown_timer = 0;
+                        countdown_playing_anim = false;
+                        game.state = GameStates::PlayerPicking;
+                    } else {
+                        let player_draw_to = Vec2i {
+                            x: (WIDTH as i32 / 5),
+                            y: HEIGHT as i32 / 2,
+                        };
+
+                        let enemy_draw_to = Vec2i {
+                            x: (WIDTH as i32 / 5) * 3,
+                            y: 10,
+                        };
+
+                        vulkan_state
+                            .fb2d
+                            .line((1, 1), (WIDTH - 1, HEIGHT - 1), (0, 0, 0, 1));
+
+                        countdown_timer += 1;
+
+                        if !countdown_playing_anim {
+                            countdown_playing_anim = true;
+
+                            if p1.current_move == Some(moves[0]) {
+                                rock_sprite.play_animation(&mut vulkan_state.fb2d, player_draw_to);
+                            } else if p1.current_move == Some(moves[1]) {
+                                scissor_sprite
+                                    .play_animation(&mut vulkan_state.fb2d, player_draw_to);
+                            } else if p1.current_move == Some(moves[2]) {
+                                paper_sprite.play_animation(&mut vulkan_state.fb2d, player_draw_to);
+                            }
+
+                            if p2.current_move == Some(moves[0]) {
+                                rock_sprite.play_animation(&mut vulkan_state.fb2d, enemy_draw_to);
+                            } else if p2.current_move == Some(moves[1]) {
+                                scissor_sprite
+                                    .play_animation(&mut vulkan_state.fb2d, enemy_draw_to);
+                            } else if p2.current_move == Some(moves[2]) {
+                                paper_sprite.play_animation(&mut vulkan_state.fb2d, enemy_draw_to);
+                            }
+                        } else {
+                            rock_sprite.tick_animation();
+                            scissor_sprite.tick_animation();
+                            paper_sprite.tick_animation();
+
+                            if p1.current_move == Some(moves[0]) {
+                                rock_sprite.draw(&mut vulkan_state.fb2d, player_draw_to);
+                            } else if p1.current_move == Some(moves[1]) {
+                                scissor_sprite.draw(&mut vulkan_state.fb2d, player_draw_to);
+                            } else if p1.current_move == Some(moves[2]) {
+                                paper_sprite.draw(&mut vulkan_state.fb2d, player_draw_to);
+                            }
+
+                            if p2.current_move == Some(moves[0]) {
+                                rock_sprite.draw(&mut vulkan_state.fb2d, enemy_draw_to);
+                            } else if p2.current_move == Some(moves[1]) {
+                                scissor_sprite.draw(&mut vulkan_state.fb2d, enemy_draw_to);
+                            } else if p2.current_move == Some(moves[2]) {
+                                paper_sprite.draw(&mut vulkan_state.fb2d, enemy_draw_to);
+                            }
                         }
                     }
                 }

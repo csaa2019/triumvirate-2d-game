@@ -225,33 +225,33 @@ impl Image {
     //     fb[y * WIDTH + x0..(y * WIDTH + x1)].fill(c);
     // }
     // #[allow(dead_code)]
-    // fn line(&mut self, (x0, y0): (usize, usize), (x1, y1): (usize, usize), col: Color) {
-    //     let fb = &mut self.buffer;
-    //     let mut x = x0 as i64;
-    //     let mut y = y0 as i64;
-    //     let x0 = x0 as i64;
-    //     let y0 = y0 as i64;
-    //     let x1 = x1 as i64;
-    //     let y1 = y1 as i64;
-    //     let dx = (x1 - x0).abs();
-    //     let sx: i64 = if x0 < x1 { 1 } else { -1 };
-    //     let dy = -(y1 - y0).abs();
-    //     let sy: i64 = if y0 < y1 { 1 } else { -1 };
-    //     let mut err = dx + dy;
-    //     while x != x1 || y != y1 {
-    //         fb[(y as usize * WIDTH + x as usize)..(y as usize * WIDTH + (x as usize + 1))]
-    //             .fill(col);
-    //         let e2 = 2 * err;
-    //         if dy <= e2 {
-    //             err += dy;
-    //             x += sx;
-    //         }
-    //         if e2 <= dx {
-    //             err += dx;
-    //             y += sy;
-    //         }
-    //     }
-    // }
+    pub fn line(&mut self, (x0, y0): (usize, usize), (x1, y1): (usize, usize), col: Color) {
+        let fb = &mut self.buffer;
+        let mut x = x0 as i64;
+        let mut y = y0 as i64;
+        let x0 = x0 as i64;
+        let y0 = y0 as i64;
+        let x1 = x1 as i64;
+        let y1 = y1 as i64;
+        let dx = (x1 - x0).abs();
+        let sx: i64 = if x0 < x1 { 1 } else { -1 };
+        let dy = -(y1 - y0).abs();
+        let sy: i64 = if y0 < y1 { 1 } else { -1 };
+        let mut err = dx + dy;
+        while x != x1 || y != y1 {
+            fb[(y as usize * self.w + x as usize)..(y as usize * self.w + (x as usize + 1))]
+                .fill(col);
+            let e2 = 2 * err;
+            if dy <= e2 {
+                err += dy;
+                x += sx;
+            }
+            if e2 <= dx {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
 
     // fn triangle(
     //     &mut self,
