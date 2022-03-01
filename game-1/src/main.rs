@@ -8,12 +8,12 @@ use rand::Rng;
 // use std::fmt::{self, Display, Formatter};
 // use std::io;
 // use std::io::Cursor;
+use kira::arrangement::{Arrangement, LoopArrangementSettings};
+use kira::instance::InstanceSettings;
+use kira::manager::{AudioManager, AudioManagerSettings};
+use kira::sound::SoundSettings;
 use std::rc::Rc;
 use std::sync::Arc;
-use kira::manager::{AudioManager, AudioManagerSettings};
-use kira::instance::InstanceSettings;
-use kira::sound::SoundSettings;
-use kira::arrangement::{Arrangement, LoopArrangementSettings};
 // use std::time::Instant;
 use vulkano::buffer::{BufferUsage, CpuAccessibleBuffer, TypedBufferAccess};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage, SubpassContents};
@@ -358,13 +358,21 @@ fn main() {
 
     // Load audio
     let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
-    let mut sound_handle_music = audio_manager.load_sound(
-        "game-1/content/RPS_tunes_loop.ogg", SoundSettings::default()).unwrap();
-    let mut arrangement_handle = audio_manager.add_arrangement(Arrangement::new_loop(
-        &sound_handle_music,
-        LoopArrangementSettings::default())).unwrap();
-    let mut sound_handle_click = audio_manager.load_sound(
-        "game-1/content/click.ogg", SoundSettings::default()).unwrap();
+    let mut sound_handle_music = audio_manager
+        .load_sound(
+            "game-1/content/RPS_tunes_loop.ogg",
+            SoundSettings::default(),
+        )
+        .unwrap();
+    let mut arrangement_handle = audio_manager
+        .add_arrangement(Arrangement::new_loop(
+            &sound_handle_music,
+            LoopArrangementSettings::default(),
+        ))
+        .unwrap();
+    let mut sound_handle_click = audio_manager
+        .load_sound("game-1/content/click.ogg", SoundSettings::default())
+        .unwrap();
 
     let event_loop = EventLoop::new();
     let (vulkan_config, mut vulkan_state) = vulkan_init(&event_loop);
@@ -423,11 +431,7 @@ fn main() {
     );
 
     // to scale down, change img_width and height and change score widthth and height variables below
-    let score_image = engine::image::Image::from_png(
-        "game-1/content/score.png",
-        70,
-        24,
-    );
+    let score_image = engine::image::Image::from_png("game-1/content/score.png", 70, 24);
 
     //GameState Instruction Assets
     // Instruction sheet image
@@ -702,12 +706,14 @@ fn main() {
 
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::FinalScreen,
+        state: GameStates::MainScreen,
     };
     let mut p1 = Player::<RPSType>::new("Joe Schmo".to_string(), false, true);
     let mut p2 = Player::<RPSType>::new("Boss playa".to_string(), true, false);
     let mut round = 0; // the round the player is on, out of 3.
-    let mut score = (0, 0); // (player score, AI score)
+    let mut score = (0, 0); // (player score, AI score
+    let mut did_win = false;
+    let mut is_final_round = false;
     let mut player_move = None;
     let mut audio_play = true;
 
@@ -855,7 +861,7 @@ fn main() {
                         game.state = GameStates::PlayerPicking;
                     }
                 }
-                //SHOWPICK gamestate
+                //PlayerPicking gamestate
                 else if game.state == GameStates::PlayerPicking {
                     // resetting player move so it doesn't just keep
                     // thinking the player has a move
@@ -872,7 +878,7 @@ fn main() {
                     vulkan_state.fb2d.bitblt(
                         &score_image,
                         &engine::image::Rect::new(0, 0, score_width, score_height),
-                        engine::image::Vec2i { x: 235, y: 5 }
+                        engine::image::Vec2i { x: 235, y: 5 },
                     );
 
                     if !playing_anim {
@@ -923,24 +929,7 @@ fn main() {
 
                         //check if the round number is < 3
                         //else: Increase round number here and change game state to countdown
-
-                        // change code below for other clickable elements
-
-                        // if mouse_x > 0.0 && mouse_x < 250.0 {
-                        //     player_move = Some(moves[0]);
-                        // }
-                        // if mouse_x > 250.0 && mouse_x < 500.0 {
-                        //     player_move = Some(moves[1]);
-                        // }
-                        // if mouse_x > 500.0 && mouse_x < 797.0 {
-                        //     player_move = Some(moves[2]);
-                        // }
                     }
-
-                    // right now this is detecting when a mouse click is held
-                    // so if you keep holding on scissors, then it will keep choosing scissors as a move
-                    // we might need some other game - state
-                    // like instead of choose pick we move to processing move, or something like that
 
                     if player_move.is_some() {
                         println!("Player move: {:?}", player_move.unwrap().move_type);
@@ -958,25 +947,36 @@ fn main() {
                             score.1 += 1;
                             println!("AI Wins");
                         }
-                        if score.0 == 3 {
-                            println!("Player wins best of 3!");
-                            score = (0, 0);
+
+                        if score.0 == 3 || score.1 == 3 {
+                            if score.0 == 3 {
+                                println!("Player wins best of 3!");
+                                score = (0, 0);
+                                did_win = true;
+                            } else if score.1 == 3 {
+                                println!("AI wins best of 3!");
+                                score = (0, 0);
+                                did_win = false;
+                            }
+                            is_final_round = true;
+                            game.state = GameStates::Countdown;
+                        } else {
+                            println!();
+                            game.state = GameStates::Countdown;
                         }
-                        if score.1 == 3 {
-                            println!("AI wins best of 3!");
-                            score = (0, 0);
-                        }
-                        println!();
-                        game.state = GameStates::Countdown;
                     }
                 } else if game.state == GameStates::Countdown {
                     if countdown_timer >= 60 {
                         countdown_timer = 0;
                         countdown_playing_anim = false;
-                        game.state = GameStates::PlayerPicking;
+                        if is_final_round {
+                            game.state = GameStates::FinalScreen;
+                            is_final_round = false;
+                        } else {
+                            game.state = GameStates::PlayerPicking;
+                        }
                     } else {
                         countdown_timer += 1;
-
                         if !countdown_playing_anim {
                             print!("is this running? {} \n", countdown_playing_anim);
                             countdown_sprite
@@ -1000,19 +1000,19 @@ fn main() {
 
                     //if player score is greater than enemy score bitblt this
                     //waiting for the variable names for score
-
-                    vulkan_state
-                        .fb2d
-                        .bitblt(&text_youwin, &text_youwin_rect, text_youwin_draw_to);
-
-                    /*
-                    //else bitblit this
-                    vulkan_state.fb2d.bitblt(
-                        &text_youlose,
-                        &text_youlose_rect,
-                        text_youlose_draw_to,
-                    );
-                    */
+                    if did_win {
+                        vulkan_state.fb2d.bitblt(
+                            &text_youwin,
+                            &text_youwin_rect,
+                            text_youwin_draw_to,
+                        );
+                    } else {
+                        vulkan_state.fb2d.bitblt(
+                            &text_youlose,
+                            &text_youlose_rect,
+                            text_youlose_draw_to,
+                        );
+                    }
 
                     if mouse_click == true && prev_mouse_click == false {
                         sound_handle_click.play(InstanceSettings::default());
@@ -1024,6 +1024,7 @@ fn main() {
                         //we actually want it to be playerpicking
                         if text_playagain_clickable_rect.rect_inside(mouse_pos) {
                             game.state = GameStates::PlayerPicking;
+                            did_win = false;
                         }
                     }
 
