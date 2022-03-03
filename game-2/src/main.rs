@@ -342,6 +342,64 @@ fn main() {
 
     let mut playing_anim = false;
 
+    //Image stuff
+
+    //GameState::ChooseFighter
+
+    //temporary placeholder for our fighter images
+    let fighter_rect_w = 86 as u32;
+    let fighter_rect_h = 120 as u32;
+    let fighter_rect_rect = engine::image::Rect::new(0, 0, fighter_rect_w, fighter_rect_h);
+    let fighter_rect = engine::image::Image::from_png(
+        "content/playerimagerect.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    //a draw to for each chloe, nate, grace
+    //for ease lets have 1 as chloe, 2 as nate, 3 as grace
+    let fighter_rect_draw_to_1 = engine::image::Vec2i { x: 15, y: 50 };
+    let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 50 };
+    let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 50 };
+
+    //temporary placeholder for our "read info" images
+    let fighter_info_w = 86 as u32;
+    let fighter_info_h = 24 as u32;
+    let fighter_info_rect = engine::image::Rect::new(0, 0, fighter_info_w, fighter_info_h);
+    let fighter_info = engine::image::Image::from_png(
+        "content/playerinforect.png",
+        fighter_info_w,
+        fighter_info_h,
+    );
+
+    //a draw to for each chloe, nate, grace
+    //for ease lets have 1 as chloe, 2 as nate, 3 as grace
+    let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 185 };
+    let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 185 };
+    let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 185 };
+
+    //won't actually need clickable rect for them
+    let fighter_info_clickable_rect_1 = engine::image::Rect::new(
+        fighter_info_draw_to_1.x,
+        fighter_info_draw_to_1.y,
+        fighter_info_w,
+        fighter_info_h,
+    );
+
+    let fighter_info_clickable_rect_2 = engine::image::Rect::new(
+        fighter_info_draw_to_2.x,
+        fighter_info_draw_to_2.y,
+        fighter_info_w,
+        fighter_info_h,
+    );
+
+    let fighter_info_clickable_rect_3 = engine::image::Rect::new(
+        fighter_info_draw_to_3.x,
+        fighter_info_draw_to_3.y,
+        fighter_info_w,
+        fighter_info_h,
+    );
+
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
     let mut prev_keys = now_keys.clone();
@@ -355,7 +413,7 @@ fn main() {
 
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::MainScreen,
+        state: GameStates::ChooseFighter,
     };
 
     // let mut audio_play = true;
@@ -464,6 +522,68 @@ fn main() {
                 //choose background color, I made it white
                 vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
 
+                if game.state == GameStates::ChooseFighter {
+                    //nate image
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_rect,
+                        &fighter_rect_rect,
+                        fighter_rect_draw_to_1,
+                    );
+
+                    //chloe image
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_rect,
+                        &fighter_rect_rect,
+                        fighter_rect_draw_to_2,
+                    );
+
+                    //grace image
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_rect,
+                        &fighter_rect_rect,
+                        fighter_rect_draw_to_3,
+                    );
+
+                    //nate "read more info" button
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_info,
+                        &fighter_info_rect,
+                        fighter_info_draw_to_1,
+                    );
+
+                    //chloe "read more info" button
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_info,
+                        &fighter_info_rect,
+                        fighter_info_draw_to_2,
+                    );
+
+                    //grace "read more info" button
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_info,
+                        &fighter_info_rect,
+                        fighter_info_draw_to_3,
+                    );
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
+                            game.state = GameStates::NateInfo;
+                        }
+
+                        if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
+                            game.state = GameStates::ChloeInfo;
+                        }
+
+                        if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
+                            game.state = GameStates::GraceInfo;
+                        }
+                    }
+                }
                 // if audio_play == true {
                 //     arrangement_handle.play(InstanceSettings::default());
                 //     audio_play = false;

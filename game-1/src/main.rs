@@ -634,20 +634,16 @@ fn main() {
     let mut countdown_playing_anim = false;
     let mut countdown_timer = 0;
 
-
-
-
     // Score numbers sprite
     let number_img_width = 135; //270
     let number_img_height = 178; // 356
     let number_sprite_w = 44; // 89
     let number_sprite_h = 44; // 88
-    // the rectangle of one sprite
-    let number_sprite_rect =
-        engine::image::Rect::new(0, 0, number_sprite_w, number_sprite_h);
+                              // the rectangle of one sprite
+    let number_sprite_rect = engine::image::Rect::new(0, 0, number_sprite_w, number_sprite_h);
     // Suffix of 1 is for player score
     let number_sheet1 = engine::image::Image::from_png(
-        "game-1/content/number-ss.png",
+        "content/number-ss.png",
         number_img_width,
         number_img_height,
     );
@@ -670,14 +666,11 @@ fn main() {
         animation_state: number_anim_state1,
     };
     // coordinates to draw to
-    let number_draw_to1 = engine::image::Vec2i {
-        x: 100,
-        y: 10,
-    };
+    let number_draw_to1 = engine::image::Vec2i { x: 100, y: 10 };
 
     // Suffix 2 is for AI score
     let number_sheet2 = engine::image::Image::from_png(
-        "game-1/content/number-ss.png",
+        "content/number-ss.png",
         number_img_width,
         number_img_height,
     );
@@ -700,11 +693,7 @@ fn main() {
         animation_state: number_anim_state2,
     };
     // coordinates to draw to
-    let number_draw_to2 = engine::image::Vec2i {
-        x: 150,
-        y: 75,
-    };
-
+    let number_draw_to2 = engine::image::Vec2i { x: 150, y: 75 };
 
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
@@ -949,7 +938,7 @@ fn main() {
                         if score.1 == 3 {
                             number_sprite2.change_animation(3);
                         }
-                        
+
                         number_sprite1.draw(&mut vulkan_state.fb2d, number_draw_to1);
                         number_sprite2.draw(&mut vulkan_state.fb2d, number_draw_to2);
                         rock_sprite.draw(&mut vulkan_state.fb2d, rock_draw_to);
@@ -1040,7 +1029,6 @@ fn main() {
                         }
                     }
                 } else if game.state == GameStates::ShowPick {
-
                     if countdown_timer >= 60 {
                         countdown_timer = 0;
                         countdown_playing_anim = false;
