@@ -37,6 +37,98 @@ pub struct Player<T: Copy + Eq + PartialEq> {
     pub current_move: Option<Move<T>>,
 }
 
+impl<T: Copy + Eq + PartialEq> Player<T> {
+    pub fn new(name: String, is_cpu: bool, is_turn: bool) -> Player<T> {
+        Player {
+            name: name,
+            is_cpu: is_cpu,
+            is_turn: is_turn,
+            points: 0,
+            inventory: Vec::<String>::new(),
+            current_move: None,
+        }
+    }
+    pub fn set_current_move(&mut self, chosen_move: Move<T>) {
+        self.current_move = Some(chosen_move);
+    }
+
+    pub fn finished_turn(&mut self) {
+        self.is_turn = !self.is_turn;
+    }
+    pub fn execute_move(&mut self, enemy: &Player<T>) -> Outcomes {
+        //double check current move
+        if enemy.current_move.is_some() && self.current_move.is_some() {
+            let enemy_move = enemy.current_move.as_ref().unwrap();
+            let our_move = &self.current_move.as_ref().unwrap();
+
+            //need to make a to string method for Move
+            // println!("You play: {}", our_move.to_string());
+
+            if our_move.wins == enemy_move.move_type {
+                return Outcomes::Win;
+            } else if our_move.loses == enemy_move.move_type {
+                return Outcomes::Lose;
+            } else {
+                return Outcomes::Draw;
+            }
+        } else {
+            // What to return if invalid moves?
+            return Outcomes::Draw;
+        }
+    }
+}
+
+pub struct Fighter<T: Copy + Eq + PartialEq> {
+    pub name: String,
+    pub is_cpu: bool,
+    pub is_turn: bool,
+    pub health: i32,
+    pub mana: i32,
+    pub move_inventory: Vec<String>,
+    pub current_move: Option<FighterMove<T>>,
+}
+
+impl<T: Copy + Eq + PartialEq> Fighter<T> {
+    pub fn new(name: String, is_cpu: bool, is_turn: bool) -> Fighter<T> {
+        Fighter {
+            name: name,
+            is_cpu: is_cpu,
+            is_turn: is_turn,
+            health: 100,
+            mana: 100,
+            move_inventory: Vec::<String>::new(),
+            current_move: None,
+        }
+    }
+    pub fn set_current_move(&mut self, chosen_move: Move<T>) {
+        self.current_move = Some(chosen_move);
+    }
+
+    pub fn finished_turn(&mut self) {
+        self.is_turn = !self.is_turn;
+    }
+
+    //need to modify this execute_move function
+    //do we still want this to return an outcome?
+    pub fn execute_move(&mut self, enemy: &Fighter<T>) {
+        //double check current move
+        if enemy.current_move.is_some() && self.current_move.is_some() {
+            let enemy_fighter_move = enemy.current_move.as_ref().unwrap();
+            let self_fighter_move = &self.current_move.as_ref().unwrap();
+
+            self.health += enemy_fighter_move.damage;
+            enemy.mana += enemy_fighter_move.mana_cost;
+            enemy.health += enemy_fighter_move.health_cost;
+
+            enemy.health += self_fighter_move.damage;
+            self.mana += self_fighter_move.mana_cost;
+            self.health += self_fighter_move.health_cost;
+        } else {
+            //do nothing
+        }
+    }
+}
+
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
 pub enum Outcomes {
     Win,
@@ -51,6 +143,16 @@ pub struct Move<T: Copy + Eq + PartialEq> {
     pub wins: T,
     pub loses: T,
     // pub cost: u32,
+}
+pub struct FighterMove<T: Copy + Eq + PartialEq> {
+    pub name: String,
+    //damage to the other player, positive value
+    pub damage: i32,
+    //cost of player's mana, negative value
+    pub mana_cost: i32,
+    //cost of "health" positive value means it adds to players health (regenerative moves)
+    //negative health would be just the case that a move takes away from player health
+    pub health_cost: i32,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
@@ -96,79 +198,3 @@ impl Game {
         Game { state };
     }
 }
-// player1: Move{Rock, Scissor, Paper}
-// enemy.current_move : Move{Paper, Rock, Scissor}
-
-impl<T: Copy + Eq + PartialEq> Player<T> {
-    pub fn new(name: String, is_cpu: bool, is_turn: bool) -> Player<T> {
-        Player {
-            name: name,
-            is_cpu: is_cpu,
-            is_turn: is_turn,
-            points: 0,
-            inventory: Vec::<String>::new(),
-            current_move: None,
-        }
-    }
-    pub fn set_current_move(&mut self, chosen_move: Move<T>) {
-        self.current_move = Some(chosen_move);
-    }
-
-    pub fn finished_turn(&mut self) {
-        self.is_turn = !self.is_turn;
-    }
-    pub fn execute_move(&mut self, enemy: &Player<T>) -> Outcomes {
-        //double check current move
-        if enemy.current_move.is_some() && self.current_move.is_some() {
-            let enemy_move = enemy.current_move.as_ref().unwrap();
-            let our_move = &self.current_move.as_ref().unwrap();
-
-            //need to make a to string method for Move
-            // println!("You play: {}", our_move.to_string());
-
-            if our_move.wins == enemy_move.move_type {
-                return Outcomes::Win;
-            } else if our_move.loses == enemy_move.move_type {
-                return Outcomes::Lose;
-            } else {
-                return Outcomes::Draw;
-            }
-        } else {
-            // What to return if invalid moves?
-            return Outcomes::Draw;
-        }
-    }
-}
-
-// OLD ROOM CODE
-
-// pub struct Room {
-//     pub name: String, // E.g. "Antechamber"
-//     pub desc: String, // E.g. "Dark wood paneling covers the walls.  The gilded northern doorway lies open."
-//     pub doors: Vec<Door>,
-// }
-// pub struct Door {
-//     pub target: RoomID,          // More about this in a minute
-//     pub triggers: Vec<String>,   // e.g. "go north", "north"
-//     pub message: Option<String>, // What message, if any, to print when the doorway is traversed
-//     // Any other info about the door would go here
-//     pub condition: Option<Item>,
-// }
-
-// #[derive(Debug, PartialEq)]
-// pub enum Item {
-//     Key,
-//     PaintingAdjuster,
-// }
-
-// impl std::fmt::Display for Item {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         match self {
-//             Self::Key => write!(f, "Mysterious Key"),
-//             Self::PaintingAdjuster => write!(f, "A pole which you can tell adjusts things."),
-//         }
-//     }
-// }
-
-// #[derive(PartialEq, Eq, Clone, Copy)]
-// pub struct RoomID(pub usize);
