@@ -647,6 +647,78 @@ fn main() {
     let mut countdown_playing_anim = false;
     let mut countdown_timer = 0;
 
+
+
+
+    // Score numbers sprite
+    let number_img_width = 135; //270
+    let number_img_height = 178; // 356
+    let number_sprite_w = 44; // 89
+    let number_sprite_h = 44; // 88
+    // the rectangle of one sprite
+    let number_sprite_rect =
+        engine::image::Rect::new(0, 0, number_sprite_w, number_sprite_h);
+    // Suffix of 1 is for player score
+    let number_sheet1 = engine::image::Image::from_png(
+        "game-1/content/number-ss.png",
+        number_img_width,
+        number_img_height,
+    );
+    let number_anim_state1 = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+    let number_anim_1 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        frame_duration: 20,
+        loops: true,
+        sprite_size: number_sprite_rect,
+        sprite_width: 3,
+        sprite_height: 4,
+    };
+    let mut number_sprite1 = engine::animation::Sprite {
+        image: Rc::new(number_sheet1),
+        animations: vec![number_anim_1],
+        animation_state: number_anim_state1,
+    };
+    // coordinates to draw to
+    let number_draw_to1 = engine::image::Vec2i {
+        x: 100,
+        y: 10,
+    };
+
+    // Suffix 2 is for AI score
+    let number_sheet2 = engine::image::Image::from_png(
+        "game-1/content/number-ss.png",
+        number_img_width,
+        number_img_height,
+    );
+    let number_anim_state2 = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+    let number_anim_2 = engine::animation::Animation {
+        frames: vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        frame_duration: 20,
+        loops: true,
+        sprite_size: number_sprite_rect,
+        sprite_width: 3,
+        sprite_height: 4,
+    };
+    let mut number_sprite2 = engine::animation::Sprite {
+        image: Rc::new(number_sheet2),
+        animations: vec![number_anim_2],
+        animation_state: number_anim_state2,
+    };
+    // coordinates to draw to
+    let number_draw_to2 = engine::image::Vec2i {
+        x: 150,
+        y: 75,
+    };
+
+
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
     let mut prev_keys = now_keys.clone();
@@ -839,6 +911,8 @@ fn main() {
                         scissor_sprite.play_animation(&mut vulkan_state.fb2d, scissor_draw_to);
                         rock_sprite.play_animation(&mut vulkan_state.fb2d, rock_draw_to);
                         paper_sprite.play_animation(&mut vulkan_state.fb2d, paper_draw_to);
+                        number_sprite1.play_animation(&mut vulkan_state.fb2d, number_draw_to1);
+                        number_sprite2.play_animation(&mut vulkan_state.fb2d, number_draw_to2);
 
                         playing_anim = true;
                     } else {
@@ -854,6 +928,43 @@ fn main() {
                             paper_sprite.tick_animation();
                         }
 
+                        // number_sprite.tick_animation();
+                        // so it's a problem with this if loop because if we move it out of the if, then it runs
+                        //muchas gracias!!!
+                        // if mouse_click == true && prev_mouse_click == false {
+                        //     number_sprite.tick_animation();
+                        // };
+
+                        // Player change score animation
+                        if score.0 == 0 {
+                            number_sprite1.change_animation(0);
+                        }
+                        if score.0 == 1 {
+                            number_sprite1.change_animation(1);
+                        }
+                        if score.0 == 2 {
+                            number_sprite1.change_animation(2);
+                        }
+                        if score.0 == 3 {
+                            number_sprite1.change_animation(3);
+                        }
+
+                        // AI score change animation
+                        if score.1 == 0 {
+                            number_sprite2.change_animation(0);
+                        }
+                        if score.1 == 1 {
+                            number_sprite2.change_animation(1);
+                        }
+                        if score.1 == 2 {
+                            number_sprite2.change_animation(2);
+                        }
+                        if score.1 == 3 {
+                            number_sprite2.change_animation(3);
+                        }
+                        
+                        number_sprite1.draw(&mut vulkan_state.fb2d, number_draw_to1);
+                        number_sprite2.draw(&mut vulkan_state.fb2d, number_draw_to2);
                         rock_sprite.draw(&mut vulkan_state.fb2d, rock_draw_to);
                         scissor_sprite.draw(&mut vulkan_state.fb2d, scissor_draw_to);
                         paper_sprite.draw(&mut vulkan_state.fb2d, paper_draw_to);
@@ -942,6 +1053,7 @@ fn main() {
                         }
                     }
                 } else if game.state == GameStates::ShowPick {
+
                     if countdown_timer >= 60 {
                         countdown_timer = 0;
                         countdown_playing_anim = false;
