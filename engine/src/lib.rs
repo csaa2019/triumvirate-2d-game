@@ -72,6 +72,20 @@ pub enum GameStates {
 
     //Screen that shows who wins
     FinalScreen,
+
+    //gameStates unique to game-2
+
+    //sort of like playerpicking, choose nate, grace, or chloe
+    ChooseFighter,
+
+    //info about each player
+    ChooseFighterInfo,
+
+    //choose which move from each player
+    ChooseMove,
+
+    //info about each move
+    ChooseMoveInfo,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
