@@ -11,6 +11,7 @@ use kira::arrangement::{Arrangement, LoopArrangementSettings};
 use kira::instance::InstanceSettings;
 use kira::manager::{AudioManager, AudioManagerSettings};
 use kira::sound::SoundSettings;
+use std::ptr::null;
 use std::rc::Rc;
 use std::sync::Arc;
 // use std::time::Instant;
@@ -365,9 +366,9 @@ fn main() {
 
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
-    let fighter_rect_draw_to_1 = engine::image::Vec2i { x: 15, y: 50 };
-    let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 50 };
-    let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 50 };
+    let fighter_rect_draw_to_1 = engine::image::Vec2i { x: 15, y: 35 };
+    let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 35 };
+    let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 35 };
 
     let fighter_rect_clickable_rect_1 = engine::image::Rect::new(
         fighter_rect_draw_to_1.x,
@@ -403,10 +404,10 @@ fn main() {
 
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
-    let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 185 };
-    let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 185 };
-    let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 185 };
-    let next_button_draw_to = engine::image::Vec2i { x: 115, y: 210 };
+    let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 170 };
+    let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 170 };
+    let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 170 };
+    let next_button_draw_to = engine::image::Vec2i { x: 115, y: 205 };
     //won't actually need clickable rect for them
     let fighter_info_clickable_rect_1 = engine::image::Rect::new(
         fighter_info_draw_to_1.x,
@@ -448,6 +449,13 @@ fn main() {
     let mut mouse_click = false;
     let mut prev_mouse_click = false;
 
+    pub enum FighterType {
+        None,
+        Chloe,
+        Grace,
+        Nate,
+    }
+
     //random move names here
     let grace_fighter_moves = vec![
         FighterMove {
@@ -464,17 +472,19 @@ fn main() {
         },
     ];
 
-    let mut grace = Fighter::new("Grace".to_string(), false, true, grace_fighter_moves);
+    let mut chloe = Fighter::new(FighterType::Chloe, false, true, grace_fighter_moves);
+    let mut grace = Fighter::new(FighterType::Grace, false, true, grace_fighter_moves);
+    let mut nate = Fighter::new(FighterType::Nate, false, true, grace_fighter_moves);
 
     // GAME STUFF
     let mut game = Game {
         state: GameStates::ChooseFighter,
     };
-    let mut current_player = None::<Fighter>;
+    let mut current_player = None;
     let mut player_selected = false;
 
     //
-    let player_info = Some(grace);
+    let player_info = FighterType::None;
 
     //we are going to want to define our FighterMoves in here
     //and then initialize the three fighters here with the FighterMoves in the move_inventory
@@ -647,31 +657,31 @@ fn main() {
 
                         if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = nate;
+                            current_player = Some(FighterType::Nate);
                         }
 
                         if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = chloe;
+                            current_player = Some(FighterType::Chloe);
                         }
 
                         if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = grace;
+                            current_player = Some(FighterType::Grace);
                         }
 
                         if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                            //player_info = nate;
+                            player_info = FighterType::Nate;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                            //player_info = chloe;
+                            player_info = FighterType::Chloe;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                            //player_info = grace;
+                            player_info = FighterType::Grace;
                             game.state = GameStates::FighterInfo;
                         }
 
@@ -682,7 +692,10 @@ fn main() {
                 }
                 //gamestate::fighterinfo
                 else if game.state == GameStates::FighterInfo {
-                    //if player_info == nate, bit blit certain images
+                    if player_info == FighterType::Nate {} //if player_info == nate, bit blit certain images}
+                    if player_info == FighterType::Chloe {}
+                    if player_info == FighterType::Grace {}
+
                     //if player_info == chloe, bit blit certain images
                     //if player_info == grace, bit blit certain images into the rectangles
                     //include a back button back to GameStates::ChooseFighter
