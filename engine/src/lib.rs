@@ -78,23 +78,23 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
     }
 }
 
-pub struct Fighter<T: Copy + Eq + PartialEq> {
+pub struct Fighter {
     pub name: String,
     pub is_cpu: bool,
     pub is_turn: bool,
     pub health: i32,
     pub mana: i32,
-    pub move_inventory: Vec<FighterMove<T>>,
-    pub current_move: Option<FighterMove<T>>,
+    pub move_inventory: Vec<FighterMove>,
+    pub current_move: Option<FighterMove>,
 }
 
-impl<T: Copy + Eq + PartialEq> Fighter<T> {
+impl Fighter {
     pub fn new(
         name: String,
         is_cpu: bool,
         is_turn: bool,
-        move_inventory: Vec<FighterMove<T>>,
-    ) -> Fighter<T> {
+        move_inventory: Vec<FighterMove>,
+    ) -> Fighter {
         Fighter {
             name: name,
             is_cpu: is_cpu,
@@ -105,7 +105,7 @@ impl<T: Copy + Eq + PartialEq> Fighter<T> {
             current_move: None,
         }
     }
-    pub fn set_current_move(&mut self, chosen_move: Move<T>) {
+    pub fn set_current_move(&mut self, chosen_move: FighterMove) {
         self.current_move = Some(chosen_move);
     }
 
@@ -115,7 +115,7 @@ impl<T: Copy + Eq + PartialEq> Fighter<T> {
 
     //need to modify this execute_move function
     //do we still want this to return an outcome?
-    pub fn execute_move(&mut self, enemy: &Fighter<T>) {
+    pub fn execute_move(&mut self, enemy: &mut Fighter) {
         //double check current move
         if enemy.current_move.is_some() && self.current_move.is_some() {
             let enemy_fighter_move = enemy.current_move.as_ref().unwrap();
@@ -149,7 +149,7 @@ pub struct Move<T: Copy + Eq + PartialEq> {
     pub loses: T,
     // pub cost: u32,
 }
-pub struct FighterMove<T: Copy + Eq + PartialEq> {
+pub struct FighterMove {
     pub name: String,
     //damage to the other player, positive value
     pub damage: i32,
