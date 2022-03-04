@@ -464,13 +464,9 @@ fn main() {
     );
 
     // to scale down, change img_width and height and change score widthth and height variables below
-<<<<<<< HEAD
-    let score_image = engine::image::Image::from_png("content/score.png", 70, 24);
-=======
     let player_image = engine::image::Image::from_png("content/player.png", 100, 50);
 
     let enemy_image = engine::image::Image::from_png("content/enemy.png", 100, 50);
->>>>>>> nate2
 
     //GameState Instruction Assets
     // Instruction sheet image
@@ -640,10 +636,7 @@ fn main() {
     let mut countdown_playing_anim = false;
     let mut countdown_timer = 0;
 
-<<<<<<< HEAD
-=======
     // Upper one is player
->>>>>>> nate2
     // Score numbers sprite
     let number_img_width = 135; //270
     let number_img_height = 178; // 356
@@ -676,11 +669,7 @@ fn main() {
         animation_state: number_anim_state1,
     };
     // coordinates to draw to
-<<<<<<< HEAD
-    let number_draw_to1 = engine::image::Vec2i { x: 100, y: 10 };
-=======
     let number_draw_to1 = engine::image::Vec2i { x: 200, y: 75 };
->>>>>>> nate2
 
     // Suffix 2 is for AI score
     let number_sheet2 = engine::image::Image::from_png(
@@ -707,11 +696,7 @@ fn main() {
         animation_state: number_anim_state2,
     };
     // coordinates to draw to
-<<<<<<< HEAD
-    let number_draw_to2 = engine::image::Vec2i { x: 150, y: 75 };
-=======
     let number_draw_to2 = engine::image::Vec2i { x: 200, y: 10 };
->>>>>>> nate2
 
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
