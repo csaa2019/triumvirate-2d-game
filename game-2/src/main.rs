@@ -1,5 +1,4 @@
 use engine::image::{Image, Rect, Vec2i};
-
 use engine::*;
 
 use rand;
@@ -344,6 +343,14 @@ fn main() {
 
     //Image stuff
 
+    let fontsheet_w = 96;
+    let fontsheet_h = 48;
+
+    let fontsheet_rect = engine::image::Rect::new(0, 0, fontsheet_w, fontsheet_h);
+
+    let fontsheet_image =
+        engine::image::Image::from_png("content/fontsheet.png", fontsheet_w, fontsheet_h);
+
     //GameState::ChooseFighter
 
     //temporary placeholder for our fighter images
@@ -442,30 +449,32 @@ fn main() {
     let mut prev_mouse_click = false;
 
     //random move names here
-    let grace_fighter_moves = [
+    let grace_fighter_moves = vec![
         FighterMove {
-            name: "GraceHealth",
+            name: "GraceHealth".to_string(),
             damage: 0,
             mana_cost: -20,
             health_cost: 30,
         },
         FighterMove {
-            name: "GraceDamage",
+            name: "GraceDamage".to_string(),
             damage: 20,
             mana_cost: -20,
             health_cost: 0,
         },
     ];
 
-    let mut grace = Fighter::new("Grace", false, true, grace_fighter_moves);
+    let mut grace = Fighter::new("Grace".to_string(), false, true, grace_fighter_moves);
 
     // GAME STUFF
     let mut game = Game {
         state: GameStates::ChooseFighter,
     };
-    let mut current_player = None;
-    let player_selected = false;
-    let player_info = Some::Fighter;
+    let mut current_player = None::<Fighter>;
+    let mut player_selected = false;
+
+    //
+    let player_info = Some(grace);
 
     //we are going to want to define our FighterMoves in here
     //and then initialize the three fighters here with the FighterMoves in the move_inventory
