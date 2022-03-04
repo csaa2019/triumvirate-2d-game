@@ -362,7 +362,29 @@ fn main() {
     let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 50 };
     let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 50 };
 
+    let fighter_rect_clickable_rect_1 = engine::image::Rect::new(
+        fighter_rect_draw_to_1.x,
+        fighter_rect_draw_to_1.y,
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let fighter_rect_clickable_rect_2 = engine::image::Rect::new(
+        fighter_rect_draw_to_2.x,
+        fighter_rect_draw_to_2.y,
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let fighter_rect_clickable_rect_3 = engine::image::Rect::new(
+        fighter_rect_draw_to_3.x,
+        fighter_rect_draw_to_3.y,
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
     //temporary placeholder for our "read info" images
+    //maybe a better variable name for this would be "small button" but I'll change this later
     let fighter_info_w = 86 as u32;
     let fighter_info_h = 24 as u32;
     let fighter_info_rect = engine::image::Rect::new(0, 0, fighter_info_w, fighter_info_h);
@@ -377,7 +399,7 @@ fn main() {
     let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 185 };
     let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 185 };
     let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 185 };
-
+    let next_button_draw_to = engine::image::Vec2i { x: 115, y: 210 };
     //won't actually need clickable rect for them
     let fighter_info_clickable_rect_1 = engine::image::Rect::new(
         fighter_info_draw_to_1.x,
@@ -400,6 +422,14 @@ fn main() {
         fighter_info_h,
     );
 
+    //better variable name for this would be "select" button on the ChooseFighter gamestate
+    let next_button_clickable_rect = engine::image::Rect::new(
+        next_button_draw_to.x,
+        next_button_draw_to.y,
+        fighter_info_w,
+        fighter_info_h,
+    );
+
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
     let mut prev_keys = now_keys.clone();
@@ -410,11 +440,6 @@ fn main() {
 
     let mut mouse_click = false;
     let mut prev_mouse_click = false;
-
-    // GAME STUFF
-    let mut game = Game {
-        state: GameStates::ChooseFighter,
-    };
 
     //random move names here
     let grace_fighter_moves = [
@@ -433,6 +458,14 @@ fn main() {
     ];
 
     let mut grace = Fighter::new("Grace", false, true, grace_fighter_moves);
+
+    // GAME STUFF
+    let mut game = Game {
+        state: GameStates::ChooseFighter,
+    };
+    let mut current_player = None;
+    let player_selected = false;
+    let player_info = Some::Fighter;
 
     //we are going to want to define our FighterMoves in here
     //and then initialize the three fighters here with the FighterMoves in the move_inventory
@@ -544,6 +577,10 @@ fn main() {
                 vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
 
                 if game.state == GameStates::ChooseFighter {
+                    //if player_selected == true
+                    //draw a rectangle that's a little larger than the fighter_rect
+                    //to show that the current fighter is selected (aka highlighting the fighter)
+
                     //nate image
                     vulkan_state.fb2d.bitblt(
                         &fighter_rect,
@@ -586,37 +623,69 @@ fn main() {
                         fighter_info_draw_to_3,
                     );
 
+                    //"select" button
+                    vulkan_state.fb2d.bitblt(
+                        &fighter_info,
+                        &fighter_info_rect,
+                        next_button_draw_to,
+                    );
+
                     if mouse_click == true && prev_mouse_click == false {
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
                             y: mouse_y as i32,
                         };
 
+                        if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
+                            player_selected = true;
+                            //current_player = nate;
+                        }
+
+                        if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
+                            player_selected = true;
+                            //current_player = chloe;
+                        }
+
+                        if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
+                            player_selected = true;
+                            //current_player = grace;
+                        }
+
                         if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                            game.state = GameStates::NateInfo;
+                            //player_info = nate;
+                            game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                            game.state = GameStates::ChloeInfo;
+                            //player_info = chloe;
+                            game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                            game.state = GameStates::GraceInfo;
+                            //player_info = grace;
+                            game.state = GameStates::FighterInfo;
                         }
 
-                        //if in NEXT BUTTON rect, go to GameStates::ChooseMove
+                        if next_button_clickable_rect.rect_inside(mouse_pos) && player_selected {
+                            game.state = GameStates::ChooseMove;
+                        }
                     }
-                } else if game.state == GameStates::NateInfo {
-                    //include a back button back to GameStates::ChooseFighter
-                } else if game.state == GameStates::ChloeInfo {
-                    //include a back button back to GameStates::ChooseFighter
-                } else if game.state == GameStates::ChloeInfo {
-                    //include a back button back to GameStates::ChooseFighter
-                } else if game.state == GameStates::ChooseMove {
-
-                    //have a button that chooses each move and then takes it to GameState::ShowPick
-                } else if game.state == GameStates::ShowPick {
                 }
+                //gamestate::fighterinfo
+                else if game.state == GameStates::FighterInfo {
+                    //if player_info == nate, bit blit certain images
+                    //if player_info == chloe, bit blit certain images
+                    //if player_info == grace, bit blit certain images into the rectangles
+                    //include a back button back to GameStates::ChooseFighter
+                }
+                //gamestate::choosemove
+                else if game.state == GameStates::ChooseMove {
+                    //have a button that chooses each move and then takes it to GameState::ShowPick
+                }
+                //gamestate:showpick
+                else if game.state == GameStates::ShowPick {
+                }
+
                 // if audio_play == true {
                 //     arrangement_handle.play(InstanceSettings::default());
                 //     audio_play = false;

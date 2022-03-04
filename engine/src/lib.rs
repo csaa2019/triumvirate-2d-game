@@ -84,7 +84,7 @@ pub struct Fighter<T: Copy + Eq + PartialEq> {
     pub is_turn: bool,
     pub health: i32,
     pub mana: i32,
-    pub move_inventory: Vec<FighterMove>,
+    pub move_inventory: Vec<FighterMove<T>>,
     pub current_move: Option<FighterMove<T>>,
 }
 
@@ -93,7 +93,7 @@ impl<T: Copy + Eq + PartialEq> Fighter<T> {
         name: String,
         is_cpu: bool,
         is_turn: bool,
-        move_inventory: Vec<FighterMove>,
+        move_inventory: Vec<FighterMove<T>>,
     ) -> Fighter<T> {
         Fighter {
             name: name,
@@ -185,9 +185,7 @@ pub enum GameStates {
     //sort of like playerpicking, choose nate, grace, or chloe
     ChooseFighter,
 
-    NateInfo,
-    ChloeInfo,
-    GraceInfo,
+    FighterInfo,
 
     //choose which move from each player
     ChooseMove,
