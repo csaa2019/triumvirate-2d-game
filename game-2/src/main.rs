@@ -416,6 +416,27 @@ fn main() {
         state: GameStates::ChooseFighter,
     };
 
+    //random move names here
+    let grace_fighter_moves = [
+        FighterMove {
+            name: "GraceHealth",
+            damage: 0,
+            mana_cost: -20,
+            health_cost: 30,
+        },
+        FighterMove {
+            name: "GraceDamage",
+            damage: 20,
+            mana_cost: -20,
+            health_cost: 0,
+        },
+    ];
+
+    let mut grace = Fighter::new("Grace", false, true, grace_fighter_moves);
+
+    //we are going to want to define our FighterMoves in here
+    //and then initialize the three fighters here with the FighterMoves in the move_inventory
+
     // let mut audio_play = true;
 
     event_loop.run(move |event, _, control_flow| {
@@ -520,7 +541,7 @@ fn main() {
                 }
 
                 //choose background color, I made it white
-                vulkan_state.fb2d.clear((255_u8, 255_u8, 255_u8, 255_u8));
+                vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
 
                 if game.state == GameStates::ChooseFighter {
                     //nate image
@@ -582,7 +603,19 @@ fn main() {
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
                             game.state = GameStates::GraceInfo;
                         }
+
+                        //if in NEXT BUTTON rect, go to GameStates::ChooseMove
                     }
+                } else if game.state == GameStates::NateInfo {
+                    //include a back button back to GameStates::ChooseFighter
+                } else if game.state == GameStates::ChloeInfo {
+                    //include a back button back to GameStates::ChooseFighter
+                } else if game.state == GameStates::ChloeInfo {
+                    //include a back button back to GameStates::ChooseFighter
+                } else if game.state == GameStates::ChooseMove {
+
+                    //have a button that chooses each move and then takes it to GameState::ShowPick
+                } else if game.state == GameStates::ShowPick {
                 }
                 // if audio_play == true {
                 //     arrangement_handle.play(InstanceSettings::default());

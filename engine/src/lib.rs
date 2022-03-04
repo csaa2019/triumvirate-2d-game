@@ -84,19 +84,24 @@ pub struct Fighter<T: Copy + Eq + PartialEq> {
     pub is_turn: bool,
     pub health: i32,
     pub mana: i32,
-    pub move_inventory: Vec<String>,
+    pub move_inventory: Vec<FighterMove>,
     pub current_move: Option<FighterMove<T>>,
 }
 
 impl<T: Copy + Eq + PartialEq> Fighter<T> {
-    pub fn new(name: String, is_cpu: bool, is_turn: bool) -> Fighter<T> {
+    pub fn new(
+        name: String,
+        is_cpu: bool,
+        is_turn: bool,
+        move_inventory: Vec<FighterMove>,
+    ) -> Fighter<T> {
         Fighter {
             name: name,
             is_cpu: is_cpu,
             is_turn: is_turn,
             health: 100,
             mana: 100,
-            move_inventory: Vec::<String>::new(),
+            move_inventory,
             current_move: None,
         }
     }
