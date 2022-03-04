@@ -344,13 +344,39 @@ fn main() {
 
     //Image stuff
 
-    let fontsheet_w = 96;
-    let fontsheet_h = 48;
+    let fontsize = 7;
+    let fontsheet_w = 16 * fontsize;
+    let fontsheet_h = 8 * fontsize;
 
-    let fontsheet_rect = engine::image::Rect::new(0, 0, fontsheet_w, fontsheet_h);
+    // the rectangle of one sprite
+    let font_sprite_rect = engine::image::Rect::new(0, 0, fontsize, fontsize);
 
-    let fontsheet_image =
-        engine::image::Image::from_png("content/fontsheet.png", fontsheet_w, fontsheet_h);
+    let fontsheet = engine::image::Image::from_png_not_premultiplied(
+        "content/fontsheet_7x7.png",
+        fontsheet_w,
+        fontsheet_h,
+    );
+
+    let font_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let font_anim_1 = engine::animation::Animation {
+        frames: (0..128).collect(),
+        frame_duration: 10,
+        loops: true,
+        sprite_size: font_sprite_rect,
+        sprite_width: 16,
+        sprite_height: 8,
+    };
+
+    let mut fontsheet_sprite = engine::animation::Sprite {
+        image: Rc::new(fontsheet),
+        animations: vec![font_anim_1],
+        animation_state: font_anim_state,
+    };
 
     //GameState::ChooseFighter
 
@@ -478,13 +504,18 @@ fn main() {
 
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::ChooseFighter,
+        // state: GameStates::ChooseFighter,
+        state: GameStates::ShowPick, // i'm testing fontsheet here
     };
     let mut current_player = None;
     let mut player_selected = false;
 
     //
     let player_info = FighterType::None;
+
+    let mut fontsheet_draw_to = Vec2i { x: 10, y: 10 };
+
+    // let letters_frames: Vec<u32> = (65..71).collect();
 
     //we are going to want to define our FighterMoves in here
     //and then initialize the three fighters here with the FighterMoves in the move_inventory
@@ -539,7 +570,7 @@ fn main() {
                 // Note this deeply nested pattern match
                 event:
                     WindowEvent::CursorMoved {
-                        position: winit::dpi::PhysicalPosition { x: x, y: y, .. },
+                        position: winit::dpi::PhysicalPosition { x, y, .. },
                         ..
                     },
                 ..
@@ -706,6 +737,27 @@ fn main() {
                 }
                 //gamestate:showpick
                 else if game.state == GameStates::ShowPick {
+                    // vulkan_state.fb2d.bitblt(
+                    //     &fontsheet,
+                    //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
+                    //     Vec2i { x: 0, y: 0 },
+                    // );
+                    vulkan_state.fb2d.write_to(
+                        "i have no idea why the background is white. it's\
+                        a png so it really should have a transparent background. \
+                        worst comes to worst we need to make a new sprite sheet. it's \
+                        just a shame because the font sheet works perfectly with ascii\
+                        such that the index of each character matches up each character's\
+                        ascii interpresetation.",
+                        // "i need a really long string to test this text width thing. \
+                        // we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                        // consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                        &mut fontsheet_sprite,
+                        fontsheet_draw_to,
+                        fontsize,
+                        100,
+                        200,
+                    );
                 }
 
                 // if audio_play == true {
