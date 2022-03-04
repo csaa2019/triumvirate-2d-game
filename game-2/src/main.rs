@@ -11,6 +11,7 @@ use kira::arrangement::{Arrangement, LoopArrangementSettings};
 use kira::instance::InstanceSettings;
 use kira::manager::{AudioManager, AudioManagerSettings};
 use kira::sound::SoundSettings;
+use std::ptr::null;
 use std::rc::Rc;
 use std::sync::Arc;
 // use std::time::Instant;
@@ -437,9 +438,9 @@ fn main() {
 
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
-    let fighter_rect_draw_to_1 = engine::image::Vec2i { x: 15, y: 50 };
-    let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 50 };
-    let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 50 };
+    let fighter_rect_draw_to_1 = engine::image::Vec2i { x: 15, y: 35 };
+    let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 35 };
+    let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 35 };
 
     let fighter_rect_clickable_rect_1 = engine::image::Rect::new(
         fighter_rect_draw_to_1.x,
@@ -475,10 +476,10 @@ fn main() {
 
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
-    let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 185 };
-    let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 185 };
-    let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 185 };
-    let next_button_draw_to = engine::image::Vec2i { x: 115, y: 210 };
+    let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 170 };
+    let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 170 };
+    let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 170 };
+    let next_button_draw_to = engine::image::Vec2i { x: 115, y: 205 };
     //won't actually need clickable rect for them
     let fighter_info_clickable_rect_1 = engine::image::Rect::new(
         fighter_info_draw_to_1.x,
@@ -520,6 +521,13 @@ fn main() {
     let mut mouse_click = false;
     let mut prev_mouse_click = false;
 
+    pub enum FighterType {
+        None,
+        Chloe,
+        Grace,
+        Nate,
+    }
+
     //random move names here
     let grace_fighter_moves = vec![
         FighterMove {
@@ -536,7 +544,9 @@ fn main() {
         },
     ];
 
-    let mut grace = Fighter::new("Grace".to_string(), false, true, grace_fighter_moves);
+    let mut chloe = Fighter::new(FighterType::Chloe, false, true, grace_fighter_moves);
+    let mut grace = Fighter::new(FighterType::Grace, false, true, grace_fighter_moves);
+    let mut nate = Fighter::new(FighterType::Nate, false, true, grace_fighter_moves);
 
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
@@ -544,11 +554,11 @@ fn main() {
         state: GameStates::ChooseFighter,
         // state: GameStates::ShowPick, // i'm testing fontsheet here
     };
-    let mut current_player = None::<Fighter>;
+    let mut current_player = None;
     let mut player_selected = false;
 
     //
-    let player_info = Some(grace);
+    let player_info = FighterType::None;
 
     let mut player_info_temp = 0;
 
@@ -725,34 +735,31 @@ fn main() {
 
                         if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = nate;
+                            current_player = Some(FighterType::Nate);
                         }
 
                         if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = chloe;
+                            current_player = Some(FighterType::Chloe);
                         }
 
                         if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
                             player_selected = true;
-                            //current_player = grace;
+                            current_player = Some(FighterType::Grace);
                         }
 
                         if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                            // player_info = nate;
-                            player_info_temp = 0;
+                            player_info = FighterType::Nate;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                            // player_info = chloe;
-                            player_info_temp = 1;
+                            player_info = FighterType::Chloe;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                            // player_info = grace;
-                            player_info_temp = 2;
+                            player_info = FighterType::Grace;
                             game.state = GameStates::FighterInfo;
                         }
 
@@ -764,26 +771,21 @@ fn main() {
                 //gamestate::fighterinfo
                 else if game.state == GameStates::FighterInfo {
                     vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
+                    
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
 
-                    if player_info_temp == 1 {
-                        vulkan_state.fb2d.write_to(
-                            "CHLOE",
-                            &mut titlefontsheet_sprite,
-                            title_draw_to,
-                            titlefont_size,
-                            title_box_dim,
-                        );
-                        vulkan_state.fb2d.write_to(
-                            "let's pretend there is a description about our characters on the screen or something\
-                            i need a really long string to test this text width thing. \
-                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
-                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                            &mut fontsheet_sprite,
-                            description_draw_to,
-                            fontsize,
-                            description_box_dim
-                        );
-                    } else if player_info_temp == 0 {
+                        if back_button_rect.rect_inside(mouse_pos){
+                            game.state = GameStates::ChooseFighter;
+                        }
+
+                    }
+
+                    //if player_info == nate, bit blit certain images
+                    if player_info == FighterType::Nate {
                         vulkan_state.fb2d.write_to(
                             "NATE",
                             &mut titlefontsheet_sprite,
@@ -801,7 +803,27 @@ fn main() {
                             fontsize,
                             description_box_dim
                         );
-                    } else if player_info_temp == 2 {
+                    } //if player_info == nate, bit blit certain images}
+                    if player_info == FighterType::Chloe {
+                        vulkan_state.fb2d.write_to(
+                            "CHLOE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+                    if player_info == FighterType::Grace {
                         vulkan_state.fb2d.write_to(
                             "GRACE",
                             &mut titlefontsheet_sprite,
@@ -820,21 +842,7 @@ fn main() {
                             description_box_dim
                         );
                     }
-                    
 
-                    if mouse_click == true && prev_mouse_click == false {
-                        let mouse_pos = engine::image::Vec2i {
-                            x: mouse_x as i32,
-                            y: mouse_y as i32,
-                        };
-
-                        if back_button_rect.rect_inside(mouse_pos){
-                            game.state = GameStates::ChooseFighter;
-                        }
-
-                    }
-
-                    //if player_info == nate, bit blit certain images
                     //if player_info == chloe, bit blit certain images
                     //if player_info == grace, bit blit certain images into the rectangles
                     //include a back button back to GameStates::ChooseFighter

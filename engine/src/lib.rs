@@ -78,8 +78,8 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
     }
 }
 
-pub struct Fighter {
-    pub name: String,
+pub struct Fighter<T: Copy + Eq + PartialEq> {
+    pub name: T,
     pub is_cpu: bool,
     pub is_turn: bool,
     pub health: i32,
@@ -88,13 +88,13 @@ pub struct Fighter {
     pub current_move: Option<FighterMove>,
 }
 
-impl Fighter {
+impl<T: Copy + Eq + PartialEq> Fighter<T> {
     pub fn new(
-        name: String,
+        name: T,
         is_cpu: bool,
         is_turn: bool,
         move_inventory: Vec<FighterMove>,
-    ) -> Fighter {
+    ) -> Fighter<T> {
         Fighter {
             name: name,
             is_cpu: is_cpu,
@@ -103,33 +103,6 @@ impl Fighter {
             mana: 100,
             move_inventory,
             current_move: None,
-        }
-    }
-    pub fn set_current_move(&mut self, chosen_move: FighterMove) {
-        self.current_move = Some(chosen_move);
-    }
-
-    pub fn finished_turn(&mut self) {
-        self.is_turn = !self.is_turn;
-    }
-
-    //need to modify this execute_move function
-    //do we still want this to return an outcome?
-    pub fn execute_move(&mut self, enemy: &mut Fighter) {
-        //double check current move
-        if enemy.current_move.is_some() && self.current_move.is_some() {
-            let enemy_fighter_move = enemy.current_move.as_ref().unwrap();
-            let self_fighter_move = &self.current_move.as_ref().unwrap();
-
-            self.health += enemy_fighter_move.damage;
-            enemy.mana += enemy_fighter_move.mana_cost;
-            enemy.health += enemy_fighter_move.health_cost;
-
-            enemy.health += self_fighter_move.damage;
-            self.mana += self_fighter_move.mana_cost;
-            self.health += self_fighter_move.health_cost;
-        } else {
-            //do nothing
         }
     }
 }
