@@ -95,16 +95,37 @@ impl Image {
      * This can be used to load in textures, spritesheets, etc.
      */
     pub fn from_png(filename: &str, img_width: u32, img_height: u32) -> Image {
-        let (image_data, dimensions) = {
+        let image_data = {
             let img = image::open(filename).unwrap();
             let img_resized = image::imageops::resize(&img, img_width, img_height, Triangle);
             let dim = img_resized.dimensions();
-            (img_resized.into_raw(), dim)
+            img_resized.into_raw()
         };
         let mut texture = Vec::<Color>::new();
 
         for (a, b, c, d) in image_data.into_iter().tuples() {
             let c: Color = (a, b, c, d);
+            texture.push(c);
+        }
+
+        Image {
+            buffer: texture.into_boxed_slice(),
+            w: img_width as usize,
+            h: img_height as usize,
+        }
+    }
+
+    pub fn from_png_not_premultiplied(filename: &str, img_width: u32, img_height: u32) -> Image {
+        let image_data = {
+            let img = image::open(filename).unwrap();
+            let img_resized = image::imageops::resize(&img, img_width, img_height, Triangle);
+            let dim = img_resized.dimensions();
+            img_resized.into_raw()
+        };
+        let mut texture = Vec::<Color>::new();
+
+        for (a, b, c, d) in image_data.into_iter().tuples() {
+            let c: Color = (a * (d / 255), b * (d / 255), c * (d / 255), d);
             texture.push(c);
         }
 
@@ -253,6 +274,39 @@ impl Image {
         }
     }
 
+    pub fn write_to(
+        &mut self,
+        string: &str,
+        fontsheet: &mut Sprite,
+        to: Vec2i,
+        fontsize: u32,
+        textbox_dim: Vec2i,
+    ) {
+        let textbox_w = textbox_dim.x;
+        let textbox_h = textbox_dim.y;
+        let mut draw_pointer = to.clone();
+        let max_w = to.x + textbox_w as i32;
+        let max_h = to.y + textbox_h as i32;
+
+        let max_columns = textbox_w as u32 / fontsize;
+        let max_rows = textbox_h as u32 / fontsize;
+
+        assert!(max_w <= self.w as i32);
+        assert!(max_h <= self.h as i32);
+        assert!(string.len() < (max_columns * max_rows) as usize);
+
+        for char in string.chars() {
+            let char_as_u32 = char as u32;
+
+            fontsheet.draw_specific_frame(self, draw_pointer, char_as_u32 as usize);
+            draw_pointer.x += fontsize as i32;
+            if draw_pointer.x > max_w - fontsize as i32 {
+                draw_pointer.y += fontsize as i32;
+                draw_pointer.x = to.x;
+            }
+        }
+    }
+
     // fn triangle(
     //     &mut self,
     //     (x0, y0): (usize, usize),
@@ -265,22 +319,21 @@ impl Image {
     //     self.line((x1, y1), (x2, y2), col);
     // }
 
-    // #[allow(dead_code)]
-    // fn draw_filled_rect(&mut self, rect: &mut Rect, c: Color) {
-    //     let fb = &mut self.buffer;
-    //     let Rect { x0, y0, w, h } = *rect;
-    //     let y1 = y0 + h as i32;
-    //     let x1 = x0 + w as i32;
+    pub fn draw_filled_rect(&mut self, rect: &mut Rect, c: Color) {
+        let fb = &mut self.buffer;
+        let Rect { x0, y0, w, h } = *rect;
+        let y1 = y0 + h as i32;
+        let x1 = x0 + w as i32;
 
-    //     assert!(y0 <= y1);
-    //     assert!(y1 <= HEIGHT as i32);
-    //     assert!(x0 <= x1);
-    //     assert!(x1 <= WIDTH as i32);
+        assert!(y0 <= y1);
+        assert!(y1 <= self.h as i32);
+        assert!(x0 <= x1);
+        assert!(x1 <= self.w as i32);
 
-    //     for row in (y0 as usize)..(y1 as usize) {
-    //         fb[row * WIDTH + x0 as usize..(row * WIDTH + x1 as usize)].fill(c);
-    //     }
-    // }
+        for row in (y0 as usize)..(y1 as usize) {
+            fb[row * self.w + x0 as usize..(row * self.w + x1 as usize)].fill(c);
+        }
+    }
 
     // #[allow(dead_code)]
     // fn draw_filled_outline_rect(&mut self, rect: &mut Rect, c: Color) {

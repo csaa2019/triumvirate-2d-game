@@ -29,7 +29,7 @@ impl Animation {
         sprite_size: Rect,
         sprite_width: u32,
         sprite_height: u32,
-    ) {
+    ) -> Animation {
         Animation {
             frames,
             frame_duration,
@@ -37,7 +37,7 @@ impl Animation {
             sprite_size,
             sprite_width,
             sprite_height,
-        };
+        }
     }
 }
 pub struct AnimationState {
@@ -53,12 +53,16 @@ pub struct AnimationState {
 }
 
 impl AnimationState {
-    pub fn new(current_frame: usize, elapsed_time: usize, animation_index: usize) {
+    pub fn new(
+        current_frame: usize,
+        elapsed_time: usize,
+        animation_index: usize,
+    ) -> AnimationState {
         AnimationState {
             current_frame: current_frame,
             elapsed_time,
             animation_index,
-        };
+        }
     }
 
     pub fn advance(&mut self, animations: &Vec<Animation>) {
@@ -197,7 +201,6 @@ impl Sprite {
     pub fn tick_animation(&mut self) {
         self.animation_state.advance(&self.animations);
     }
-
 }
 
 // pub trait DrawSpriteExt {
