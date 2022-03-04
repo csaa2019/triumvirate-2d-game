@@ -343,7 +343,7 @@ fn main() {
 
     //Image stuff
 
-    let fontsize = 7;
+    let fontsize = (7 as f32 * 1.5) as u32;
     let fontsheet_w = 16 * fontsize;
     let fontsheet_h = 8 * fontsize;
 
@@ -375,6 +375,52 @@ fn main() {
         image: Rc::new(fontsheet),
         animations: vec![font_anim_1],
         animation_state: font_anim_state,
+    };
+    let titlefont_size = (20 as f32 * 1.5) as u32;
+
+    let mut description_box_dim = Vec2i { x: 200, y: HEIGHT as i32 - (titlefont_size as i32+ 10)};
+    let mut description_draw_to = Vec2i {
+        x: ((WIDTH as i32) / 2) - (description_box_dim.x / 2),
+        y: titlefont_size as i32+ 10,
+    };
+
+    let titlefontsheet_w = 16 * titlefont_size;
+    let titlefontsheet_h = 8 * titlefont_size;
+
+    // the rectangle of one sprite
+    let titlefont_sprite_rect = engine::image::Rect::new(0, 0, titlefont_size, titlefont_size);
+
+    let titlefontsheet = engine::image::Image::from_png_not_premultiplied(
+        "content/fontsheet_70x70.png",
+        titlefontsheet_w,
+        titlefontsheet_h,
+    );
+
+    let titlefont_anim_state = engine::animation::AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let titlefont_anim_1 = engine::animation::Animation {
+        frames: (0..128).collect(),
+        frame_duration: 10,
+        loops: true,
+        sprite_size: titlefont_sprite_rect,
+        sprite_width: 16,
+        sprite_height: 8,
+    };
+
+    let mut titlefontsheet_sprite = engine::animation::Sprite {
+        image: Rc::new(titlefontsheet),
+        animations: vec![titlefont_anim_1],
+        animation_state: titlefont_anim_state,
+    };
+
+    let mut title_box_dim = Vec2i { x: 200, y: titlefont_size as i32 + 10};
+    let mut title_draw_to = Vec2i {
+        x: ((WIDTH as i32) / 2) - (title_box_dim.x / 2),
+        y: 10,
     };
 
     //GameState::ChooseFighter
@@ -492,10 +538,11 @@ fn main() {
 
     let mut grace = Fighter::new("Grace".to_string(), false, true, grace_fighter_moves);
 
+    let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
     let mut game = Game {
-        // state: GameStates::ChooseFighter,
-        state: GameStates::ShowPick, // i'm testing fontsheet here
+        state: GameStates::ChooseFighter,
+        // state: GameStates::ShowPick, // i'm testing fontsheet here
     };
     let mut current_player = None::<Fighter>;
     let mut player_selected = false;
@@ -503,7 +550,7 @@ fn main() {
     //
     let player_info = Some(grace);
 
-    let mut fontsheet_draw_to = Vec2i { x: 10, y: 10 };
+    let mut player_info_temp = 0;
 
     // let letters_frames: Vec<u32> = (65..71).collect();
 
@@ -692,17 +739,20 @@ fn main() {
                         }
 
                         if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                            //player_info = nate;
+                            // player_info = nate;
+                            player_info_temp = 0;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                            //player_info = chloe;
+                            // player_info = chloe;
+                            player_info_temp = 1;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                            //player_info = grace;
+                            // player_info = grace;
+                            player_info_temp = 2;
                             game.state = GameStates::FighterInfo;
                         }
 
@@ -713,6 +763,77 @@ fn main() {
                 }
                 //gamestate::fighterinfo
                 else if game.state == GameStates::FighterInfo {
+                    vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
+
+                    if player_info_temp == 1 {
+                        vulkan_state.fb2d.write_to(
+                            "CHLOE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    } else if player_info_temp == 0 {
+                        vulkan_state.fb2d.write_to(
+                            "NATE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    } else if player_info_temp == 2 {
+                        vulkan_state.fb2d.write_to(
+                            "GRACE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+                    
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if back_button_rect.rect_inside(mouse_pos){
+                            game.state = GameStates::ChooseFighter;
+                        }
+
+                    }
+
                     //if player_info == nate, bit blit certain images
                     //if player_info == chloe, bit blit certain images
                     //if player_info == grace, bit blit certain images into the rectangles
@@ -729,22 +850,6 @@ fn main() {
                     //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
                     //     Vec2i { x: 0, y: 0 },
                     // );
-                    vulkan_state.fb2d.write_to(
-                        "i have no idea why the background is white. it's\
-                        a png so it really should have a transparent background. \
-                        worst comes to worst we need to make a new sprite sheet. it's \
-                        just a shame because the font sheet works perfectly with ascii\
-                        such that the index of each character matches up each character's\
-                        ascii interpresetation.",
-                        // "i need a really long string to test this text width thing. \
-                        // we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
-                        // consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-                        &mut fontsheet_sprite,
-                        fontsheet_draw_to,
-                        fontsize,
-                        100,
-                        200,
-                    );
                 }
 
                 // if audio_play == true {
