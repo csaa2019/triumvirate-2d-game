@@ -396,10 +396,7 @@ fn main() {
     // Load audio
     let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
     let mut sound_handle_music = audio_manager
-        .load_sound(
-            "game-1/content/RPS_tunes_loop.ogg",
-            SoundSettings::default(),
-        )
+        .load_sound("content/RPS_tunes_loop.ogg", SoundSettings::default())
         .unwrap();
     let mut arrangement_handle = audio_manager
         .add_arrangement(Arrangement::new_loop(
@@ -408,7 +405,7 @@ fn main() {
         ))
         .unwrap();
     let mut sound_handle_click = audio_manager
-        .load_sound("game-1/content/click.ogg", SoundSettings::default())
+        .load_sound("content/click.ogg", SoundSettings::default())
         .unwrap();
 
     let event_loop = EventLoop::new();
@@ -442,7 +439,7 @@ fn main() {
     let text_title_h = 60;
     let text_title_rect = engine::image::Rect::new(0, 0, text_title_w, text_title_h);
     let text_title = engine::image::Image::from_png(
-        "game-1/content/ROCK-PAPER-SCISSORS.png",
+        "content/ROCK-PAPER-SCISSORS.png",
         text_title_w,
         text_title_h,
     );
@@ -455,8 +452,7 @@ fn main() {
     let text_play_w = 100 as u32;
     let text_play_h = 18 as u32;
     let text_play_rect = engine::image::Rect::new(0, 0, text_play_w, text_play_h);
-    let text_play =
-        engine::image::Image::from_png("game-1/content/PLAY.png", text_play_w, text_play_h);
+    let text_play = engine::image::Image::from_png("content/PLAY.png", text_play_w, text_play_h);
 
     let text_play_draw_to = engine::image::Vec2i { x: 110, y: 150 };
 
@@ -468,7 +464,9 @@ fn main() {
     );
 
     // to scale down, change img_width and height and change score widthth and height variables below
-    let score_image = engine::image::Image::from_png("game-1/content/score.png", 70, 24);
+    let player_image = engine::image::Image::from_png("content/player.png", 100, 50);
+
+    let enemy_image = engine::image::Image::from_png("content/enemy.png", 100, 50);
 
     //GameState Instruction Assets
     // Instruction sheet image
@@ -477,7 +475,7 @@ fn main() {
     let instruction_rect = engine::image::Rect::new(0, 0, instruction_w, instruction_h);
 
     let instruction_img = engine::image::Image::from_png(
-        "game-1/content/Instruction-Screen.png",
+        "content/Instruction-Screen.png",
         instruction_w,
         instruction_h,
     );
@@ -493,7 +491,7 @@ fn main() {
     let mut scissor_sprite = create_move_sprite(
         scissor_img_width,
         scissor_img_height,
-        "game-1/content/scissors-ss.png",
+        "content/scissors-ss.png",
     );
 
     let draw_y = HEIGHT as i32 - scissor_sprite_h as i32 - 10;
@@ -517,11 +515,8 @@ fn main() {
     let rock_sprite_w = 88;
     let rock_sprite_h = 100;
 
-    let mut rock_sprite = create_move_sprite(
-        rock_img_width,
-        rock_img_height,
-        "game-1/content/rock-ss.png",
-    );
+    let mut rock_sprite =
+        create_move_sprite(rock_img_width, rock_img_height, "content/rock-ss.png");
 
     // coordinates to draw to
     let rock_draw_to = engine::image::Vec2i {
@@ -539,11 +534,8 @@ fn main() {
     let paper_sprite_w = paper_img_width / 2;
     let paper_sprite_h = paper_img_height / 2;
 
-    let mut paper_sprite = create_move_sprite(
-        paper_img_width,
-        paper_img_height,
-        "game-1/content/paper-ss.png",
-    );
+    let mut paper_sprite =
+        create_move_sprite(paper_img_width, paper_img_height, "content/paper-ss.png");
 
     let paper_draw_to = engine::image::Vec2i {
         x: (WIDTH as i32 / 3 * 2),
@@ -564,11 +556,8 @@ fn main() {
     let text_youlose_w = 166 as u32;
     let text_youlose_h = 18 as u32;
     let text_youlose_rect = engine::image::Rect::new(0, 0, text_youlose_w, text_youlose_h);
-    let text_youlose = engine::image::Image::from_png(
-        "game-1/content/YOU-LOSE.png",
-        text_youlose_w,
-        text_youlose_h,
-    );
+    let text_youlose =
+        engine::image::Image::from_png("content/YOU-LOSE.png", text_youlose_w, text_youlose_h);
 
     let text_youlose_draw_to = engine::image::Vec2i { x: 80, y: 30 };
 
@@ -578,7 +567,7 @@ fn main() {
     let text_youwin_h = 18 as u32;
     let text_youwin_rect = engine::image::Rect::new(0, 0, text_youwin_w, text_youwin_h);
     let text_youwin =
-        engine::image::Image::from_png("game-1/content/YOU-WIN.png", text_youwin_w, text_youwin_h);
+        engine::image::Image::from_png("content/YOU-WIN.png", text_youwin_w, text_youwin_h);
 
     let text_youwin_draw_to = engine::image::Vec2i { x: 80, y: 30 };
 
@@ -588,7 +577,7 @@ fn main() {
     let text_playagain_h = 18 as u32;
     let text_playagain_rect = engine::image::Rect::new(0, 0, text_playagain_w, text_playagain_h);
     let text_playagain = engine::image::Image::from_png(
-        "game-1/content/PLAY-AGAIN.png",
+        "content/PLAY-AGAIN.png",
         text_playagain_w,
         text_playagain_h,
     );
@@ -611,7 +600,7 @@ fn main() {
 
     // NEED TO CHANGE
     let countdown_sheet = engine::image::Image::from_png(
-        "game-1/content/countdown ss.png",
+        "content/countdown ss.png",
         countdown_img_width,
         countdown_img_height,
     );
@@ -647,20 +636,17 @@ fn main() {
     let mut countdown_playing_anim = false;
     let mut countdown_timer = 0;
 
-
-
-
+    // Upper one is player
     // Score numbers sprite
     let number_img_width = 135; //270
     let number_img_height = 178; // 356
     let number_sprite_w = 44; // 89
     let number_sprite_h = 44; // 88
-    // the rectangle of one sprite
-    let number_sprite_rect =
-        engine::image::Rect::new(0, 0, number_sprite_w, number_sprite_h);
+                              // the rectangle of one sprite
+    let number_sprite_rect = engine::image::Rect::new(0, 0, number_sprite_w, number_sprite_h);
     // Suffix of 1 is for player score
     let number_sheet1 = engine::image::Image::from_png(
-        "game-1/content/number-ss.png",
+        "content/number-ss.png",
         number_img_width,
         number_img_height,
     );
@@ -683,14 +669,11 @@ fn main() {
         animation_state: number_anim_state1,
     };
     // coordinates to draw to
-    let number_draw_to1 = engine::image::Vec2i {
-        x: 100,
-        y: 10,
-    };
+    let number_draw_to1 = engine::image::Vec2i { x: 200, y: 75 };
 
     // Suffix 2 is for AI score
     let number_sheet2 = engine::image::Image::from_png(
-        "game-1/content/number-ss.png",
+        "content/number-ss.png",
         number_img_width,
         number_img_height,
     );
@@ -713,11 +696,7 @@ fn main() {
         animation_state: number_anim_state2,
     };
     // coordinates to draw to
-    let number_draw_to2 = engine::image::Vec2i {
-        x: 150,
-        y: 75,
-    };
-
+    let number_draw_to2 = engine::image::Vec2i { x: 200, y: 10 };
 
     // KEYBOARD INPUT STUFF
     let mut now_keys = [false; 255];
@@ -898,13 +877,20 @@ fn main() {
                         y: mouse_y as i32,
                     };
 
-                    // Draw score image in top right
-                    let score_width = 70;
-                    let score_height = 24;
+                    // Draw player text
+                    let player_width = 100;
+                    let player_height = 50;
                     vulkan_state.fb2d.bitblt(
-                        &score_image,
-                        &engine::image::Rect::new(0, 0, score_width, score_height),
-                        engine::image::Vec2i { x: 235, y: 5 },
+                        &player_image,
+                        &engine::image::Rect::new(0, 0, player_width, player_height),
+                        engine::image::Vec2i { x: 80, y: 65 },
+                    );
+
+                    // Draw enemy text (use same player width and height)
+                    vulkan_state.fb2d.bitblt(
+                        &enemy_image,
+                        &engine::image::Rect::new(0, 0, player_width, player_height),
+                        engine::image::Vec2i { x: 90, y: 10 },
                     );
 
                     if !playing_anim {
@@ -962,7 +948,7 @@ fn main() {
                         if score.1 == 3 {
                             number_sprite2.change_animation(3);
                         }
-                        
+
                         number_sprite1.draw(&mut vulkan_state.fb2d, number_draw_to1);
                         number_sprite2.draw(&mut vulkan_state.fb2d, number_draw_to2);
                         rock_sprite.draw(&mut vulkan_state.fb2d, rock_draw_to);
@@ -1053,7 +1039,6 @@ fn main() {
                         }
                     }
                 } else if game.state == GameStates::ShowPick {
-
                     if countdown_timer >= 60 {
                         countdown_timer = 0;
                         countdown_playing_anim = false;
