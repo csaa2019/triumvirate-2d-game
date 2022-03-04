@@ -521,6 +521,7 @@ fn main() {
     let mut mouse_click = false;
     let mut prev_mouse_click = false;
 
+    #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
     pub enum FighterType {
         None,
         Chloe,
@@ -544,9 +545,41 @@ fn main() {
         },
     ];
 
-    let mut chloe = Fighter::new(FighterType::Chloe, false, true, grace_fighter_moves);
+    let chloe_fighter_moves = vec![
+        FighterMove {
+            name: "GraceHealth".to_string(),
+            damage: 0,
+            mana_cost: -20,
+            health_cost: 30,
+        },
+        FighterMove {
+            name: "GraceDamage".to_string(),
+            damage: 20,
+            mana_cost: -20,
+            health_cost: 0,
+        },
+    ];
+
+    let nate_fighter_moves = vec![
+        FighterMove {
+            name: "GraceHealth".to_string(),
+            damage: 0,
+            mana_cost: -20,
+            health_cost: 30,
+        },
+        FighterMove {
+            name: "GraceDamage".to_string(),
+            damage: 20,
+            mana_cost: -20,
+            health_cost: 0,
+        },
+    ];
+
+    
+
+    let mut chloe = Fighter::new(FighterType::Chloe, false, true, chloe_fighter_moves);
     let mut grace = Fighter::new(FighterType::Grace, false, true, grace_fighter_moves);
-    let mut nate = Fighter::new(FighterType::Nate, false, true, grace_fighter_moves);
+    let mut nate = Fighter::new(FighterType::Nate, false, true, nate_fighter_moves);
 
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
@@ -554,8 +587,20 @@ fn main() {
         state: GameStates::ChooseFighter,
         // state: GameStates::ShowPick, // i'm testing fontsheet here
     };
-    let mut current_player = None;
+
+    pub struct GameInfo { 
+        pub current_player: FighterType, 
+        pub player_info: FighterType, 
+    }
+
+    impl GameInfo { 
+        pub fn new(current_player:FighterType, player_info:FighterType)
+        {
+            GameInfo {current_player, player_info}; 
+        }
+    }
     let mut player_selected = false;
+    let mut gameinfo = GameInfo {current_player: FighterType::None, player_info: FighterType::None}; 
 
     //
     let player_info = FighterType::None;
@@ -735,31 +780,31 @@ fn main() {
 
                         if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                             player_selected = true;
-                            current_player = Some(FighterType::Nate);
+                            gameinfo.current_player = FighterType::Nate; 
                         }
 
                         if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                             player_selected = true;
-                            current_player = Some(FighterType::Chloe);
+                            gameinfo.current_player = FighterType::Chloe; 
                         }
 
                         if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
                             player_selected = true;
-                            current_player = Some(FighterType::Grace);
+                            gameinfo.current_player = FighterType::Grace; 
                         }
 
                         if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                            player_info = FighterType::Nate;
+                            gameinfo.player_info = FighterType::Nate;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                            player_info = FighterType::Chloe;
+                            gameinfo.player_info = FighterType::Chloe;
                             game.state = GameStates::FighterInfo;
                         }
 
                         if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                            player_info = FighterType::Grace;
+                            gameinfo.player_info = FighterType::Grace;
                             game.state = GameStates::FighterInfo;
                         }
 
@@ -785,7 +830,7 @@ fn main() {
                     }
 
                     //if player_info == nate, bit blit certain images
-                    if player_info == FighterType::Nate {
+                    if gameinfo.player_info == FighterType::Nate {
                         vulkan_state.fb2d.write_to(
                             "NATE",
                             &mut titlefontsheet_sprite,
@@ -804,7 +849,7 @@ fn main() {
                             description_box_dim
                         );
                     } //if player_info == nate, bit blit certain images}
-                    if player_info == FighterType::Chloe {
+                    if gameinfo.player_info == FighterType::Chloe {
                         vulkan_state.fb2d.write_to(
                             "CHLOE",
                             &mut titlefontsheet_sprite,
@@ -823,7 +868,7 @@ fn main() {
                             description_box_dim
                         );
                     }
-                    if player_info == FighterType::Grace {
+                    if gameinfo.player_info == FighterType::Grace {
                         vulkan_state.fb2d.write_to(
                             "GRACE",
                             &mut titlefontsheet_sprite,
