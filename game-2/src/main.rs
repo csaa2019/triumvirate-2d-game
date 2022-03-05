@@ -658,7 +658,7 @@ fn main() {
     // GAME STUFF
     let mut game = Game {
         // state: GameStates::ChooseFighter,
-        state: GameStates::ShowPick, // i'm testing the hp bar here
+        state: GameStates::ChooseFighter, // i'm testing the hp bar here
     };
 
     pub struct GameInfo{ 
