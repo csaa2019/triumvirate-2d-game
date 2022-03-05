@@ -84,24 +84,17 @@ pub struct Fighter<T: Copy + Eq + PartialEq> {
     pub is_turn: bool,
     pub health: i32,
     pub mana: i32,
-    pub move_inventory: Vec<FighterMove>,
-    pub current_move: Option<FighterMove>,
+    pub current_move: Option<FighterMove<T>>,
 }
 
 impl<T: Copy + Eq + PartialEq> Fighter<T> {
-    pub fn new(
-        name: T,
-        is_cpu: bool,
-        is_turn: bool,
-        move_inventory: Vec<FighterMove>,
-    ) -> Fighter<T> {
+    pub fn new(name: T, is_cpu: bool, is_turn: bool) -> Fighter<T> {
         Fighter {
             name: name,
             is_cpu: is_cpu,
-            is_turn: is_turn,
+            is_turn,
             health: 100,
             mana: 100,
-            move_inventory,
             current_move: None,
         }
     }
@@ -122,8 +115,9 @@ pub struct Move<T: Copy + Eq + PartialEq> {
     pub loses: T,
     // pub cost: u32,
 }
-pub struct FighterMove {
-    pub name: String,
+#[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
+pub struct FighterMove<T: Copy + Eq + PartialEq> {
+    pub fighter_move_type: T,
     //damage to the other player, positive value
     pub damage: i32,
     //cost of player's mana, negative value
@@ -162,6 +156,8 @@ pub enum GameStates {
 
     //choose which move from each player
     ChooseMove,
+
+    MoveInfo,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]

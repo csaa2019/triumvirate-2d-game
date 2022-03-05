@@ -426,12 +426,38 @@ fn main() {
 
     //GameState::ChooseFighter
 
+
+    let highlight_rect_w = 96 as u32;
+    let highlight_rect_h = 130 as u32;
+    let highlight_rect_rect = engine::image::Rect::new(0, 0, highlight_rect_w, highlight_rect_h);
+    let highlight_rect = engine::image::Image::from_png_not_premultiplied(
+        "content/playerimagerect.png",
+        highlight_rect_w,
+        highlight_rect_h,
+    );
+
+    let highlight_rect_draw_to_1 = engine::image::Vec2i { x: 10, y: 30 };
+    let highlight_rect_draw_to_2 = engine::image::Vec2i { x: 110, y: 30 };
+    let highlight_rect_draw_to_3 = engine::image::Vec2i { x: 210, y: 30 };
+
     //temporary placeholder for our fighter images
     let fighter_rect_w = 86 as u32;
     let fighter_rect_h = 120 as u32;
     let fighter_rect_rect = engine::image::Rect::new(0, 0, fighter_rect_w, fighter_rect_h);
-    let fighter_rect = engine::image::Image::from_png(
+    let fighter_rect = engine::image::Image::from_png_not_premultiplied(
         "content/playerimagerect.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let nate_fighter_rect = engine::image::Image::from_png_not_premultiplied(
+        "content/natefighter.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let chloe_fighter_rect = engine::image::Image::from_png_not_premultiplied(
+        "content/chloefighter.png",
         fighter_rect_w,
         fighter_rect_h,
     );
@@ -529,16 +555,38 @@ fn main() {
         Nate,
     }
 
+    #[derive(PartialEq, Eq, Clone, Copy, Hash, Debug)]
+    pub enum FighterMoveType {
+        None,
+        
+        //because rust is screaming at me and I can't currently be assed to make more efficient code
+        //eventually we will want to delete the healing, damage, heavydamage part 
+        Healing, 
+        Damage, 
+        HeavyDamage, 
+
+
+        NateMove1, 
+        NateMove2, 
+        NateMove3, 
+        ChloeMove1, 
+        ChloeMove2, 
+        ChloeMove3, 
+        GraceMove1, 
+        GraceMove2, 
+        GraceMove3
+    }
+
     //random move names here
     let grace_fighter_moves = vec![
         FighterMove {
-            name: "GraceHealth".to_string(),
+            fighter_move_type: FighterMoveType::Healing, 
             damage: 0,
             mana_cost: -20,
             health_cost: 30,
         },
-        FighterMove {
-            name: "GraceDamage".to_string(),
+        FighterMove{
+            fighter_move_type: FighterMoveType::Damage, 
             damage: 20,
             mana_cost: -20,
             health_cost: 0,
@@ -547,39 +595,58 @@ fn main() {
 
     let chloe_fighter_moves = vec![
         FighterMove {
-            name: "GraceHealth".to_string(),
+            fighter_move_type: FighterMoveType::ChloeMove1, 
             damage: 0,
             mana_cost: -20,
             health_cost: 30,
         },
-        FighterMove {
-            name: "GraceDamage".to_string(),
+        FighterMove{
+            fighter_move_type: FighterMoveType::ChloeMove2, 
             damage: 20,
             mana_cost: -20,
             health_cost: 0,
+        },
+        FighterMove{
+            fighter_move_type: FighterMoveType::ChloeMove3,
+            damage: 69,
+            mana_cost: 69,
+            health_cost: 69,
         },
     ];
 
     let nate_fighter_moves = vec![
         FighterMove {
-            name: "GraceHealth".to_string(),
+            fighter_move_type: FighterMoveType::NateMove1, 
             damage: 0,
             mana_cost: -20,
             health_cost: 30,
         },
-        FighterMove {
-            name: "GraceDamage".to_string(),
+        FighterMove{
+            fighter_move_type: FighterMoveType::NateMove2, 
             damage: 20,
             mana_cost: -20,
             health_cost: 0,
         },
+        FighterMove{
+            fighter_move_type: FighterMoveType::NateMove3,
+            damage: 69,
+            mana_cost: 69,
+            health_cost: 69,
+        },
     ];
+
+    let placeholder_fightermove = FighterMove{
+        fighter_move_type: FighterMoveType::None,
+        damage: 69,
+        mana_cost: 69,
+        health_cost: 69,
+    }; 
 
     
 
-    let mut chloe = Fighter::new(FighterType::Chloe, false, true, chloe_fighter_moves);
-    let mut grace = Fighter::new(FighterType::Grace, false, true, grace_fighter_moves);
-    let mut nate = Fighter::new(FighterType::Nate, false, true, nate_fighter_moves);
+    let mut chloe = Fighter::new(FighterType::Chloe, false, true);
+    let mut grace = Fighter::new(FighterType::Grace, false, true);
+    let mut nate = Fighter::new(FighterType::Nate, false, true);
 
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
@@ -588,19 +655,21 @@ fn main() {
         // state: GameStates::ShowPick, // i'm testing fontsheet here
     };
 
-    pub struct GameInfo { 
+    pub struct GameInfo{ 
         pub current_player: FighterType, 
         pub player_info: FighterType, 
+        pub current_move: FighterMove<FighterMoveType>, 
     }
 
     impl GameInfo { 
-        pub fn new(current_player:FighterType, player_info:FighterType)
+        pub fn new(current_player:FighterType, player_info:FighterType, current_move: FighterMove<FighterMoveType>)
         {
-            GameInfo {current_player, player_info}; 
+            GameInfo {current_player, player_info, current_move}; 
         }
     }
     let mut player_selected = false;
-    let mut gameinfo = GameInfo {current_player: FighterType::None, player_info: FighterType::None}; 
+    let mut move_selected = false; 
+    let mut gameinfo = GameInfo {current_player: FighterType::None, player_info: FighterType::None, current_move: placeholder_fightermove}; 
 
     //
     let player_info = FighterType::None;
@@ -715,24 +784,52 @@ fn main() {
                     *control_flow = ControlFlow::Exit;
                 }
 
-                //choose background color, I made it white
+                //yellowbackground
                 vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
 
                 if game.state == GameStates::ChooseFighter {
-                    //if player_selected == true
+                    
+                    //add highlight rectangle to the selected player
+                    if player_selected
+                    {
+                        if gameinfo.current_player == FighterType::Nate{
+                            vulkan_state.fb2d.bitblt(
+                                &highlight_rect,
+                                &highlight_rect_rect,
+                                highlight_rect_draw_to_1,
+                            );
+                        }
+
+                        if gameinfo.current_player == FighterType::Chloe{
+                            vulkan_state.fb2d.bitblt(
+                                &highlight_rect,
+                                &highlight_rect_rect,
+                                highlight_rect_draw_to_2,
+                            );
+                        }
+
+                        if gameinfo.current_player == FighterType::Grace{
+                            vulkan_state.fb2d.bitblt(
+                                &highlight_rect,
+                                &highlight_rect_rect,
+                                highlight_rect_draw_to_3,
+                            );
+                        }
+                        
+                    }
                     //draw a rectangle that's a little larger than the fighter_rect
                     //to show that the current fighter is selected (aka highlighting the fighter)
 
                     //nate image
                     vulkan_state.fb2d.bitblt(
-                        &fighter_rect,
+                        &nate_fighter_rect,
                         &fighter_rect_rect,
                         fighter_rect_draw_to_1,
                     );
 
                     //chloe image
                     vulkan_state.fb2d.bitblt(
-                        &fighter_rect,
+                        &chloe_fighter_rect,
                         &fighter_rect_rect,
                         fighter_rect_draw_to_2,
                     );
@@ -817,6 +914,7 @@ fn main() {
                 else if game.state == GameStates::FighterInfo {
                     vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
                     
+                    //back button 
                     if mouse_click == true && prev_mouse_click == false {
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
@@ -887,17 +985,187 @@ fn main() {
                             description_box_dim
                         );
                     }
-
-                    //if player_info == chloe, bit blit certain images
-                    //if player_info == grace, bit blit certain images into the rectangles
-                    //include a back button back to GameStates::ChooseFighter
                 }
                 //gamestate::choosemove
                 else if game.state == GameStates::ChooseMove {
+                    if gameinfo.current_player == FighterType::Nate{
+                        //choosing a random color here so that each one of us have a specific color background in the ...
+                        //...gamestate::choosemove
+                        vulkan_state.fb2d.clear((242_u8, 0_u8, 255_u8, 100_u8));
+
+                        if player_selected{
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove1{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_1,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove2{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_2,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove3{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_3,
+                                );
+                            }
+                            
+                    }
+                        //nate move 1
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_1,
+                        );
+
+                        //nate move 2
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_2,
+                        );
+
+                        //nate move 3
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_3,
+                        );
+
+                        //"select" button
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_info,
+                            &fighter_info_rect,
+                            next_button_draw_to,
+                        );
+
+                        if mouse_click == true && prev_mouse_click == false {
+                            let mouse_pos = engine::image::Vec2i {
+                                x: mouse_x as i32,
+                                y: mouse_y as i32,
+                            };
+    
+                            //select the first move
+                            if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[0]; 
+
+                                //would want gameinfo current move
+                                //gameinfo.current_player = FighterType::Nate; 
+                            }
+    
+                            //select the second move
+                            if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[1]; 
+                                //gameinfo.current_player = FighterType::Chloe; 
+                            }
+    
+                            //select the third move 
+                            if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[2]; 
+                            }
+    
+                            //info on first move
+                            if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
+                                gameinfo.player_info = FighterType::Nate;
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on second move
+                            if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
+                                gameinfo.player_info = FighterType::Chloe;
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on third move
+                            if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
+                                gameinfo.player_info = FighterType::Grace;
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //select move and go to next state
+                            if next_button_clickable_rect.rect_inside(mouse_pos) && move_selected {
+                                game.state = GameStates::ShowPick;
+                            }
+                        }
+                    }
+                    if gameinfo.current_player == FighterType::Chloe{
+                        vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
+                        //nate move 1
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_1,
+                        );
+
+                        //nate move 2
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_2,
+                        );
+
+                        //nate move 3
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_3,
+                        );
+
+                        //"select" button
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_info,
+                            &fighter_info_rect,
+                            next_button_draw_to,
+                        );
+
+                    }
+                    if gameinfo.current_player == FighterType::Grace{
+                        vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
+                        //grace move 1
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_1,
+                        );
+
+                        //grace move 2
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_2,
+                        );
+
+                        //grace move 3
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_rect,
+                            &fighter_rect_rect,
+                            fighter_rect_draw_to_3,
+                        );
+
+                        //"select" button
+                        vulkan_state.fb2d.bitblt(
+                            &fighter_info,
+                            &fighter_info_rect,
+                            next_button_draw_to,
+                        );
+
+                    }
                     //have a button that chooses each move and then takes it to GameState::ShowPick
                 }
                 //gamestate:showpick
                 else if game.state == GameStates::ShowPick {
+                    
                     // vulkan_state.fb2d.bitblt(
                     //     &fontsheet,
                     //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
