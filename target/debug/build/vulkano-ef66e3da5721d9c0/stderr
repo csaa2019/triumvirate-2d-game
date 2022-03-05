@@ -1,0 +1,8 @@
+The following errors were found while parsing the file:
+UnexpectedAttribute { xpath: "/registry/types/type/member", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/types/type/member", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/types/type/member", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/types/type/member", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/commands/command/param", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/commands/command/param", name: "objecttype" }
+UnexpectedAttribute { xpath: "/registry/commands/command/param", name: "objecttype" }

@@ -1,0 +1,13 @@
+/Users/loan/triumvirate-2d-game/target/debug/deps/claxon-0f3e81aa0e3a6744.rmeta: /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/lib.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/crc.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/error.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/frame.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/input.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/metadata.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/subframe.rs
+
+/Users/loan/triumvirate-2d-game/target/debug/deps/libclaxon-0f3e81aa0e3a6744.rlib: /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/lib.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/crc.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/error.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/frame.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/input.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/metadata.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/subframe.rs
+
+/Users/loan/triumvirate-2d-game/target/debug/deps/claxon-0f3e81aa0e3a6744.d: /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/lib.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/crc.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/error.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/frame.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/input.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/metadata.rs /Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/subframe.rs
+
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/lib.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/crc.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/error.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/frame.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/input.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/metadata.rs:
+/Users/loan/.cargo/registry/src/github.com-1ecc6299db9ec823/claxon-0.4.3/src/subframe.rs:
