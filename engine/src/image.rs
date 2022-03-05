@@ -293,7 +293,7 @@ impl Image {
 
         assert!(max_w <= self.w as i32);
         assert!(max_h <= self.h as i32);
-        assert!(string.len() < (max_columns * max_rows) as usize);
+        assert!(string.len() <= (max_columns * max_rows) as usize);
 
         for char in string.chars() {
             let char_as_u32 = char as u32;

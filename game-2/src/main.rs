@@ -575,6 +575,12 @@ fn main() {
         },
     ];
 
+    // this is a stand in variable to test hp bar animation
+    let mut hp = 100;
+    let hp_x = 10;
+    let hp_y = 20;
+    let hp_draw_to= engine::image::Vec2i{x: (WIDTH as i32) - ((hp_x + 1) * 12), y:10};
+    let hp_color = (255, 0, 0, 1);
     
 
     let mut chloe = Fighter::new(FighterType::Chloe, false, true, chloe_fighter_moves);
@@ -584,8 +590,8 @@ fn main() {
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::ChooseFighter,
-        // state: GameStates::ShowPick, // i'm testing fontsheet here
+        // state: GameStates::ChooseFighter,
+        state: GameStates::ShowPick, // i'm testing the hp bar here
     };
 
     pub struct GameInfo { 
@@ -815,8 +821,13 @@ fn main() {
                 }
                 //gamestate::fighterinfo
                 else if game.state == GameStates::FighterInfo {
-                    vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
                     
+
+                    // back button back to GameStates::ChooseFighter
+                    // we can replace this with an image later
+
+                    vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
+
                     if mouse_click == true && prev_mouse_click == false {
                         let mouse_pos = engine::image::Vec2i {
                             x: mouse_x as i32,
@@ -848,7 +859,9 @@ fn main() {
                             fontsize,
                             description_box_dim
                         );
-                    } //if player_info == nate, bit blit certain images}
+                    } 
+                    
+                    //if player_info == chloe, bit blit certain images
                     if gameinfo.player_info == FighterType::Chloe {
                         vulkan_state.fb2d.write_to(
                             "CHLOE",
@@ -868,6 +881,7 @@ fn main() {
                             description_box_dim
                         );
                     }
+                    //if player_info == grace, bit blit certain images into the rectangles
                     if gameinfo.player_info == FighterType::Grace {
                         vulkan_state.fb2d.write_to(
                             "GRACE",
@@ -888,9 +902,6 @@ fn main() {
                         );
                     }
 
-                    //if player_info == chloe, bit blit certain images
-                    //if player_info == grace, bit blit certain images into the rectangles
-                    //include a back button back to GameStates::ChooseFighter
                 }
                 //gamestate::choosemove
                 else if game.state == GameStates::ChooseMove {
@@ -898,11 +909,24 @@ fn main() {
                 }
                 //gamestate:showpick
                 else if game.state == GameStates::ShowPick {
-                    // vulkan_state.fb2d.bitblt(
-                    //     &fontsheet,
-                    //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
-                    //     Vec2i { x: 0, y: 0 },
-                    // );
+                    vulkan_state.fb2d.write_to(
+                        "HP",
+                        &mut titlefontsheet_sprite,
+                        Vec2i{x: hp_draw_to.x - (titlefont_size as i32) * 2, y: hp_draw_to.y-2},
+                        titlefont_size,
+                        Vec2i{x:(titlefont_size as i32) * 6, y:titlefont_size as i32},
+                    );
+
+                    let num_bars: i32 = hp / 10;
+                    for i in (0..num_bars){
+                        vulkan_state.fb2d.draw_filled_rect(&mut engine::image::Rect::new(hp_draw_to.x + (12 * i), hp_draw_to.y, hp_x as u32, hp_y as u32), hp_color);
+                    };
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        hp -= 10;
+                    }
+
+                    
                 }
 
                 // if audio_play == true {
