@@ -494,7 +494,7 @@ fn main() {
     let fighter_info_w = 86 as u32;
     let fighter_info_h = 24 as u32;
     let fighter_info_rect = engine::image::Rect::new(0, 0, fighter_info_w, fighter_info_h);
-    let fighter_info = engine::image::Image::from_png(
+    let fighter_info = engine::image::Image::from_png_not_premultiplied(
         "content/playerinforect.png",
         fighter_info_w,
         fighter_info_h,
@@ -580,16 +580,22 @@ fn main() {
     //random move names here
     let grace_fighter_moves = vec![
         FighterMove {
-            fighter_move_type: FighterMoveType::Healing, 
+            fighter_move_type: FighterMoveType::GraceMove1, 
             damage: 0,
             mana_cost: -20,
             health_cost: 30,
         },
         FighterMove{
-            fighter_move_type: FighterMoveType::Damage, 
+            fighter_move_type: FighterMoveType::GraceMove2, 
             damage: 20,
             mana_cost: -20,
             health_cost: 0,
+        },
+        FighterMove{
+            fighter_move_type: FighterMoveType::GraceMove3, 
+            damage: 69,
+            mana_cost: 69,
+            health_cost: 69,
         },
     ];
 
@@ -665,17 +671,18 @@ fn main() {
         pub current_player: FighterType, 
         pub player_info: FighterType, 
         pub current_move: FighterMove<FighterMoveType>, 
+        pub move_info: FighterMove<FighterMoveType>, 
     }
 
     impl GameInfo { 
-        pub fn new(current_player:FighterType, player_info:FighterType, current_move: FighterMove<FighterMoveType>)
+        pub fn new(current_player:FighterType, player_info:FighterType, current_move: FighterMove<FighterMoveType>, move_info: FighterMove<FighterMoveType>)
         {
-            GameInfo {current_player, player_info, current_move}; 
+            GameInfo {current_player, player_info, current_move, move_info}; 
         }
     }
     let mut player_selected = false;
     let mut move_selected = false; 
-    let mut gameinfo = GameInfo {current_player: FighterType::None, player_info: FighterType::None, current_move: placeholder_fightermove}; 
+    let mut gameinfo = GameInfo {current_player: FighterType::None, player_info: FighterType::None, current_move: placeholder_fightermove, move_info: placeholder_fightermove}; 
 
     //
     let player_info = FighterType::None;
@@ -1071,17 +1078,13 @@ fn main() {
                             //select the first move
                             if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                                 move_selected = true;
-                                gameinfo.current_move = nate_fighter_moves[0]; 
-
-                                //would want gameinfo current move
-                                //gameinfo.current_player = FighterType::Nate; 
+                                gameinfo.current_move = nate_fighter_moves[0];
                             }
     
                             //select the second move
                             if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                                 move_selected = true;
                                 gameinfo.current_move = nate_fighter_moves[1]; 
-                                //gameinfo.current_player = FighterType::Chloe; 
                             }
     
                             //select the third move 
@@ -1092,19 +1095,19 @@ fn main() {
     
                             //info on first move
                             if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
-                                gameinfo.player_info = FighterType::Nate;
+                                gameinfo.move_info = nate_fighter_moves[0]; 
                                 game.state = GameStates::MoveInfo;
                             }
     
                             //info on second move
                             if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                                gameinfo.player_info = FighterType::Chloe;
+                                gameinfo.move_info = nate_fighter_moves[1]; 
                                 game.state = GameStates::MoveInfo;
                             }
     
                             //info on third move
                             if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
-                                gameinfo.player_info = FighterType::Grace;
+                                gameinfo.move_info = nate_fighter_moves[2]; 
                                 game.state = GameStates::MoveInfo;
                             }
     
@@ -1116,21 +1119,47 @@ fn main() {
                     }
                     if gameinfo.current_player == FighterType::Chloe{
                         vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
-                        //nate move 1
+                        if player_selected{
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::ChloeMove1{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_1,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::ChloeMove2{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_2,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::ChloeMove3{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_3,
+                                );
+                            }
+                            
+                    }
+                        //chloemove1
                         vulkan_state.fb2d.bitblt(
                             &fighter_rect,
                             &fighter_rect_rect,
                             fighter_rect_draw_to_1,
                         );
 
-                        //nate move 2
+                        //chloemove2
                         vulkan_state.fb2d.bitblt(
                             &fighter_rect,
                             &fighter_rect_rect,
                             fighter_rect_draw_to_2,
                         );
 
-                        //nate move 3
+                        //chloemove3
                         vulkan_state.fb2d.bitblt(
                             &fighter_rect,
                             &fighter_rect_rect,
@@ -1144,9 +1173,82 @@ fn main() {
                             next_button_draw_to,
                         );
 
+                        if mouse_click == true && prev_mouse_click == false {
+                            let mouse_pos = engine::image::Vec2i {
+                                x: mouse_x as i32,
+                                y: mouse_y as i32,
+                            };
+    
+                            //select the first move
+                            if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = chloe_fighter_moves[0];
+                            }
+    
+                            //select the second move
+                            if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = chloe_fighter_moves[1]; 
+                            }
+    
+                            //select the third move 
+                            if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = chloe_fighter_moves[2]; 
+                            }
+    
+                            //info on first move
+                            if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
+                                gameinfo.move_info = chloe_fighter_moves[0]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on second move
+                            if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
+                                gameinfo.move_info = chloe_fighter_moves[1]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on third move
+                            if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
+                                gameinfo.move_info = chloe_fighter_moves[2]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //select move and go to next state
+                            if next_button_clickable_rect.rect_inside(mouse_pos) && move_selected {
+                                game.state = GameStates::ShowPick;
+                            }
+                        }
                     }
                     if gameinfo.current_player == FighterType::Grace{
                         vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
+                        if player_selected{
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove1{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_1,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove2{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_2,
+                                );
+                            }
+
+                            if gameinfo.current_move.fighter_move_type == FighterMoveType::NateMove3{
+                                vulkan_state.fb2d.bitblt(
+                                    &highlight_rect,
+                                    &highlight_rect_rect,
+                                    highlight_rect_draw_to_3,
+                                );
+                            }
+                            
+                    }
                         //grace move 1
                         vulkan_state.fb2d.bitblt(
                             &fighter_rect,
@@ -1175,8 +1277,258 @@ fn main() {
                             next_button_draw_to,
                         );
 
+                        if mouse_click == true && prev_mouse_click == false {
+                            let mouse_pos = engine::image::Vec2i {
+                                x: mouse_x as i32,
+                                y: mouse_y as i32,
+                            };
+    
+                            //select the first move
+                            if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[0];
+                            }
+    
+                            //select the second move
+                            if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[1]; 
+                            }
+    
+                            //select the third move 
+                            if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
+                                move_selected = true;
+                                gameinfo.current_move = nate_fighter_moves[2]; 
+                            }
+    
+                            //info on first move
+                            if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
+                                gameinfo.move_info = grace_fighter_moves[0]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on second move
+                            if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
+                                gameinfo.move_info = nate_fighter_moves[1]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //info on third move
+                            if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
+                                gameinfo.move_info = grace_fighter_moves[2]; 
+                                game.state = GameStates::MoveInfo;
+                            }
+    
+                            //select move and go to next state
+                            if next_button_clickable_rect.rect_inside(mouse_pos) && move_selected {
+                                game.state = GameStates::ShowPick;
+                            }
+                        }
                     }
-                    //have a button that chooses each move and then takes it to GameState::ShowPick
+                }
+
+                else if game.state == GameStates::MoveInfo {
+                    
+                    //back button 
+
+                    // back button back to GameStates::ChooseFighter
+                    // we can replace this with an image later
+
+                    vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if back_button_rect.rect_inside(mouse_pos){
+                            game.state = GameStates::ChooseMove;
+                        }
+
+                    }
+
+                    //if player_info == nate, bit blit certain images
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::NateMove1 {
+                        vulkan_state.fb2d.write_to(
+                            "NATE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    } 
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::NateMove2 {
+                        vulkan_state.fb2d.write_to(
+                            "NATE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    } 
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::NateMove3 {
+                        vulkan_state.fb2d.write_to(
+                            "NATE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    } 
+                    
+                    //if player_info == chloe, bit blit certain images
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::ChloeMove1 {
+                        vulkan_state.fb2d.write_to(
+                            "CHLOE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::ChloeMove2 {
+                        vulkan_state.fb2d.write_to(
+                            "CHLOE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::ChloeMove3 {
+                        vulkan_state.fb2d.write_to(
+                            "CHLOE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+                    //if player_info == grace, bit blit certain images into the rectangles
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::GraceMove1 {
+                        vulkan_state.fb2d.write_to(
+                            "GRACE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::GraceMove2 {
+                        vulkan_state.fb2d.write_to(
+                            "GRACE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
+
+                    if gameinfo.move_info.fighter_move_type == FighterMoveType::GraceMove3 {
+                        vulkan_state.fb2d.write_to(
+                            "GRACE",
+                            &mut titlefontsheet_sprite,
+                            title_draw_to,
+                            titlefont_size,
+                            title_box_dim,
+                        );
+                        vulkan_state.fb2d.write_to(
+                            "let's pretend there is a description about our characters on the screen or something\
+                            i need a really long string to test this text width thing. \
+                            we can also use this to test character descriptions later. Lorem ipsum dolor sit amet, \
+                            consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+                            &mut fontsheet_sprite,
+                            description_draw_to,
+                            fontsize,
+                            description_box_dim
+                        );
+                    }
                 }
                 //gamestate:showpick
                 else if game.state == GameStates::ShowPick {
