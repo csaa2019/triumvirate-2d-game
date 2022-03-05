@@ -470,6 +470,8 @@ fn main() {
 
     //GameState Instruction Assets
     // Instruction sheet image
+
+    /*
     let instruction_w = 350;
     let instruction_h = 245;
     let instruction_rect = engine::image::Rect::new(0, 0, instruction_w, instruction_h);
@@ -481,6 +483,8 @@ fn main() {
     );
 
     let instruction_draw_to = engine::image::Vec2i { x: 5, y: 5 };
+
+    */
 
     // SCISSOR SPRITE
     let scissor_img_width = 136;
@@ -848,10 +852,11 @@ fn main() {
                         };
 
                         if text_play_clickable_rect.rect_inside(mouse_pos) {
-                            game.state = GameStates::Instructions;
+                            game.state = GameStates::PlayerPicking;
                         }
                     }
                 }
+                /*
                 //INSTRUCTIONS gamestate
                 else if game.state == GameStates::Instructions {
                     vulkan_state.fb2d.bitblt(
@@ -866,6 +871,7 @@ fn main() {
                         game.state = GameStates::PlayerPicking;
                     }
                 }
+                */
                 //PlayerPicking gamestate
                 else if game.state == GameStates::PlayerPicking {
                     // resetting player move so it doesn't just keep
