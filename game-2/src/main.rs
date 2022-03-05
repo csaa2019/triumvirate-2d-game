@@ -653,12 +653,20 @@ fn main() {
     let hp_x = 10;
     let hp_y = 20;
     let hp_draw_to= engine::image::Vec2i{x: (WIDTH as i32) - ((hp_x + 1) * 12), y:10};
-    let hp_color = (255, 0, 0, 1);
+    let hp_color = (255, 0, 0, 1); 
+
+    let mut mana = 100; 
+    let mana_x = 10; 
+    let mana_y = 20; 
+    let mana_draw_to = engine::image::Vec2i{x: (WIDTH as i32) - ((mana_x + 1) * 12), y:40};
+    let mana_color = (0, 255, 0 , 1); 
     
 
+    /*
     let mut chloe = Fighter::new(FighterType::Chloe, false, true);
     let mut grace = Fighter::new(FighterType::Grace, false, true);
     let mut nate = Fighter::new(FighterType::Nate, false, true);
+    */
 
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
@@ -1554,6 +1562,19 @@ fn main() {
                     if mouse_click == true && prev_mouse_click == false {
                         hp -= 10;
                     }
+
+                    vulkan_state.fb2d.write_to(
+                        "MANA",
+                        &mut titlefontsheet_sprite,
+                        Vec2i{x: mana_draw_to.x - (titlefont_size as i32) * 2, y: mana_draw_to.y-2},
+                        titlefont_size,
+                        Vec2i{x:(titlefont_size as i32) * 6, y:titlefont_size as i32},
+                    );
+
+                    //drawing mana 
+                    for i in (0..num_bars){
+                        vulkan_state.fb2d.draw_filled_rect(&mut engine::image::Rect::new(mana_draw_to.x + (12 * i), mana_draw_to.y, mana_x as u32, mana_y as u32), mana_color);
+                    };
 
                     
                 }
