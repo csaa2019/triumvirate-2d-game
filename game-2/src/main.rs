@@ -468,6 +468,10 @@ fn main() {
     let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 35 };
     let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 35 };
 
+    let p1_draw_to = engine::image::Vec2i { x: 215, y: 10 };
+    let p2_draw_to = engine::image::Vec2i { x: 15, y: HEIGHT as i32 - (fighter_rect_h as i32 + 10)};
+
+
     let fighter_rect_clickable_rect_1 = engine::image::Rect::new(
         fighter_rect_draw_to_1.x,
         fighter_rect_draw_to_1.y,
@@ -665,18 +669,20 @@ fn main() {
     }; 
 
     // this is a stand in variable to test hp bar animation
-    let mut hp = 100;
-    let hp_x = 10;
     let hp_y = 20;
-    let hp_draw_to= engine::image::Vec2i{x: (WIDTH as i32) - ((hp_x + 1) * 12), y:10};
+    let hp_draw_to= engine::image::Vec2i{x: (WIDTH as i32) - 100 - 10, y:10};
     let hp_color = (255, 0, 0, 1); 
 
-    let mut mana = 100; 
-    let mana_x = 10; 
     let mana_y = 20; 
-    let mana_draw_to = engine::image::Vec2i{x: (WIDTH as i32) - ((mana_x + 1) * 12), y:40};
+    let mana_draw_to = engine::image::Vec2i{x: (WIDTH as i32) - 100 - 10, y:40};
     let mana_color = (0, 255, 0 , 1); 
-    
+
+    let pick_fps = 10;
+    let mut pick_frame_count = 0;
+    let mut pick_anim_playing = false;
+    let mut pick_anim_done = false;
+
+
 
     /*
     let mut chloe = Fighter::new(FighterType::Chloe, false, true);
@@ -729,6 +735,12 @@ fn main() {
     let player_info = FighterType::None;
 
     let mut player_info_temp = 0;
+
+    let mut p1_initial_health = 0;
+    let mut p2_initial_health = 0;
+    let mut p1_initial_mana = 0;
+    let mut p2_initial_mana = 0;
+
 
     // let letters_frames: Vec<u32> = (65..71).collect();
 
@@ -949,11 +961,13 @@ fn main() {
                             if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                                 player1_selected = true;
                                 gameinfo.current_player1 = FighterType::Chloe; 
+
                             }
 
                             if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
                                 player1_selected = true;
                                 gameinfo.current_player1 = FighterType::Grace; 
+
                             }
 
                             if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
@@ -1069,6 +1083,7 @@ fn main() {
                             if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                                 player2_selected = true;
                                 gameinfo.current_player2 = FighterType::Nate; 
+
                             }
 
                             if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
@@ -2038,6 +2053,7 @@ fn main() {
             //gamestate:showpick
             else if game.state == GameStates::ShowPick {
 
+
                 //print out updated mana's and health; 
 
                 let player1_move_damage = gameinfo.player1_current_move.damage; 
@@ -2050,7 +2066,14 @@ fn main() {
                 let player2_move_health = gameinfo.player2_current_move.health_cost;
                 let player2_mana_generation = gameinfo.player2_current_move.mana_generation; 
 
+
                 if done_execute_move == false {
+
+                    p1_initial_health = f1.health;
+                    p2_initial_health = f2.health;
+                    p1_initial_mana = f1.mana;
+                    p2_initial_mana = f2.mana;
+    
                     //while f2.health > 0 && f2.mana > 0 && f1.health > 0 && f1.mana > 0 
                     // println!("Player1 move: {:?}", gameinfo.player1_current_move.fighter_move_type); 
                     // println!("Player1 current health: {:?}", f1.health);
@@ -2142,16 +2165,10 @@ fn main() {
 
                 //else if we are out of the while loop... 
                 
-                
-
-
-
-                 
 
                 //okay having some type errors so this isn't the most elegant code 
                 //we are going to have two fighters with info that is just their health and mana
                 //the fighter choice and fighter moves are all contained in game info 
-                
 
                 /*
                 let mut f1 = Fighter::<FighterType> {name: FighterType::None, is_cpu:false, is_turn: true, health: 100, mana: 100, current_move: None}; 
@@ -2165,47 +2182,144 @@ fn main() {
                 //execute teh seond move 
                 //animate the health loss 
 
-                // vulkan_state.fb2d.bitblt(
-                //     &fontsheet,
-                //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
-                //     Vec2i { x: 0, y: 0 },
-                // );
+
+                // playing anim check to reset frame counter
+                if !playing_anim {
+                    pick_anim_done = false;
+                    playing_anim = true;
+                    pick_frame_count = 0;
+
+                } else if !pick_anim_done {
+
+                    // update the frame counter every fps frames
+                    if pick_frame_count % pick_fps == 0 {
+
+                        // there are definitely better ways to do this if we have more time
+                        if p1_initial_health > f1.health {
+                            p1_initial_health -= 1;
+                        } else if p1_initial_health < f1.health {
+                            p1_initial_health += 1;
+                        }
+                        
+                        if p1_initial_mana > f1.mana {
+                            p1_initial_mana -= 1;
+                        } else if p1_initial_mana < f1.mana {
+                            p1_initial_mana += 1;
+                        }; 
+
+                        if p2_initial_health > f2.health {
+                            p2_initial_health -= 1;
+                        } else if p2_initial_health < f2.health{
+                            p2_initial_health += 1;
+                        };
+
+                        if p2_initial_mana > f2.mana {
+                            p2_initial_mana -= 1;
+                        } else if p2_initial_mana < f2.mana {
+                            p2_initial_mana += 1;
+                        }; 
+
+                        if p1_initial_health == f1.health 
+                        && p1_initial_mana == f1.mana 
+                        && p2_initial_health == f2.health 
+                        && p2_initial_mana == f2.mana {
+                            pick_anim_done = true;
+                        };
+        
+                    };
+                } 
+
+                // drawing the p1 and p2 sprites
+                // i put them before the bars bc i think i prefer the overlap of the bars
+                // rather than the sprite on top of the bars
+                let mut p1_src_img = &nate_fighter_rect;
+                if gameinfo.current_player1 == FighterType:: Chloe {
+                    p1_src_img = &chloe_fighter_rect;
+                } else if gameinfo.current_player1 == FighterType::Grace {
+                    p1_src_img = &nate_fighter_rect; // change tograce later
+                }
+
+                let mut p2_src_img = &nate_fighter_rect;
+                if gameinfo.current_player2 == FighterType:: Chloe {
+                    p2_src_img = &chloe_fighter_rect;
+                } else if gameinfo.current_player2 == FighterType::Grace {
+                    p2_src_img = &nate_fighter_rect; // change tograce later
+                }
+
+                vulkan_state.fb2d.bitblt(
+                    p1_src_img,
+                    &fighter_rect_rect,
+                    p1_draw_to,
+                );
+
+                vulkan_state.fb2d.bitblt(
+                    p2_src_img,
+                    &fighter_rect_rect,
+                    p2_draw_to,
+                );
+
+                // p1 labels and bars are all on the upper right corner
+                // maybe we should swap p1 and p2 positions though, could be more intuitive
                 vulkan_state.fb2d.write_to(
                     "HP",
                     &mut titlefontsheet_sprite,
-                    Vec2i{x: hp_draw_to.x - (titlefont_size as i32) * 2, y: hp_draw_to.y-2},
+                    Vec2i{x: hp_draw_to.x - (titlefont_size as i32) * 4, y: (HEIGHT as i32) - (mana_draw_to.y + titlefont_size as i32)},
                     titlefont_size,
-                    Vec2i{x:(titlefont_size as i32) * 6, y:titlefont_size as i32},
+                    Vec2i{x:(titlefont_size as i32) * 2, y:titlefont_size as i32},
                 );
-
-                let num_bars: i32 = hp / 10;
-                for i in (0..num_bars){
-                    vulkan_state.fb2d.draw_filled_rect(&mut engine::image::Rect::new(hp_draw_to.x + (12 * i), hp_draw_to.y, hp_x as u32, hp_y as u32), hp_color);
-                };
-
-                if mouse_click == true && prev_mouse_click == false {
-                    hp -= 10;
-                }
 
                 vulkan_state.fb2d.write_to(
                     "MANA",
                     &mut titlefontsheet_sprite,
-                    Vec2i{x: mana_draw_to.x - (titlefont_size as i32) * 2, y: mana_draw_to.y-2},
+                    Vec2i{x: mana_draw_to.x - (titlefont_size as i32) * 4, y: (HEIGHT as i32) - (hp_draw_to.y + titlefont_size as i32)},
+                    titlefont_size,
+                    Vec2i{x:(titlefont_size as i32) * 4, y:titlefont_size as i32},
+                );
+                let mut f1_health_rect = engine::image::Rect::new(hp_draw_to.x, HEIGHT as i32 - (mana_draw_to.y + hp_y as i32), p1_initial_health as u32, hp_y);
+                vulkan_state.fb2d.draw_filled_rect(&mut f1_health_rect, hp_color);
+                let mut f1_mana_rect = engine::image::Rect::new(mana_draw_to.x, HEIGHT as i32 - (hp_draw_to.y + mana_y as i32), p1_initial_mana as u32, mana_y);
+                vulkan_state.fb2d.draw_filled_rect(&mut f1_mana_rect, mana_color);
+
+
+                // p2 labels and bars
+                vulkan_state.fb2d.write_to(
+                    "HP",
+                    &mut titlefontsheet_sprite,
+                    Vec2i{x: 10, y: hp_draw_to.y-2},
                     titlefont_size,
                     Vec2i{x:(titlefont_size as i32) * 6, y:titlefont_size as i32},
                 );
+                vulkan_state.fb2d.write_to(
+                    "MANA",
+                    &mut titlefontsheet_sprite,
+                    Vec2i{x: 10, y: mana_draw_to.y-2},
+                    titlefont_size,
+                    Vec2i{x:(titlefont_size as i32) * 6, y:titlefont_size as i32},
+                );
+                
+                
+                let mut f2_health_rect = engine::image::Rect::new(10 + (titlefont_size as i32) * 4, hp_draw_to.y, p2_initial_health as u32, hp_y);
+                vulkan_state.fb2d.draw_filled_rect(&mut f2_health_rect, hp_color);
+                let mut f2_mana_rect = engine::image::Rect::new(10 + (titlefont_size as i32) * 4, mana_draw_to.y, p2_initial_mana as u32, mana_y);
+                vulkan_state.fb2d.draw_filled_rect(&mut f2_mana_rect, mana_color);
 
-                //drawing mana 
-                for i in (0..num_bars){
-                    vulkan_state.fb2d.draw_filled_rect(&mut engine::image::Rect::new(mana_draw_to.x + (12 * i), mana_draw_to.y, mana_x as u32, mana_y as u32), mana_color);
-                };
-
-                if now_keys[VirtualKeyCode::Return as usize] {
+                // if done, we can go to next move
+                if now_keys[VirtualKeyCode::Return as usize] && pick_anim_done{
                     game.state = GameStates::ChooseMove;
                     player1_finish_selecting_move = false;
                     player2_finish_selecting_move = false;
-                    println!("back to choose move");    
+                    pick_anim_done = false;
+                    playing_anim = false;
                 }
+                
+            } else if game.state == GameStates::FinalScreen {
+                vulkan_state.fb2d.write_to(
+                    "GAME OVER",
+                    &mut titlefontsheet_sprite,
+                    Vec2i{x:50, y:50},
+                    titlefont_size,
+                    Vec2i{x: WIDTH as i32- 50, y: HEIGHT as i32 - 50,}
+                )
             }
 
                 // if audio_play == true {
