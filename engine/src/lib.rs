@@ -84,7 +84,6 @@ pub struct Fighter<T: Copy + Eq + PartialEq> {
     pub is_turn: bool,
     pub health: i32,
     pub mana: i32,
-    pub current_move: Option<FighterMove<T>>,
 }
 
 impl<T: Copy + Eq + PartialEq> Fighter<T> {
@@ -95,7 +94,6 @@ impl<T: Copy + Eq + PartialEq> Fighter<T> {
             is_turn,
             health: 100,
             mana: 100,
-            current_move: None,
         }
     }
 }

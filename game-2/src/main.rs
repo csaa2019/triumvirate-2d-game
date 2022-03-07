@@ -696,8 +696,8 @@ fn main() {
 
     //initializing the players here. would we want this as a multiplayer game? Would that be possible? 
     //aka eliminate the iscpu screen 
-    let mut f1 = Fighter::<FighterType> {name: FighterType::None, is_cpu:false, is_turn: true, health: 100, mana: 100, current_move: None}; 
-    let mut f2 = Fighter::<FighterType> {name: FighterType::None, is_cpu:true,  is_turn: false, health: 100, mana: 100, current_move: None}; 
+    let mut f1 = Fighter::<FighterType> {name: FighterType::None, is_cpu:false, is_turn: true, health: 100, mana: 100}; 
+    let mut f2 = Fighter::<FighterType> {name: FighterType::None, is_cpu:true,  is_turn: false, health: 100, mana: 100}; 
     let mut player1_finish_selecting = false; 
     let mut player2_finish_selecting = false; 
     let mut player1_selected = false;
@@ -1703,6 +1703,7 @@ fn main() {
                             //select move and go to next state
                             if next_button_clickable_rect.rect_inside(mouse_pos) && player2_move_selected {
                                 player2_finish_selecting_move = true; 
+                                game.state = GameStates::ShowPick; 
                             }
                         }
                     }
@@ -1817,11 +1818,6 @@ fn main() {
 
                 else if game.state == GameStates::MoveInfo {
                     
-                    //back button 
-
-                    // back button back to GameStates::ChooseFighter
-                    // we can replace this with an image later
-
                     vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
 
                     if mouse_click == true && prev_mouse_click == false {
@@ -2020,7 +2016,98 @@ fn main() {
                 }
                 //gamestate:showpick
                 else if game.state == GameStates::ShowPick {
-                    
+
+
+                //print out updated mana's and health; 
+
+                //while f2.health > 0 && f2.mana > 0 && f1.health > 0 && f1.mana > 0 
+                println!("Player1 move: {:?}", gameinfo.player1_current_move.fighter_move_type); 
+                println!("Player1 current health: {:?}", f1.health);
+                println!("Player1 current mana: {:?}", f1.mana);
+                println!("Player2 move: {:?}", gameinfo.player2_current_move.fighter_move_type); 
+                println!("Player2 current health: {:?}", f2.health);
+                println!("Player12 current mana: {:?}", f2.mana);
+
+                let player1_move_damage = gameinfo.player1_current_move.damage; 
+                let player1_move_mana = gameinfo.player1_current_move.mana_cost; 
+                let player1_move_health = gameinfo.player1_current_move.health_cost; 
+
+                let player2_move_damage = gameinfo.player2_current_move.damage; 
+                let player2_move_mana = gameinfo.player2_current_move.mana_cost; 
+                let player2_move_health = gameinfo.player2_current_move.health_cost; 
+
+                //execute player2's moves
+                if f1.health + player2_move_damage < 0 
+                {
+                    game.state = FinalScreen; 
+                    //and gameinfo.winning player = blank 
+                }
+                else 
+                {
+                    f1.health += player2_move_damage; 
+                }
+
+                if f2.mana + player2_move_mana < 0 
+                {
+                    game.state = FinalScreen; 
+                    //and gameinfo.winning player = blank 
+                }
+               
+                else {
+                    f2.mana += player2_move_mana; 
+                }
+               
+
+                //checking so that they don't go above 100 health 
+                if f2.health + player2_move_health > 100
+                {
+                    f2.health = 100; 
+                }
+                else 
+                {
+                    f2.health += player2_move_health; 
+                }
+               
+
+                //to do: add if else statements to this 
+                //execute player1's moves
+                f2.health += player2_move_damage; 
+                f1.mana += player1_move_mana; 
+                f1.health += player1_move_health; 
+
+                //print out updated mana's and health's 
+                println!("Player1 move: {:?}", gameinfo.player1_current_move.fighter_move_type); 
+                println!("Player1 current health: {:?}", f1.health);
+                println!("Player1 current mana: {:?}", f1.mana);
+                println!("Player2 move: {:?}", gameinfo.player2_current_move.fighter_move_type); 
+                println!("Player2 current health: {:?}", f2.health);
+                println!("Player12 current mana: {:?}", f2.mana);
+
+                //else if we are out of the while loop... 
+                
+                
+
+
+
+                 
+
+                //okay having some type errors so this isn't the most elegant code 
+                //we are going to have two fighters with info that is just their health and mana
+                //the fighter choice and fighter moves are all contained in game info 
+                
+
+                    /*
+                    let mut f1 = Fighter::<FighterType> {name: FighterType::None, is_cpu:false, is_turn: true, health: 100, mana: 100, current_move: None}; 
+                    let mut f2 = Fighter::<FighterType> {name: FighterType::None, is_cpu:true,  is_turn: false, health: 100, mana: 100, current_move: None}; 
+                        */
+                    //IF STATEMENT THAT CHECKS THAT ONE OF THE MOVES WILL BE KILLER OR NOT 
+                    //IF THE MOVE IS KILLER THEN HAVE THAT MOVE EXECUTE FIRST 
+                    //execute the first move
+                    //animate the health loss 
+
+                    //execute teh seond move 
+                    //animate the health loss 
+
                     // vulkan_state.fb2d.bitblt(
                     //     &fontsheet,
                     //     &Rect::new(0, 0, fontsheet_w, fontsheet_h),
