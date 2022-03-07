@@ -2161,8 +2161,12 @@ fn main() {
                     println!("Player2 move: {:?}", gameinfo.player2_current_move.fighter_move_type); 
                     println!("Player2 current health: {:?}", f2.health);
                     println!("Player2 current mana: {:?}", f2.mana);
-                }
+                } 
 
+                // this is weird but basically if we don't have this, it'll animate one frame before moving to final screen
+                // the more refined solution would be to separate this into its own game state, i.e., CalculatePick vs ShowPick
+                // but i am lazy
+                if game.state != GameStates::FinalScreen{
                 //else if we are out of the while loop... 
                 
 
@@ -2311,14 +2315,17 @@ fn main() {
                     pick_anim_done = false;
                     playing_anim = false;
                 }
+                }
+
+                
                 
             } else if game.state == GameStates::FinalScreen {
                 vulkan_state.fb2d.write_to(
                     "GAME OVER",
                     &mut titlefontsheet_sprite,
-                    Vec2i{x:50, y:50},
+                    Vec2i{x:20, y:20},
                     titlefont_size,
-                    Vec2i{x: WIDTH as i32- 50, y: HEIGHT as i32 - 50,}
+                    Vec2i{x: WIDTH as i32- 20, y: HEIGHT as i32 - 20}
                 )
             }
 
