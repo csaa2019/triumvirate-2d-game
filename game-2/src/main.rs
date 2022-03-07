@@ -2069,11 +2069,38 @@ fn main() {
                 }
                
 
-                //to do: add if else statements to this 
-                //execute player1's moves
-                f2.health += player2_move_damage; 
-                f1.mana += player1_move_mana; 
-                f1.health += player1_move_health; 
+                //execute player 2 moves 
+                
+                if f2.health + player1_move_damage < 0 
+                {
+                    game.state = FinalScreen; 
+                    //and gameinfo.winning player = blank 
+                }
+                else 
+                {
+                    f2.health += player1_move_damage; 
+                }
+
+                if f1.mana + player1_move_mana < 0 
+                {
+                    game.state = FinalScreen; 
+                    //and gameinfo.winning player = blank 
+                }
+               
+                else {
+                    f1.mana += player1_move_mana; 
+                }
+               
+
+                //checking so that they don't go above 100 health 
+                if f1.health + player1_move_health > 100
+                {
+                    f1.health = 100; 
+                }
+                else 
+                {
+                    f1.health += player1_move_health; 
+                }
 
                 //print out updated mana's and health's 
                 println!("Player1 move: {:?}", gameinfo.player1_current_move.fighter_move_type); 
