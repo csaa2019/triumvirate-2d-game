@@ -512,6 +512,12 @@ fn main() {
         fighter_info_h,
     );
 
+    let select_button = engine::image::Image::from_png_not_premultiplied(
+        "content/select-button.png",
+        fighter_info_w,
+        fighter_info_h,
+    );
+
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
     let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 170 };
@@ -950,7 +956,7 @@ fn main() {
 
                         //"select" button
                         vulkan_state.fb2d.bitblt(
-                            &fighter_info,
+                            &select_button,
                             &fighter_info_rect,
                             next_button_draw_to,
                         );
@@ -1077,7 +1083,7 @@ fn main() {
 
                         //"select" button
                         vulkan_state.fb2d.bitblt(
-                            &fighter_info,
+                            &select_button,
                             &fighter_info_rect,
                             next_button_draw_to,
                         );
@@ -1270,7 +1276,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
@@ -1374,7 +1380,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
@@ -1478,7 +1484,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
@@ -1588,7 +1594,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
@@ -1697,7 +1703,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
@@ -1802,7 +1808,7 @@ fn main() {
 
                             //"select" button
                             vulkan_state.fb2d.bitblt(
-                                &fighter_info,
+                                &select_button,
                                 &fighter_info_rect,
                                 next_button_draw_to,
                             );
