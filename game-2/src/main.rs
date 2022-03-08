@@ -322,8 +322,8 @@ fn main() {
     Stuff each call/draw operation
     */
 
-    // Load audio
-    // let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
+    //Load audio
+    let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
     // let mut sound_handle_music = audio_manager
     //     .load_sound("content/RPS_tunes_loop.ogg", SoundSettings::default())
     //     .unwrap();
@@ -333,9 +333,13 @@ fn main() {
     //         LoopArrangementSettings::default(),
     //     ))
     //     .unwrap();
-    // let mut sound_handle_click = audio_manager
-    //     .load_sound("content/click.ogg", SoundSettings::default())
-    //     .unwrap();
+    let mut coin_handle_click = audio_manager
+        .load_sound("content/button-noise.ogg", SoundSettings::default())
+        .unwrap();
+
+    let mut click_handle_click = audio_manager
+    .load_sound("content/click-noise.ogg", SoundSettings::default())
+    .unwrap();
 
     let event_loop = EventLoop::new();
     let (vulkan_config, mut vulkan_state) = vulkan_init(&event_loop);
@@ -449,7 +453,7 @@ fn main() {
 
     let player_header_rect_draw_to = engine::image::Vec2i { x: 120, y: 12 };
 
-    let header_choose_move_rect_w = 130 as u32;
+    let header_choose_move_rect_w = 120 as u32;
     let header_choose_move_rect_h = 10 as u32;
     let header_choose_move_rect = engine::image::Rect::new(0, 0, header_choose_move_rect_w, header_choose_move_rect_h);
     let header_player1_choose_move_rect = engine::image::Image::from_png(
@@ -1010,6 +1014,7 @@ fn main() {
                         );
 
                         if mouse_click == true && prev_mouse_click == false {
+                            
                             let mouse_pos = engine::image::Vec2i {
                                 x: mouse_x as i32,
                                 y: mouse_y as i32,
@@ -1017,37 +1022,44 @@ fn main() {
 
                             if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
                                 player1_selected = true;
+                                click_handle_click.play(InstanceSettings::default());
                                 gameinfo.current_player1 = FighterType::Nate; 
                             }
 
                             if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
                                 player1_selected = true;
+                                click_handle_click.play(InstanceSettings::default());
                                 gameinfo.current_player1 = FighterType::Chloe; 
 
                             }
 
                             if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
                                 player1_selected = true;
+                                click_handle_click.play(InstanceSettings::default());
                                 gameinfo.current_player1 = FighterType::Grace; 
 
                             }
 
                             if fighter_info_clickable_rect_1.rect_inside(mouse_pos) {
                                 gameinfo.player1_info = FighterType::Nate;
+                                click_handle_click.play(InstanceSettings::default());
                                 game.state = GameStates::FighterInfo;
                             }
 
                             if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
                                 gameinfo.player1_info = FighterType::Chloe;
+                                click_handle_click.play(InstanceSettings::default());
                                 game.state = GameStates::FighterInfo;
                             }
 
                             if fighter_info_clickable_rect_3.rect_inside(mouse_pos) {
                                 gameinfo.player1_info = FighterType::Grace;
+                                click_handle_click.play(InstanceSettings::default());
                                 game.state = GameStates::FighterInfo;
                             }
 
                             if next_button_clickable_rect.rect_inside(mouse_pos) && player1_selected {
+                                coin_handle_click.play(InstanceSettings::default());
                                 player1_finish_selecting = true; 
                             }
                         }
