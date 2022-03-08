@@ -431,7 +431,7 @@ fn main() {
     let highlight_rect_h = 130 as u32;
     let highlight_rect_rect = engine::image::Rect::new(0, 0, highlight_rect_w, highlight_rect_h);
     let highlight_rect = engine::image::Image::from_png_not_premultiplied(
-        "content/playerimagerect.png",
+        "content/pinkhighlight.png",
         highlight_rect_w,
         highlight_rect_h,
     );
@@ -461,6 +461,14 @@ fn main() {
         fighter_rect_w,
         fighter_rect_h,
     );
+
+    let grace_fighter_rect  = engine::image::Image::from_png_not_premultiplied(
+        "content/gracefighter.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+
 
     //a draw to for each chloe, nate, grace
     //for ease lets have 1 as chloe, 2 as nate, 3 as grace
@@ -499,7 +507,7 @@ fn main() {
     let fighter_info_h = 24 as u32;
     let fighter_info_rect = engine::image::Rect::new(0, 0, fighter_info_w, fighter_info_h);
     let fighter_info = engine::image::Image::from_png_not_premultiplied(
-        "content/playerinforect.png",
+        "content/read-info-button.png",
         fighter_info_w,
         fighter_info_h,
     );
@@ -914,7 +922,7 @@ fn main() {
 
                         //grace image
                         vulkan_state.fb2d.bitblt(
-                            &fighter_rect,
+                            &grace_fighter_rect,
                             &fighter_rect_rect,
                             fighter_rect_draw_to_3,
                         );
@@ -1041,7 +1049,7 @@ fn main() {
 
                         //grace image
                         vulkan_state.fb2d.bitblt(
-                            &fighter_rect,
+                            &grace_fighter_rect,
                             &fighter_rect_rect,
                             fighter_rect_draw_to_3,
                         );
