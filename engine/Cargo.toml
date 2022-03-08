@@ -9,3 +9,8 @@ edition = "2021"
 image = "0.18.0"
 itertools = "0.10.3"
 bmp = "0.5.0"
+vulkano = "0.27.1"
+vulkano-shaders = "0.27.1"
+winit = "0.25"
+vulkano-win = "0.27.1"
+
