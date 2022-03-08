@@ -428,13 +428,30 @@ fn main() {
         y: 10,
     };
 
+   
 
     //GameState::ChooseFighter
 
-    pub fn center(image_height:u32) -> u32 {
-        let empty_space = 320 - image_height; 
+    pub fn center_w(image_width:u32) -> u32 {
+        let empty_space = WIDTH as u32 - image_width; 
         return empty_space/2; 
     }
+
+    pub fn center_h(image_height:u32) -> u32 {
+        let empty_space = HEIGHT as u32 - image_height; 
+        return empty_space/2; 
+    }
+
+    let main_screen_w = 300; 
+    let main_screen_h = 175; 
+    let main_screen_rect = engine::image::Rect::new(0,0,main_screen_w, main_screen_h); 
+    let main_screen  = engine::image::Image::from_png(
+        "content/main-screen.png",
+        main_screen_w,
+        main_screen_h,
+    );
+    let main_screen_draw_to = engine::image::Vec2i { x: center_w(main_screen_w) as i32, y: center_h(main_screen_h) as i32}; 
+
 
     let header_rect_w = 80 as u32;
     let header_rect_h = 10 as u32;
@@ -467,7 +484,7 @@ fn main() {
         header_choose_move_rect_w,
         header_choose_move_rect_h,
     ); 
-    let player_choose_move_draw_to = engine::image::Vec2i { x: center(header_choose_move_rect_w) as i32, y: 12 };
+    let player_choose_move_draw_to = engine::image::Vec2i { x: center_w(header_choose_move_rect_w) as i32, y: 12 };
 
 
     
@@ -566,6 +583,8 @@ fn main() {
         fighter_rect_w,
         fighter_rect_h,
     );
+
+    
 
 
 
@@ -800,19 +819,10 @@ fn main() {
     let mut pick_anim_playing = false;
     let mut pick_anim_done = false;
 
-
-
-    /*
-    let mut chloe = Fighter::new(FighterType::Chloe, false, true);
-    let mut grace = Fighter::new(FighterType::Grace, false, true);
-    let mut nate = Fighter::new(FighterType::Nate, false, true);
-    */
-
     let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
     // GAME STUFF
     let mut game = Game {
-        // state: GameStates::ChooseFighter,
-        state: GameStates::ChooseFighter, // i'm testing the hp bar here
+        state: GameStates::ChooseFighter,
     };
 
     pub struct GameInfo{ 
@@ -974,6 +984,11 @@ fn main() {
 
                 if game.state == GameStates::MainScreen { 
 
+                    vulkan_state.fb2d.bitblt(
+                        &main_screen,
+                        &main_screen_rect,
+                        main_screen_draw_to,
+                    );
                     //then move main screen into instructions 
                 }
 
@@ -1359,7 +1374,7 @@ fn main() {
                     if !player1_finish_selecting_move{
                 
                         if gameinfo.current_player1 == FighterType::Nate{
-                            vulkan_state.fb2d.clear((242_u8, 0_u8, 255_u8, 100_u8));
+                            vulkan_state.fb2d.clear((118_u8, 188_u8, 83_u8, 100_u8));
 
                             //add highlight rectangle outside the selected move 
                             if player1_move_selected{
@@ -1480,7 +1495,7 @@ fn main() {
                             }
                         }
                         if gameinfo.current_player1 == FighterType::Chloe{
-                            vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
+                            vulkan_state.fb2d.clear((80_u8, 150_u8, 248_u8, 100_u8));
                             if player1_selected{
                                 if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::ChloeMove1{
                                     vulkan_state.fb2d.bitblt(
@@ -1598,7 +1613,7 @@ fn main() {
                             }
                         }
                         if gameinfo.current_player1 == FighterType::Grace{
-                            vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
+                            vulkan_state.fb2d.clear((198_u8, 82_u8, 140_u8, 100_u8));
                             if player2_selected{
                                 if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::NateMove1{
                                     vulkan_state.fb2d.bitblt(
@@ -1720,7 +1735,7 @@ fn main() {
                     else if !player2_finish_selecting_move
                     {
                         if gameinfo.current_player2 == FighterType::Nate{
-                            vulkan_state.fb2d.clear((242_u8, 0_u8, 255_u8, 100_u8));
+                            vulkan_state.fb2d.clear((118_u8, 188_u8, 83_u8, 100_u8));
 
                             //add highlight rectangle outside the selected move 
                             if player2_move_selected{
@@ -1847,7 +1862,7 @@ fn main() {
                             }
                         }
                         if gameinfo.current_player2 == FighterType::Chloe{
-                            vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
+                            vulkan_state.fb2d.clear((80_u8, 150_u8, 248_u8, 100_u8));
                             if player2_selected{
                                 if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::ChloeMove1{
                                     vulkan_state.fb2d.bitblt(
@@ -1966,7 +1981,7 @@ fn main() {
                             }
                         }
                         if gameinfo.current_player2 == FighterType::Grace{
-                            vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
+                            vulkan_state.fb2d.clear((198_u8, 82_u8, 140_u8, 100_u8));
                             if player2_selected{
                                 if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::NateMove1{
                                     vulkan_state.fb2d.bitblt(
@@ -2404,23 +2419,7 @@ fn main() {
                 // but i am lazy
                 if game.state != GameStates::FinalScreen{
                 //else if we are out of the while loop... 
-                
-
-                //okay having some type errors so this isn't the most elegant code 
-                //we are going to have two fighters with info that is just their health and mana
-                //the fighter choice and fighter moves are all contained in game info 
-
-                /*
-                let mut f1 = Fighter::<FighterType> {name: FighterType::None, is_cpu:false, is_turn: true, health: 100, mana: 100, current_move: None}; 
-                let mut f2 = Fighter::<FighterType> {name: FighterType::None, is_cpu:true,  is_turn: false, health: 100, mana: 100, current_move: None}; 
-                    */
-                //IF STATEMENT THAT CHECKS THAT ONE OF THE MOVES WILL BE KILLER OR NOT 
-                //IF THE MOVE IS KILLER THEN HAVE THAT MOVE EXECUTE FIRST 
-                //execute the first move
-                //animate the health loss 
-
-                //execute teh seond move 
-                //animate the health loss 
+            
 
 
                 // playing anim check to reset frame counter
@@ -2476,14 +2475,14 @@ fn main() {
                 if gameinfo.current_player1 == FighterType:: Chloe {
                     p1_src_img = &chloe_fighter_rect;
                 } else if gameinfo.current_player1 == FighterType::Grace {
-                    p1_src_img = &nate_fighter_rect; // change tograce later
+                    p1_src_img = &grace_fighter_rect; // change tograce later
                 }
 
                 let mut p2_src_img = &nate_fighter_rect;
                 if gameinfo.current_player2 == FighterType:: Chloe {
                     p2_src_img = &chloe_fighter_rect;
                 } else if gameinfo.current_player2 == FighterType::Grace {
-                    p2_src_img = &nate_fighter_rect; // change tograce later
+                    p2_src_img = &grace_fighter_rect; // change tograce later
                 }
 
                 vulkan_state.fb2d.bitblt(
