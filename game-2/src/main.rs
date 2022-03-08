@@ -533,8 +533,11 @@ fn main() {
     let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 35 };
     let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 35 };
 
-    let p1_draw_to = engine::image::Vec2i { x: 215, y: 10 };
-    let p2_draw_to = engine::image::Vec2i { x: 15, y: HEIGHT as i32 - (fighter_rect_h as i32 + 10)};
+    // modified this:
+    // let p1_draw_to = engine::image::Vec2i { x: 215, y: 10 };
+    // let p2_draw_to = engine::image::Vec2i { x: 15, y: HEIGHT as i32 - (fighter_rect_h as i32 + 10)};
+    let p1_draw_to = engine::image::Vec2i { x: 15, y: HEIGHT as i32 - (fighter_rect_h as i32 + 10)};
+    let p2_draw_to = engine::image::Vec2i { x: 215, y: 10 };
 
 
     let fighter_rect_clickable_rect_1 = engine::image::Rect::new(
@@ -672,7 +675,7 @@ fn main() {
         FighterMove{
             fighter_move_type: FighterMoveType::GraceMove3, 
             damage: -50,
-            mana_cost: 30,
+            mana_cost: -30,
             health_cost: 0,
             mana_generation: 0,
         },
@@ -698,7 +701,7 @@ fn main() {
             // chloe just hacked the simulation and deleted yo ass -- fatal
             fighter_move_type: FighterMoveType::ChloeMove3,
             damage: -100,
-            mana_cost: 69,
+            mana_cost: -69,
             health_cost: 0,
             mana_generation: 20,
         },
@@ -1385,23 +1388,38 @@ fn main() {
         
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[0];
+                                    if f1.mana + nate_fighter_moves[0].mana_cost > 0 {
+                                        println!("nate choose move 0");
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = nate_fighter_moves[0];
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[1]; 
+                                    if f1.mana + nate_fighter_moves[1].mana_cost > 0 {
+                                        println!("nate choose move 1");
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = nate_fighter_moves[1]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[2]; 
+                                    if f1.mana + nate_fighter_moves[2].mana_cost > 0 {
+                                        println!("nate choose move 2");
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = nate_fighter_moves[2]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -1503,23 +1521,36 @@ fn main() {
         
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = chloe_fighter_moves[0];
+                                    if f1.mana + chloe_fighter_moves[0].mana_cost > 0 {
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = chloe_fighter_moves[0];
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
+
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = chloe_fighter_moves[1]; 
+                                    if f1.mana + chloe_fighter_moves[1].mana_cost > 0 {
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = chloe_fighter_moves[1]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = chloe_fighter_moves[2]; 
+                                    if f1.mana + chloe_fighter_moves[2].mana_cost > 0 {
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = chloe_fighter_moves[2]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -1553,7 +1584,7 @@ fn main() {
                         if gameinfo.current_player1 == FighterType::Grace{
                             vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
                             if player2_selected{
-                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::NateMove1{
+                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::GraceMove1{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1561,7 +1592,7 @@ fn main() {
                                     );
                                 }
 
-                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::NateMove2{
+                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::GraceMove2{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1569,7 +1600,7 @@ fn main() {
                                     );
                                 }
 
-                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::NateMove3{
+                                if gameinfo.player1_current_move.fighter_move_type == FighterMoveType::GraceMove3{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1621,23 +1652,36 @@ fn main() {
         
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[0];
+                                    if f1.mana + grace_fighter_moves[0].mana_cost > 0 {
+                                        println!("true");
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = grace_fighter_moves[0];
+                                    } else {
+                                        println!("Not enough mana doe");
+                                    }
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[1]; 
+                                    if f1.mana + grace_fighter_moves[1].mana_cost > 0 {
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = grace_fighter_moves[1];
+                                    } else {
+                                        println!("Not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player1_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player1_current_move = nate_fighter_moves[2]; 
+                                    if f1.mana + grace_fighter_moves[2].mana_cost > 0 {
+                                        player1_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player1_current_move = grace_fighter_moves[2]; 
+                                    } else {
+                                        println!("Not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -1649,7 +1693,7 @@ fn main() {
         
                                 //info on second move
                                 if fighter_info_clickable_rect_2.rect_inside(mouse_pos) {
-                                    gameinfo.player1_move_info = nate_fighter_moves[1]; 
+                                    gameinfo.player1_move_info = grace_fighter_moves[1]; 
                                     click_handle_click.play(InstanceSettings::default());
                                     game.state = GameStates::MoveInfo;
                                 }
@@ -1750,23 +1794,35 @@ fn main() {
 
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[0];
+                                    if f2.mana + nate_fighter_moves[0].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = nate_fighter_moves[0];
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[1]; 
+                                    if f2.mana + nate_fighter_moves[1].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = nate_fighter_moves[1]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[2]; 
+                                    if f2.mana + nate_fighter_moves[2].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = nate_fighter_moves[2]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -1870,23 +1926,35 @@ fn main() {
         
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = chloe_fighter_moves[0];
+                                    if f2.mana + chloe_fighter_moves[0].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = chloe_fighter_moves[0];
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = chloe_fighter_moves[1]; 
+                                    if f2.mana + chloe_fighter_moves[1].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = chloe_fighter_moves[1]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    click_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = chloe_fighter_moves[2]; 
+                                    if f2.mana + chloe_fighter_moves[2].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        click_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = chloe_fighter_moves[2]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -1921,7 +1989,7 @@ fn main() {
                         if gameinfo.current_player2 == FighterType::Grace{
                             vulkan_state.fb2d.clear((0_u8, 255_u8, 242_u8, 100_u8));
                             if player2_selected{
-                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::NateMove1{
+                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::GraceMove1{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1929,7 +1997,7 @@ fn main() {
                                     );
                                 }
 
-                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::NateMove2{
+                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::GraceMove2{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1937,7 +2005,7 @@ fn main() {
                                     );
                                 }
 
-                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::NateMove3{
+                                if gameinfo.player2_current_move.fighter_move_type == FighterMoveType::GraceMove3{
                                     vulkan_state.fb2d.bitblt(
                                         &highlight_rect,
                                         &highlight_rect_rect,
@@ -1989,23 +2057,36 @@ fn main() {
         
                                 //select the first move
                                 if fighter_rect_clickable_rect_1.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    coin_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[0];
+                                    if f2.mana + grace_fighter_moves[0].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        coin_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = grace_fighter_moves[0];
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
+
                                 }
         
                                 //select the second move
                                 if fighter_rect_clickable_rect_2.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    coin_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[1]; 
+                                    if f2.mana + grace_fighter_moves[1].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        coin_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = grace_fighter_moves[1]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //select the third move 
                                 if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                    player2_move_selected = true;
-                                    coin_handle_click.play(InstanceSettings::default());
-                                    gameinfo.player2_current_move = nate_fighter_moves[2]; 
+                                    if f2.mana + grace_fighter_moves[2].mana_cost > 0 {
+                                        player2_move_selected = true;
+                                        coin_handle_click.play(InstanceSettings::default());
+                                        gameinfo.player2_current_move = grace_fighter_moves[2]; 
+                                    } else {
+                                        println!("not enough mana doe");
+                                    }
                                 }
         
                                 //info on first move
@@ -2270,76 +2351,66 @@ fn main() {
                     // println!("Player2 move: {:?}", gameinfo.player2_current_move.fighter_move_type); 
                     // println!("Player2 current health: {:?}", f2.health);
                     // println!("Player12 current mana: {:?}", f2.mana);
-                    //execute player2's moves
-                    if f1.health + player2_move_damage < 0 
-                    {
+
+                    // execute p2 damage
+                    if f1.health + player2_move_damage < 0 {
                         println!("go to final screen 1");
                         game.state = GameStates::FinalScreen; 
                         //and gameinfo.winning player = blank 
                         // player wins if die at same time?
-                    }
-                    else 
-                    {
+                    } else {
                         f1.health += player2_move_damage;
                     }
 
-                    if f2.mana + player2_move_mana < 0 
-                    {
-                        println!("go to final screen 2");
-                        game.state = GameStates::FinalScreen; 
-                        //and gameinfo.winning player = blank 
-                    }
-                
-                    else {
-                        f2.mana += player2_move_mana; 
-                    }
-                
-
-                    //checking so that they don't go above 100 health 
-                    if f2.health + player2_move_health > 100
-                    {
-                        f2.health = 100; 
-                    }
-                    else 
-                    {
-                        f2.health += player2_move_health; 
-                    }
-                    //Apply mana generation
-                    f1.mana += player1_mana_generation;
-                    f2.mana += player2_mana_generation;
-
-                    //execute player 2 moves 
-                    
-                    if f2.health + player1_move_damage < 0 
-                    {
+                    // execute p1 damage
+                    if f2.health + player1_move_damage < 0 {
                         println!("go to final screen 3");
                         game.state = GameStates::FinalScreen; 
                         //and gameinfo.winning player = blank 
-                    }
-                    else 
-                    {
+                    } else {
                         f2.health += player1_move_damage; 
                     }
+                    // if f2.mana + player2_move_mana < 0 
+                    // {
+                    //     println!("go to final screen 2");
+                    //     game.state = GameStates::FinalScreen; 
+                    //     //and gameinfo.winning player = blank 
+                    // }
 
-                    if f1.mana + player1_move_mana < 0 
-                    {
-                        println!("go to final screen 4");
-                        game.state = GameStates::FinalScreen; 
-                        //and gameinfo.winning player = blank 
-                    }
+                    // else {
+                    //     f2.mana += player2_move_mana; 
+                    // }
                 
-                    else {
-                        f1.mana += player1_move_mana; 
+                    //checking so that they don't go above 100 health 
+                    if f2.health + player2_move_health > 100 {
+                        f2.health = 100; 
+                    } else {
+                        f2.health += player2_move_health; 
                     }
+
+                    // Apply mana cost
+                    f1.mana += gameinfo.player1_current_move.mana_cost;
+                    f2.mana += gameinfo.player2_current_move.mana_cost;
+                    //Apply mana generation
+                    f1.mana += player1_mana_generation;
+                    f2.mana += player2_mana_generation;                    
+
+                    // if f1.mana + player1_move_mana < 0 
+                    // {
+                    //     println!("go to final screen 4");
+                    //     game.state = GameStates::FinalScreen; 
+                    //     //and gameinfo.winning player = blank 
+                    // }
+                
+                    // else {
+                    //     f1.mana += player1_move_mana; 
+                    // }
                 
 
                     //checking so that they don't go above 100 health 
-                    if f1.health + player1_move_health > 100
-                    {
+                    if f1.health + player1_move_health > 100 {
                         f1.health = 100; 
-                    }
-                    else 
-                    {
+                    } else {
                         f1.health += player1_move_health; 
                     }
                     done_execute_move = true;
