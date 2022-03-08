@@ -1100,7 +1100,7 @@ fn main() {
                             }
 
                             if fighter_rect_clickable_rect_3.rect_inside(mouse_pos) {
-                                player1_selected = true;
+                                player2_selected = true;
                                 gameinfo.current_player2 = FighterType::Grace; 
                             }
 
