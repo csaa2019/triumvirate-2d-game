@@ -513,17 +513,60 @@ fn main() {
         fighter_rect_h,
     );
 
-    let move_health_purple_rect  = engine::image::Image::from_png_not_premultiplied(
-        "content/health-move-purple.png",
+    let move_chill_pill  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-chill-pill.png",
         fighter_rect_w,
         fighter_rect_h,
     );
 
-    let move_yoyo_rect  = engine::image::Image::from_png_not_premultiplied(
-        "content/yoyo.png",
+    let move_guitar  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-guitar.png",
         fighter_rect_w,
         fighter_rect_h,
     );
+
+    let move_yoyo  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-yoyo.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_hacker  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-hacker.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_metaphysical_inquiry  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-metaphysical-inquiry.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_curb_stomp  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-curb-stomp.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_grilled_cheese  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-grilled-cheese.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_prank  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-prank.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
+    let move_mystery_box  = engine::image::Image::from_png_not_premultiplied(
+        "content/move-mystery-box.png",
+        fighter_rect_w,
+        fighter_rect_h,
+    );
+
 
 
 
@@ -655,31 +698,35 @@ fn main() {
     //random move names here
     let grace_fighter_moves = vec![
         FighterMove {
-            // drink yerma mate -- Wake up!
+        //  eat a grilled cheese - but beware the health damage
             fighter_move_type: FighterMoveType::GraceMove1, 
             damage: 0,
             mana_cost: 0,
-            health_cost: 0,
-            mana_generation: 20,
+            health_cost: 10,
+            mana_generation: 30,
         },
+        // get pranked -- camera RIGHT there
         FighterMove{
             fighter_move_type: FighterMoveType::GraceMove2, 
-            damage: -20,
-            mana_cost: -20,
+            damage: -30,
+            mana_cost: -30,
             health_cost: 0,
             mana_generation: 0,
         },
+        // mystery box move -- so much mana
+        // it's a terrible mystery box damage wise but health goes up 
         FighterMove{
             fighter_move_type: FighterMoveType::GraceMove3, 
-            damage: -50,
-            mana_cost: 30,
-            health_cost: 0,
+            damage: -10,
+            mana_cost: -40,
+            health_cost: 40,
             mana_generation: 0,
         },
     ];
 
     let chloe_fighter_moves = vec![
         FighterMove {
+            //metaphysical inquiry
             fighter_move_type: FighterMoveType::ChloeMove1, 
             damage: 0,
             mana_cost: 0,
@@ -687,7 +734,7 @@ fn main() {
             mana_generation: 15,
         },
         FighterMove{
-            // 
+            // curb stomp -
             fighter_move_type: FighterMoveType::ChloeMove2, 
             damage: -10,
             mana_cost: -10,
@@ -698,7 +745,7 @@ fn main() {
             // chloe just hacked the simulation and deleted yo ass -- fatal
             fighter_move_type: FighterMoveType::ChloeMove3,
             damage: -100,
-            mana_cost: 69,
+            mana_cost: -80,
             health_cost: 0,
             mana_generation: 20,
         },
@@ -724,7 +771,7 @@ fn main() {
         FighterMove{
             // toss some yo -- flex some badass tricks and then BAM!
             fighter_move_type: FighterMoveType::NateMove3,
-            damage: 55,
+            damage: -55,
             mana_cost: -40,
             health_cost: 0,
             mana_generation: 0,
@@ -1351,21 +1398,21 @@ fn main() {
                             //nate move 1
                             //health move?
                             vulkan_state.fb2d.bitblt(
-                                &move_health_purple_rect,
+                                &move_chill_pill,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //nate move 2
                             vulkan_state.fb2d.bitblt(
-                                &move_yoyo_rect, 
+                                &move_guitar, 
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //nate move 3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_yoyo,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
@@ -1469,21 +1516,21 @@ fn main() {
                             
                             //chloemove1
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_metaphysical_inquiry,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //chloemove2
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_curb_stomp,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //chloemove3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_hacker,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
@@ -1587,21 +1634,21 @@ fn main() {
                             );
                             //grace move 1
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_grilled_cheese,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //grace move 2
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_prank,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //grace move 3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_mystery_box,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
@@ -1711,22 +1758,23 @@ fn main() {
                             ); 
 
                             //nate move 1
+                            //health move?
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_chill_pill,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //nate move 2
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_guitar, 
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //nate move 3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_yoyo,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
@@ -1823,8 +1871,7 @@ fn main() {
                                         &highlight_rect_rect,
                                         highlight_rect_draw_to_3,
                                     );
-                                }
-                                
+                                }      
                         }
 
                             //choose move header 
@@ -1836,21 +1883,21 @@ fn main() {
 
                             //chloemove1
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_metaphysical_inquiry,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //chloemove2
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_curb_stomp,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //chloemove3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_hacker,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
@@ -1955,21 +2002,21 @@ fn main() {
                             ); 
                             //grace move 1
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_grilled_cheese,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_1,
                             );
 
                             //grace move 2
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_prank,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_2,
                             );
 
                             //grace move 3
                             vulkan_state.fb2d.bitblt(
-                                &fighter_rect,
+                                &move_mystery_box,
                                 &fighter_rect_rect,
                                 fighter_rect_draw_to_3,
                             );
