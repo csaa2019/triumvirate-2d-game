@@ -425,7 +425,22 @@ fn main() {
     };
 
     //GameState::ChooseFighter
+    let header_rect_w = 80 as u32;
+    let header_rect_h = 10 as u32;
+    let header_rect_rect = engine::image::Rect::new(0, 0, header_rect_w, header_rect_h);
+    let header_player1_rect = engine::image::Image::from_png(
+        "content/player1-text.png",
+        header_rect_w,
+        header_rect_h,
+    );
 
+    let header_player2_rect = engine::image::Image::from_png(
+        "content/player2-text.png",
+        header_rect_w,
+        header_rect_h,
+    );
+
+    let header_rect_draw_to = engine::image::Vec2i { x: 120, y: 12 };
 
     let highlight_rect_w = 96 as u32;
     let highlight_rect_h = 130 as u32;
@@ -912,6 +927,13 @@ fn main() {
                         //draw a rectangle that's a little larger than the fighter_rect
                         //to show that the current fighter is selected (aka highlighting the fighter)
 
+                        //header text 
+                        vulkan_state.fb2d.bitblt(
+                            &header_player1_rect,
+                            &header_rect_rect,
+                            header_rect_draw_to,
+                        );
+
                         //nate image
                         vulkan_state.fb2d.bitblt(
                             &nate_fighter_rect,
@@ -1038,6 +1060,13 @@ fn main() {
                         }
                         //draw a rectangle that's a little larger than the fighter_rect
                         //to show that the current fighter is selected (aka highlighting the fighter)
+
+                        //header 
+                        vulkan_state.fb2d.bitblt(
+                            &header_player2_rect,
+                            &header_rect_rect,
+                            header_rect_draw_to,
+                        );
 
                         //nate image
                         vulkan_state.fb2d.bitblt(
