@@ -54,14 +54,15 @@ fn main() {
     //Image stuff
 
     let fontsize = (7 as f32 * 1.5) as u32;
+    let fontsize_h = (8 as f32 * 1.5) as u32;
     let fontsheet_w = 16 * fontsize;
-    let fontsheet_h = 8 * fontsize;
+    let fontsheet_h = 8 * fontsize_h;
 
     // the rectangle of one sprite
-    let font_sprite_rect = engine::image::Rect::new(0, 0, fontsize, fontsize);
+    let font_sprite_rect = engine::image::Rect::new(0, 0, fontsize, fontsize_h);
 
     let fontsheet = engine::image::Image::from_png_not_premultiplied(
-        "content/fontsheet_7x7.png",
+        "content/fontsheet_7x8.png",
         fontsheet_w,
         fontsheet_h,
     );
@@ -86,7 +87,8 @@ fn main() {
         animations: vec![font_anim_1],
         animation_state: font_anim_state,
     };
-    let titlefont_size = (20 as f32 * 1.5) as u32;
+    let titlefont_size = 28;
+    let titlefont_size_height = 32;
 
     let mut description_box_dim = Vec2i { x: 200, y: HEIGHT as i32 - (titlefont_size as i32+ 10)};
     let mut description_draw_to = Vec2i {
@@ -95,13 +97,13 @@ fn main() {
     };
 
     let titlefontsheet_w = 16 * titlefont_size;
-    let titlefontsheet_h = 8 * titlefont_size;
+    let titlefontsheet_h = 8 * titlefont_size_height;
 
     // the rectangle of one sprite
-    let titlefont_sprite_rect = engine::image::Rect::new(0, 0, titlefont_size, titlefont_size);
+    let titlefont_sprite_rect = engine::image::Rect::new(0, 0, titlefont_size, titlefont_size_height);
 
     let titlefontsheet = engine::image::Image::from_png_not_premultiplied(
-        "content/fontsheet_70x70.png",
+        "content/fontsheet_70x80.png",
         titlefontsheet_w,
         titlefontsheet_h,
     );
@@ -140,6 +142,7 @@ fn main() {
         let empty_space = 320 - image_height; 
         return empty_space/2; 
     }
+
 
     let header_rect_w = 80 as u32;
     let header_rect_h = 10 as u32;
@@ -466,7 +469,18 @@ fn main() {
     let mut nate = Fighter::new(FighterType::Nate, false, true);
     */
 
-    let mut back_button_rect = engine::image::Rect::new(10, 10, 20, 30);
+    let back_button_w = 271/6;
+    let back_button_h = 91/6;
+    let mut back_button = engine::image::Image::from_png(
+        "content/backbutton.png",
+        back_button_w,
+        back_button_h,
+    );
+
+    let mut back_button_rect = engine::image::Rect::new(0, 0, back_button_w, back_button_h);
+
+    let back_button_to = Vec2i{x:5,y:5};
+    let back_button_clickable_rect = engine::image::Rect::new(back_button_to.x,back_button_to.y,back_button_w,back_button_h);
     // GAME STUFF
     let mut game = Game {
         // state: GameStates::ChooseFighter,
@@ -516,6 +530,10 @@ fn main() {
     let mut p2_initial_health = 0;
     let mut p1_initial_mana = 0;
     let mut p2_initial_mana = 0;
+
+    let pick_bars_draw_to = Vec2i{x:10, y:HEIGHT as i32 - 60};
+    let bar_y = 10;
+
 
 
     // let letters_frames: Vec<u32> = (65..71).collect();
@@ -931,8 +949,7 @@ fn main() {
 
                     // back button back to GameStates::ChooseFighter
                     // we can replace this with an image later
-
-                    vulkan_state.fb2d.draw_filled_rect(&mut back_button_rect, (155, 252, 232, 1));
+                    vulkan_state.fb2d.bitblt(&mut back_button, &back_button_rect, Vec2i{x:10,y:10});
 
                     if mouse_click == true && prev_mouse_click == false {
                         let mouse_pos = engine::image::Vec2i {
@@ -940,7 +957,7 @@ fn main() {
                             y: mouse_y as i32,
                         };
 
-                        if back_button_rect.rect_inside(mouse_pos){
+                        if back_button_clickable_rect.rect_inside(mouse_pos){
                             click_handle_click.play(InstanceSettings::default());
                             game.state = GameStates::ChooseFighter;
                         }
@@ -1373,6 +1390,27 @@ fn main() {
                                 }
                             }
                         }
+
+                        vulkan_state.fb2d.write_to(
+                            "HP",
+                            &mut fontsheet_sprite,
+                            pick_bars_draw_to, 
+                            fontsize,
+                            Vec2i{x:(fontsize as i32) * 2, y:fontsize as i32},
+                        );
+
+                        vulkan_state.fb2d.write_to(
+                            "MANA",
+                            &mut fontsheet_sprite,
+                            Vec2i{x: pick_bars_draw_to.x + (WIDTH as i32 / 2), y: pick_bars_draw_to.y},
+                            fontsize,
+                            Vec2i{x:(fontsize as i32) * 4, y:fontsize as i32},
+                        );
+                        let mut f1_health_rect = engine::image::Rect::new(pick_bars_draw_to.x + fontsize as i32 * 2, pick_bars_draw_to.y, f1.health as u32, bar_y);
+                        vulkan_state.fb2d.draw_filled_rect(&mut f1_health_rect, hp_color);
+                        let mut f1_mana_rect = engine::image::Rect::new(pick_bars_draw_to.x + (WIDTH as i32 / 2) + fontsize as i32 * 4, pick_bars_draw_to.y, f1.mana as u32, bar_y);
+                        vulkan_state.fb2d.draw_filled_rect(&mut f1_mana_rect, mana_color);
+
                     }
 
                     else if !player2_finish_selecting_move
@@ -1742,6 +1780,26 @@ fn main() {
                                 }
                             }
                         }
+                        vulkan_state.fb2d.write_to(
+                            "HP",
+                            &mut fontsheet_sprite,
+                            pick_bars_draw_to, 
+                            fontsize,
+                            Vec2i{x:(fontsize as i32) * 2, y:fontsize as i32},
+                        );
+
+                        vulkan_state.fb2d.write_to(
+                            "MANA",
+                            &mut fontsheet_sprite,
+                            Vec2i{x: pick_bars_draw_to.x + (WIDTH as i32 / 2), y: pick_bars_draw_to.y},
+                            fontsize,
+                            Vec2i{x:(fontsize as i32) * 4, y:fontsize as i32},
+                        );
+                        let mut f1_health_rect = engine::image::Rect::new(pick_bars_draw_to.x + fontsize as i32 * 2, pick_bars_draw_to.y, f1.health as u32, bar_y);
+                        vulkan_state.fb2d.draw_filled_rect(&mut f1_health_rect, hp_color);
+                        let mut f1_mana_rect = engine::image::Rect::new(pick_bars_draw_to.x + (WIDTH as i32 / 2) + fontsize as i32 * 4, pick_bars_draw_to.y, f1.mana as u32, bar_y);
+                        vulkan_state.fb2d.draw_filled_rect(&mut f1_mana_rect, mana_color);
+
 
                     }
                 }
@@ -2134,14 +2192,14 @@ fn main() {
                 if gameinfo.current_player1 == FighterType:: Chloe {
                     p1_src_img = &chloe_fighter_rect;
                 } else if gameinfo.current_player1 == FighterType::Grace {
-                    p1_src_img = &nate_fighter_rect; // change tograce later
+                    p1_src_img = &grace_fighter_rect;
                 }
 
                 let mut p2_src_img = &nate_fighter_rect;
                 if gameinfo.current_player2 == FighterType:: Chloe {
                     p2_src_img = &chloe_fighter_rect;
                 } else if gameinfo.current_player2 == FighterType::Grace {
-                    p2_src_img = &nate_fighter_rect; // change tograce later
+                    p2_src_img = &grace_fighter_rect;
                 }
 
                 vulkan_state.fb2d.bitblt(
