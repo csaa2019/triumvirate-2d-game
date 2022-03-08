@@ -424,23 +424,49 @@ fn main() {
         y: 10,
     };
 
+
     //GameState::ChooseFighter
+
+    pub fn center(image_height:u32) -> u32 {
+        let empty_space = 320 - image_height; 
+        return empty_space/2; 
+    }
+
     let header_rect_w = 80 as u32;
     let header_rect_h = 10 as u32;
-    let header_rect_rect = engine::image::Rect::new(0, 0, header_rect_w, header_rect_h);
-    let header_player1_rect = engine::image::Image::from_png(
+    let header_rect = engine::image::Rect::new(0, 0, header_rect_w, header_rect_h);
+    let header_player1 = engine::image::Image::from_png(
         "content/player1-text.png",
         header_rect_w,
         header_rect_h,
     );
 
-    let header_player2_rect = engine::image::Image::from_png(
+    let header_player2 = engine::image::Image::from_png(
         "content/player2-text.png",
         header_rect_w,
         header_rect_h,
     );
 
-    let header_rect_draw_to = engine::image::Vec2i { x: 120, y: 12 };
+    let player_header_rect_draw_to = engine::image::Vec2i { x: 120, y: 12 };
+
+    let header_choose_move_rect_w = 130 as u32;
+    let header_choose_move_rect_h = 10 as u32;
+    let header_choose_move_rect = engine::image::Rect::new(0, 0, header_choose_move_rect_w, header_choose_move_rect_h);
+    let header_player1_choose_move_rect = engine::image::Image::from_png(
+        "content/player1-choose-move-text.png",
+        header_choose_move_rect_w,
+        header_choose_move_rect_h,
+    );
+
+    let header_player2_choose_move_rect = engine::image::Image::from_png(
+        "content/player2-choose-move-text.png",
+        header_choose_move_rect_w,
+        header_choose_move_rect_h,
+    ); 
+    let player_choose_move_draw_to = engine::image::Vec2i { x: center(header_choose_move_rect_w) as i32, y: 12 };
+
+
+    
 
     let highlight_rect_w = 96 as u32;
     let highlight_rect_h = 130 as u32;
@@ -929,9 +955,9 @@ fn main() {
 
                         //header text 
                         vulkan_state.fb2d.bitblt(
-                            &header_player1_rect,
-                            &header_rect_rect,
-                            header_rect_draw_to,
+                            &header_player1,
+                            &header_rect,
+                            player_header_rect_draw_to,
                         );
 
                         //nate image
@@ -1063,9 +1089,9 @@ fn main() {
 
                         //header 
                         vulkan_state.fb2d.bitblt(
-                            &header_player2_rect,
-                            &header_rect_rect,
-                            header_rect_draw_to,
+                            &header_player2,
+                            &header_rect,
+                            player_header_rect_draw_to,
                         );
 
                         //nate image
@@ -1282,6 +1308,13 @@ fn main() {
                                 }
                                 
                         }
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player1_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            );
+
                             //nate move 1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
@@ -1386,6 +1419,13 @@ fn main() {
                                 }
                                 
                         }
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player1_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            );
+                            
                             //chloemove1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
@@ -1488,8 +1528,15 @@ fn main() {
                                         highlight_rect_draw_to_3,
                                     );
                                 }
-                                
+                              
                         }
+
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player1_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            );
                             //grace move 1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
@@ -1600,6 +1647,14 @@ fn main() {
                                 }
                                 
                         }
+
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player2_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            ); 
+
                             //nate move 1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
@@ -1709,6 +1764,14 @@ fn main() {
                                 }
                                 
                         }
+
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player2_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            ); 
+
                             //chloemove1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
@@ -1814,6 +1877,13 @@ fn main() {
                                 }
                                 
                         }
+
+                            //choose move header 
+                            vulkan_state.fb2d.bitblt(
+                                &header_player2_choose_move_rect,
+                                &header_choose_move_rect,
+                                player_choose_move_draw_to, 
+                            ); 
                             //grace move 1
                             vulkan_state.fb2d.bitblt(
                                 &fighter_rect,
