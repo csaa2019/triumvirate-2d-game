@@ -149,11 +149,11 @@ fn main() {
         return empty_space/2; 
     }
 
-    let main_screen_w = 300; 
-    let main_screen_h = 175; 
+    let main_screen_w = 260; 
+    let main_screen_h = 180; 
     let main_screen_rect = engine::image::Rect::new(0,0,main_screen_w, main_screen_h); 
-    let main_screen  = engine::image::Image::from_png(
-        "content/main-screen.png",
+    let main_screen  = engine::image::Image::from_png_not_premultiplied(
+        "content/main-screen-final.png",
         main_screen_w,
         main_screen_h,
     );
@@ -358,6 +358,12 @@ fn main() {
 
     let play_again_button = engine::image::Image::from_png_not_premultiplied(
         "content/button-play-again.png",
+        fighter_info_w,
+        fighter_info_h,
+    );
+
+    let play_button = engine::image::Image::from_png_not_premultiplied(
+        "content/button-play.png",
         fighter_info_w,
         fighter_info_h,
     );
@@ -567,7 +573,7 @@ fn main() {
     let back_button_clickable_rect = engine::image::Rect::new(back_button_to.x,back_button_to.y,back_button_w,back_button_h);
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::ChooseFighter,
+        state: GameStates::MainScreen,
     };
 
     pub struct GameInfo{ 
@@ -742,12 +748,24 @@ fn main() {
                         &main_screen_rect,
                         main_screen_draw_to,
                     );
-                    //then move main screen into instructions 
-                }
 
-                else if game.state == GameStates::Instructions {
-                    //then move instructions to choose fighter 
+                    vulkan_state.fb2d.bitblt(
+                        &play_button,
+                        &fighter_info_rect,
+                        next_button_draw_to,
+                    );
 
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+    
+                        if next_button_clickable_rect.rect_inside(mouse_pos){
+                            coin_handle_click.play(InstanceSettings::default());
+                            game.state = GameStates::ChooseFighter; 
+                        }
+                    }
                 }
 
                 else if game.state == GameStates::ChooseFighter {
