@@ -449,9 +449,6 @@ fn main() {
             damage: -10,
             mana_cost: -40,
             health_cost: 40,
-            damage: -50,
-            mana_cost: -30,
-            health_cost: 0,
             mana_generation: 0,
         },
     ];
