@@ -546,7 +546,7 @@ fn main() {
         x: (WIDTH as i32) - 100 - 10,
         y: 40,
     };
-    let mana_color = (0, 255, 0, 1);
+    let mana_color = (0, 0, 255, 1);
 
     let pick_fps = 10;
     let mut pick_frame_count = 0;
@@ -1574,48 +1574,58 @@ fn main() {
                         }
 
                         vulkan_state.fb2d.write_to_font(
-                            "HP",
+                            "HP:",
                             &mut font,
-                            pick_bars_draw_to,
                             Vec2i {
-                                x: (fontsize as i32) * 2,
+                                x: pick_bars_draw_to.x,
+                                y: pick_bars_draw_to.y,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 3,
+                                y: fontsize_h as i32,
+                            },
+                        );
+
+                        let hp_str = f1.health.to_string() + "/100";
+                        vulkan_state.fb2d.write_to_font(
+                            &hp_str[..],
+                            &mut font,
+                            Vec2i {
+                                x: pick_bars_draw_to.x + (fontsize as i32 * 3),
+                                y: pick_bars_draw_to.y,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 7,
                                 y: fontsize_h as i32,
                             },
                         );
 
                         vulkan_state.fb2d.write_to_font(
-                            "MANA",
+                            "MANA:",
                             &mut font,
                             Vec2i {
-                                x: pick_bars_draw_to.x + (WIDTH as i32 / 2),
-                                y: pick_bars_draw_to.y,
+                                x: pick_bars_draw_to.x,
+                                y: pick_bars_draw_to.y + fontsize_h as i32,
                             },
                             Vec2i {
-                                x: (fontsize as i32) * 4,
+                                x: fontsize as i32 * 5,
                                 y: fontsize_h as i32,
                             },
                         );
 
-                        let f1_health_scaled = f1.health * pick_bars_outof / 100;
-                        let f1_mana_scaled = f1.mana * pick_bars_outof / 100;
-                        let mut f1_health_rect = engine::image::Rect::new(
-                            pick_bars_draw_to.x + fontsize as i32 * 2,
-                            pick_bars_draw_to.y,
-                            f1_health_scaled as u32,
-                            bar_y,
+                        let mana_str = f1.mana.to_string() + "/100";
+                        vulkan_state.fb2d.write_to_font(
+                            &mana_str[..],
+                            &mut font,
+                            Vec2i {
+                                x: pick_bars_draw_to.x + (fontsize as i32 * 5),
+                                y: pick_bars_draw_to.y + fontsize_h as i32,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 7,
+                                y: fontsize_h as i32,
+                            },
                         );
-                        vulkan_state
-                            .fb2d
-                            .draw_filled_rect(&mut f1_health_rect, hp_color);
-                        let mut f1_mana_rect = engine::image::Rect::new(
-                            pick_bars_draw_to.x + (WIDTH as i32 / 2) + fontsize as i32 * 4,
-                            pick_bars_draw_to.y,
-                            f1_mana_scaled as u32,
-                            bar_y,
-                        );
-                        vulkan_state
-                            .fb2d
-                            .draw_filled_rect(&mut f1_mana_rect, mana_color);
                     } else if !player2_finish_selecting_move {
                         if gameinfo.current_player2 == FighterType::Nate {
                             // vulkan_state.fb2d.clear((118_u8, 188_u8, 83_u8, 100_u8));
@@ -2001,48 +2011,58 @@ fn main() {
                         }
 
                         vulkan_state.fb2d.write_to_font(
-                            "HP",
+                            "HP:",
                             &mut font,
-                            pick_bars_draw_to,
                             Vec2i {
-                                x: (fontsize as i32) * 2,
+                                x: pick_bars_draw_to.x,
+                                y: pick_bars_draw_to.y,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 3,
+                                y: fontsize_h as i32,
+                            },
+                        );
+
+                        let hp_str = f2.health.to_string() + "/100";
+                        vulkan_state.fb2d.write_to_font(
+                            &hp_str[..],
+                            &mut font,
+                            Vec2i {
+                                x: pick_bars_draw_to.x + (fontsize as i32 * 3),
+                                y: pick_bars_draw_to.y,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 7,
                                 y: fontsize_h as i32,
                             },
                         );
 
                         vulkan_state.fb2d.write_to_font(
-                            "MANA",
+                            "MANA:",
                             &mut font,
                             Vec2i {
-                                x: pick_bars_draw_to.x + (WIDTH as i32 / 2),
-                                y: pick_bars_draw_to.y,
+                                x: pick_bars_draw_to.x,
+                                y: pick_bars_draw_to.y + fontsize_h as i32,
                             },
                             Vec2i {
-                                x: (fontsize as i32) * 4,
+                                x: fontsize as i32 * 5,
                                 y: fontsize_h as i32,
                             },
                         );
 
-                        let f2_health_scaled = f2.health * pick_bars_outof / 100;
-                        let f2_mana_scaled = f2.mana * pick_bars_outof / 100;
-                        let mut f2_health_rect = engine::image::Rect::new(
-                            pick_bars_draw_to.x + fontsize as i32 * 2,
-                            pick_bars_draw_to.y,
-                            f2_health_scaled as u32,
-                            bar_y,
+                        let mana_str = f2.mana.to_string() + "/100";
+                        vulkan_state.fb2d.write_to_font(
+                            &mana_str[..],
+                            &mut font,
+                            Vec2i {
+                                x: pick_bars_draw_to.x + (fontsize as i32 * 5),
+                                y: pick_bars_draw_to.y + fontsize_h as i32,
+                            },
+                            Vec2i {
+                                x: fontsize as i32 * 7,
+                                y: fontsize_h as i32,
+                            },
                         );
-                        vulkan_state
-                            .fb2d
-                            .draw_filled_rect(&mut f2_health_rect, hp_color);
-                        let mut f2_mana_rect = engine::image::Rect::new(
-                            pick_bars_draw_to.x + (WIDTH as i32 / 2) + fontsize as i32 * 4,
-                            pick_bars_draw_to.y,
-                            f2_mana_scaled as u32,
-                            bar_y,
-                        );
-                        vulkan_state
-                            .fb2d
-                            .draw_filled_rect(&mut f2_mana_rect, mana_color);
                     }
                 } else if game.state == GameStates::MoveInfo {
                     vulkan_state
@@ -2494,7 +2514,10 @@ fn main() {
                             .draw_filled_rect(&mut f2_mana_rect, mana_color);
 
                         // if done, we can go to next move
-                        if now_keys[VirtualKeyCode::Return as usize] && pick_anim_done {
+                        // added another way to go to next move
+                        if (now_keys[VirtualKeyCode::Return as usize] && pick_anim_done)
+                            || (mouse_click == true && prev_mouse_click == false)
+                        {
                             game.state = GameStates::ChooseMove;
                             player1_finish_selecting_move = false;
                             player2_finish_selecting_move = false;
