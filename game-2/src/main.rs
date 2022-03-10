@@ -38,6 +38,17 @@ fn main() {
     //         LoopArrangementSettings::default(),
     //     ))
     //     .unwrap();
+    let mut sound_handle_music = audio_manager
+        .load_sound("content/game2_tunes.ogg", SoundSettings::default())
+        .unwrap();
+
+    let mut arrangement_handle = audio_manager
+        .add_arrangement(Arrangement::new_loop(
+            &sound_handle_music,
+            LoopArrangementSettings::default(),
+    ))
+    .unwrap();
+
     let mut coin_handle_click = audio_manager
         .load_sound("content/button-noise.ogg", SoundSettings::default())
         .unwrap();
@@ -624,7 +635,7 @@ fn main() {
 
     let pick_bars_draw_to = Vec2i{x:10, y:HEIGHT as i32 - 60};
     let bar_y = 10;
-
+    let mut audio_play = true;
     
 
 
@@ -740,6 +751,10 @@ fn main() {
                 //yellowbackground
                 vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
 
+                if audio_play == true {
+                    arrangement_handle.play(InstanceSettings::default());
+                    audio_play = false;
+                }
 
                 if game.state == GameStates::MainScreen { 
 
