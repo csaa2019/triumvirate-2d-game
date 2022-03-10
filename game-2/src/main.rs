@@ -1157,6 +1157,24 @@ fn main() {
                 else if game.state == GameStates::ChooseMove {
                     done_execute_move = false;
 
+                    if !player1_finish_selecting_move {
+                        if gameinfo.current_player1 == FighterType::Nate {
+                            vulkan_state.fb2d.clear((118_u8, 188_u8, 83_u8, 100_u8));
+                        } else if gameinfo.current_player1 == FighterType::Chloe {
+                            vulkan_state.fb2d.clear((80_u8, 150_u8, 248_u8, 100_u8));
+                        } else if gameinfo.current_player1 == FighterType::Grace {
+                            vulkan_state.fb2d.clear((198_u8, 82_u8, 140_u8, 100_u8));
+                        }
+                    } else if !player2_finish_selecting_move {
+                        if gameinfo.current_player2 == FighterType::Nate {
+                            vulkan_state.fb2d.clear((118_u8, 188_u8, 83_u8, 100_u8));
+                        } else if gameinfo.current_player2 == FighterType::Chloe {
+                            vulkan_state.fb2d.clear((80_u8, 150_u8, 248_u8, 100_u8));
+                        } else if gameinfo.current_player2 == FighterType::Grace {
+                            vulkan_state.fb2d.clear((198_u8, 82_u8, 140_u8, 100_u8));
+                        }
+                    }
+
                     //choose move header
                     vulkan_state.fb2d.bitblt(
                         &header_player1_choose_move_rect,
@@ -2427,7 +2445,7 @@ fn main() {
                             "HP",
                             &mut titlefont,
                             Vec2i {
-                                x: hp_draw_to.x - (titlefont_size as i32) * 4,
+                                x: hp_draw_to.x - (titlefont_size as i32) * 3,
                                 y: (HEIGHT as i32) - (mana_draw_to.y + titlefont_size as i32),
                             },
                             Vec2i {
@@ -2440,7 +2458,7 @@ fn main() {
                             "MANA",
                             &mut titlefont,
                             Vec2i {
-                                x: mana_draw_to.x - (titlefont_size as i32) * 4,
+                                x: mana_draw_to.x - (titlefont_size as i32) * 3,
                                 y: (HEIGHT as i32) - (hp_draw_to.y + titlefont_size as i32),
                             },
                             Vec2i {
@@ -2495,7 +2513,7 @@ fn main() {
                         );
 
                         let mut f2_health_rect = engine::image::Rect::new(
-                            10 + (titlefont_size as i32) * 4,
+                            10 + (titlefont_size as i32) * 3,
                             hp_draw_to.y,
                             p2_initial_health as u32,
                             hp_y,
@@ -2504,7 +2522,7 @@ fn main() {
                             .fb2d
                             .draw_filled_rect(&mut f2_health_rect, hp_color);
                         let mut f2_mana_rect = engine::image::Rect::new(
-                            10 + (titlefont_size as i32) * 4,
+                            10 + (titlefont_size as i32) * 3,
                             mana_draw_to.y,
                             p2_initial_mana as u32,
                             mana_y,
