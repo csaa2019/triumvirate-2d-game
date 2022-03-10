@@ -106,7 +106,7 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
     }
 }
 
-struct FighterStrings<'a> {
+pub struct FighterStrings<'a> {
     name: &'a str,
     desc: &'a str,
     move1_name: &'a str,
