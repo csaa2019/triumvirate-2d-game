@@ -29,15 +29,6 @@ fn main() {
 
     //Load audio
     let mut audio_manager = AudioManager::new(AudioManagerSettings::default()).unwrap();
-    // let mut sound_handle_music = audio_manager
-    //     .load_sound("content/RPS_tunes_loop.ogg", SoundSettings::default())
-    //     .unwrap();
-    // let mut arrangement_handle = audio_manager
-    //     .add_arrangement(Arrangement::new_loop(
-    //         &sound_handle_music,
-    //         LoopArrangementSettings::default(),
-    //     ))
-    //     .unwrap();
     let mut sound_handle_music = audio_manager
         .load_sound("content/game2_tunes.ogg", SoundSettings::default())
         .unwrap();
@@ -248,9 +239,6 @@ fn main() {
     let fighter_rect_draw_to_2 = engine::image::Vec2i { x: 115, y: 35 };
     let fighter_rect_draw_to_3 = engine::image::Vec2i { x: 215, y: 35 };
 
-    // modified this:
-    // let p1_draw_to = engine::image::Vec2i { x: 215, y: 10 };
-    // let p2_draw_to = engine::image::Vec2i { x: 15, y: HEIGHT as i32 - (fighter_rect_h as i32 + 10)};
     let p1_draw_to = engine::image::Vec2i {
         x: 15,
         y: HEIGHT as i32 - (fighter_rect_h as i32 + 10),
@@ -308,7 +296,7 @@ fn main() {
     );
 
     //a draw to for each chloe, nate, grace
-    //for ease lets have 1 as chloe, 2 as nate, 3 as grace
+    //for ease lets have 1 as nate, 2 as chloe, 3 as grace
     let fighter_info_draw_to_1 = engine::image::Vec2i { x: 15, y: 170 };
     let fighter_info_draw_to_2 = engine::image::Vec2i { x: 115, y: 170 };
     let fighter_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 170 };
@@ -318,6 +306,7 @@ fn main() {
     let move_info_draw_to_3 = engine::image::Vec2i { x: 215, y: 163 };
 
     let next_button_draw_to = engine::image::Vec2i { x: 115, y: 205 };
+
     //won't actually need clickable rect for them
     let fighter_info_clickable_rect_1 = engine::image::Rect::new(
         fighter_info_draw_to_1.x,
@@ -2685,21 +2674,7 @@ fn main() {
                             p2_initial_mana = 0;
                         }
                     }
-                    /*
-                    vulkan_state.fb2d.write_to(
-                        "GAME OVER",
-                        &mut titlefontsheet_sprite,
-                        Vec2i{x:20, y:20},
-                        titlefont_size,
-                        Vec2i{x: WIDTH as i32- 20, y: HEIGHT as i32 - 20}
-                    )
-                    */
                 }
-
-                // if audio_play == true {
-                //     arrangement_handle.play(InstanceSettings::default());
-                //     audio_play = false;
-                // }
 
                 // Update prev_keys and prev_mouse_click to store previous inputs
                 prev_keys.copy_from_slice(&now_keys);
