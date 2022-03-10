@@ -49,6 +49,17 @@ fn main() {
     //         LoopArrangementSettings::default(),
     //     ))
     //     .unwrap();
+    let mut sound_handle_music = audio_manager
+        .load_sound("content/game2_tunes.ogg", SoundSettings::default())
+        .unwrap();
+
+    let mut arrangement_handle = audio_manager
+        .add_arrangement(Arrangement::new_loop(
+            &sound_handle_music,
+            LoopArrangementSettings::default(),
+        ))
+        .unwrap();
+
     let mut coin_handle_click = audio_manager
         .load_sound("content/button-noise.ogg", SoundSettings::default())
         .unwrap();
@@ -100,11 +111,14 @@ fn main() {
         return empty_space / 2;
     }
 
-    let main_screen_w = 300;
-    let main_screen_h = 175;
+    let main_screen_w = 260;
+    let main_screen_h = 180;
     let main_screen_rect = engine::image::Rect::new(0, 0, main_screen_w, main_screen_h);
-    let main_screen =
-        engine::image::Image::from_png("content/main-screen.png", main_screen_w, main_screen_h);
+    let main_screen = engine::image::Image::from_png_not_premultiplied(
+        "content/main-screen-final.png",
+        main_screen_w,
+        main_screen_h,
+    );
     let main_screen_draw_to = engine::image::Vec2i {
         x: center_w(main_screen_w) as i32,
         y: center_h(main_screen_h) as i32,
@@ -294,6 +308,12 @@ fn main() {
 
     let play_again_button = engine::image::Image::from_png_not_premultiplied(
         "content/button-play-again.png",
+        fighter_info_w,
+        fighter_info_h,
+    );
+
+    let play_button = engine::image::Image::from_png_not_premultiplied(
+        "content/button-play.png",
         fighter_info_w,
         fighter_info_h,
     );
@@ -566,7 +586,7 @@ fn main() {
     );
     // GAME STUFF
     let mut game = Game {
-        state: GameStates::ChooseFighter,
+        state: GameStates::MainScreen,
     };
 
     pub struct GameInfo {
@@ -659,6 +679,7 @@ fn main() {
     };
     let bar_y = 10;
     let pick_bars_outof = 100;
+    let mut audio_play = true;
 
     // let letters_frames: Vec<u32> = (65..71).collect();
 
@@ -771,13 +792,31 @@ fn main() {
                 //yellowbackground
                 vulkan_state.fb2d.clear((255_u8, 242_u8, 0_u8, 100_u8));
 
+                if audio_play == true {
+                    arrangement_handle.play(InstanceSettings::default());
+                    audio_play = false;
+                }
+
                 if game.state == GameStates::MainScreen {
                     vulkan_state
                         .fb2d
                         .bitblt(&main_screen, &main_screen_rect, main_screen_draw_to);
-                    //then move main screen into instructions
-                } else if game.state == GameStates::Instructions {
-                    //then move instructions to choose fighter
+
+                    vulkan_state
+                        .fb2d
+                        .bitblt(&play_button, &fighter_info_rect, next_button_draw_to);
+
+                    if mouse_click == true && prev_mouse_click == false {
+                        let mouse_pos = engine::image::Vec2i {
+                            x: mouse_x as i32,
+                            y: mouse_y as i32,
+                        };
+
+                        if next_button_clickable_rect.rect_inside(mouse_pos) {
+                            coin_handle_click.play(InstanceSettings::default());
+                            game.state = GameStates::ChooseFighter;
+                        }
+                    }
                 } else if game.state == GameStates::ChooseFighter {
                     if !player1_finish_selecting {
                         if player1_selected {
