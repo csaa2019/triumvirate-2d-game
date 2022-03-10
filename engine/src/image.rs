@@ -279,7 +279,8 @@ impl Image {
         string: &str,
         fontsheet: &mut Sprite,
         to: Vec2i,
-        fontsize: u32,
+        horizontal_spacing: u32,
+        vertical_spacing: u32,
         textbox_dim: Vec2i,
     ) {
         let textbox_w = textbox_dim.x;
@@ -288,8 +289,8 @@ impl Image {
         let max_w = to.x + textbox_w as i32;
         let max_h = to.y + textbox_h as i32;
 
-        let max_columns = textbox_w as u32 / fontsize;
-        let max_rows = textbox_h as u32 / fontsize;
+        let max_columns = textbox_w as u32 / horizontal_spacing;
+        let max_rows = textbox_h as u32 / vertical_spacing;
 
         assert!(max_w <= self.w as i32);
         assert!(max_h <= self.h as i32);
@@ -299,9 +300,46 @@ impl Image {
             let char_as_u32 = char as u32;
 
             fontsheet.draw_specific_frame(self, draw_pointer, char_as_u32 as usize);
-            draw_pointer.x += fontsize as i32;
-            if draw_pointer.x > max_w - fontsize as i32 {
-                draw_pointer.y += fontsize as i32;
+            draw_pointer.x += horizontal_spacing as i32;
+            if draw_pointer.x > max_w - horizontal_spacing as i32 {
+                draw_pointer.y += vertical_spacing as i32;
+                draw_pointer.x = to.x;
+            }
+        }
+    }
+
+    pub fn write_to_font(
+        &mut self,
+        string: &str,
+        fontsheet: &mut Font,
+        to: Vec2i,
+        textbox_dim: Vec2i,
+    ) {
+        let horizontal_spacing = fontsheet.horizontal_spacing;
+        let vertical_spacing = fontsheet.font_height;
+        let fontsheet_sprite = &mut fontsheet.font_sprite;
+
+        let textbox_w = textbox_dim.x;
+        let textbox_h = textbox_dim.y;
+        let max_w = to.x + textbox_w as i32;
+        let max_h = to.y + textbox_h as i32;
+
+        let mut draw_pointer = to.clone();
+
+        // let max_columns = textbox_w as u32 / horizontal_spacing;
+        // let max_rows = textbox_h as u32 / vertical_spacing;
+
+        // assert!(max_w <= self.w as i32);
+        // assert!(max_h <= self.h as i32);
+        // assert!(string.len() <= (max_columns * max_rows) as usize);
+
+        for char in string.chars() {
+            let char_as_u32 = char as u32;
+
+            fontsheet_sprite.draw_specific_frame(self, draw_pointer, char_as_u32 as usize);
+            draw_pointer.x += horizontal_spacing as i32;
+            if draw_pointer.x > max_w - horizontal_spacing as i32 {
+                draw_pointer.y += vertical_spacing as i32;
                 draw_pointer.x = to.x;
             }
         }

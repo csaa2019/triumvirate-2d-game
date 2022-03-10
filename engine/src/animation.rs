@@ -206,3 +206,95 @@ impl Sprite {
 // pub trait DrawSpriteExt {
 //     fn draw_sprite(&mut self, s: &Sprite, pos: Vec2i);
 // }
+
+pub struct Font {
+    pub font_sprite: Sprite,
+    pub horizontal_spacing: u32,
+    pub font_width: u32,
+    pub font_height: u32,
+}
+
+pub fn get_fonts() -> (Font, Font) {
+    let fontsize = (7 as f32 * 1.5) as u32;
+    let fontsize_h = (8 as f32 * 1.5) as u32;
+    let fontsheet_w = 16 * fontsize;
+    let fontsheet_h = 8 * fontsize_h;
+
+    // the rectangle of one sprite
+    let font_sprite_rect = Rect::new(0, 0, fontsize, fontsize_h);
+
+    let fontsheet =
+        Image::from_png_not_premultiplied("content/fontsheet_7x8.png", fontsheet_w, fontsheet_h);
+
+    let font_anim_state = AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let font_anim_1 = Animation {
+        frames: (0..128).collect(),
+        frame_duration: 10,
+        loops: true,
+        sprite_size: font_sprite_rect,
+        sprite_width: 16,
+        sprite_height: 8,
+    };
+
+    let mut fontsheet_sprite = Sprite {
+        image: Rc::new(fontsheet),
+        animations: vec![font_anim_1],
+        animation_state: font_anim_state,
+    };
+
+    let titlefont_size = 28;
+    let titlefont_size_height = 32;
+
+    let titlefontsheet_w = 16 * titlefont_size;
+    let titlefontsheet_h = 8 * titlefont_size_height;
+
+    // the rectangle of one sprite
+    let titlefont_sprite_rect = Rect::new(0, 0, titlefont_size, titlefont_size_height);
+
+    let titlefontsheet = Image::from_png_not_premultiplied(
+        "content/fontsheet_70x80.png",
+        titlefontsheet_w,
+        titlefontsheet_h,
+    );
+
+    let titlefont_anim_state = AnimationState {
+        current_frame: 0,
+        elapsed_time: 0,
+        animation_index: 0,
+    };
+
+    let titlefont_anim_1 = Animation {
+        frames: (0..128).collect(),
+        frame_duration: 10,
+        loops: true,
+        sprite_size: titlefont_sprite_rect,
+        sprite_width: 16,
+        sprite_height: 8,
+    };
+
+    let mut titlefontsheet_sprite = Sprite {
+        image: Rc::new(titlefontsheet),
+        animations: vec![titlefont_anim_1],
+        animation_state: titlefont_anim_state,
+    };
+
+    (
+        Font {
+            font_sprite: titlefontsheet_sprite,
+            horizontal_spacing: (titlefont_size as f32 * 0.6) as u32,
+            font_width: titlefont_size,
+            font_height: titlefont_size_height,
+        },
+        Font {
+            font_sprite: fontsheet_sprite,
+            horizontal_spacing: (fontsize as f32 * 0.8) as u32,
+            font_width: fontsize,
+            font_height: fontsize_h,
+        },
+    )
+}
