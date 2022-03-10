@@ -107,14 +107,14 @@ impl<T: Copy + Eq + PartialEq> Player<T> {
 }
 
 pub struct FighterStrings<'a> {
-    name: &'a str,
-    desc: &'a str,
-    move1_name: &'a str,
-    move1_desc: &'a str,
-    move2_name: &'a str,
-    move2_desc: &'a str,
-    move3_name: &'a str,
-    move3_desc: &'a str,
+    pub name: &'a str,
+    pub desc: &'a str,
+    pub move1_name: &'a str,
+    pub move1_desc: &'a str,
+    pub move2_name: &'a str,
+    pub move2_desc: &'a str,
+    pub move3_name: &'a str,
+    pub move3_desc: &'a str,
 }
 
 pub struct Fighter<T: Copy + Eq + PartialEq> {

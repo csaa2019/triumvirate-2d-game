@@ -18,17 +18,6 @@ use winit::event_loop::{ControlFlow, EventLoop};
 const WIDTH: usize = 320;
 const HEIGHT: usize = 240;
 
-struct FighterStrings<'a> {
-    name: &'a str,
-    desc: &'a str,
-    move1_name: &'a str,
-    move1_desc: &'a str,
-    move2_name: &'a str,
-    move2_desc: &'a str,
-    move3_name: &'a str,
-    move3_desc: &'a str,
-}
-
 fn main() {
     /*
     Stuff during initialization (once)
@@ -2034,24 +2023,26 @@ fn main() {
                             },
                         );
 
-                        let mut f1_health_rect = engine::image::Rect::new(
+                        let f2_health_scaled = f2.health * pick_bars_outof / 100;
+                        let f2_mana_scaled = f2.mana * pick_bars_outof / 100;
+                        let mut f2_health_rect = engine::image::Rect::new(
                             pick_bars_draw_to.x + fontsize as i32 * 2,
                             pick_bars_draw_to.y,
-                            f1.health as u32,
+                            f2_health_scaled as u32,
                             bar_y,
                         );
                         vulkan_state
                             .fb2d
-                            .draw_filled_rect(&mut f1_health_rect, hp_color);
-                        let mut f1_mana_rect = engine::image::Rect::new(
+                            .draw_filled_rect(&mut f2_health_rect, hp_color);
+                        let mut f2_mana_rect = engine::image::Rect::new(
                             pick_bars_draw_to.x + (WIDTH as i32 / 2) + fontsize as i32 * 4,
                             pick_bars_draw_to.y,
-                            f1.mana as u32,
+                            f2_mana_scaled as u32,
                             bar_y,
                         );
                         vulkan_state
                             .fb2d
-                            .draw_filled_rect(&mut f1_mana_rect, mana_color);
+                            .draw_filled_rect(&mut f2_mana_rect, mana_color);
                     }
                 } else if game.state == GameStates::MoveInfo {
                     vulkan_state
