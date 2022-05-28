@@ -29,7 +29,3 @@ Triumvirate Arena is a battle card game featuring three players: Nate, Chloe, an
 
 ### Grace Moves:
 ![grace_moves_gif](https://media.giphy.com/media/GQYoZB6d9UtAYygts5/giphy.gif)
-
-test
-![test](https://media.giphy.com/media/6BIhRW9dHTD5F1VmHt/giphy.gif)
-
